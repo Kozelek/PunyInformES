@@ -1,42 +1,19 @@
-# PunyInform
+# PunyInformES
 
-PunyInform is a library written in Inform 6 which allows people to create text adventure games / interactive fiction using the Z-machine virtual machine, to be played on 8-bit computers as well as newer platforms. It provides a parser, implementations of common verbs, as well as a framework for writing text adventures.
+PunyInformES es una librería escrita en Inform 6 que permite crear aventuras de texto (o ficción interactiva, o aventuras conversacionales) usando la máquina virtual Z de la antigua empresa ![Infocom](https://es.wikipedia.org/wiki/Infocom). La característica principal de esta librería es que está pensada para que funcione correctamente tanto en ordenadores de 8-bit como en plataformas modernas. Proporciona un parser, implementación de verbos comunes así como un entorno para la creación de aventuras de texto.
 
-PunyInform is based on the Inform 6 library, developed by Graham Nelson. We are trying to make it easy for authors used to writing in Inform 6 to start using PunyInform. There is a manual describing the differences.
+PunyInformES es la traducción al castellano de ![PunyInform](https://github.com/johanberntsson/PunyInform), la cual está basada en la librería Inform 6, desarrollada por Graham Nelson. Se ha hecho el intento de facilitar a los autores habituados a Inform 6 para que puedan comenzar usando PunyInformES. Hay un manual describiendo las diferencias.
 
-Games using PunyInform can be compiled to z3, z5 and z8 format. Compared to the Inform 6 library, this means we lack support for Glulx, but we have support for z3 (which the Inform 6 library lacks).
+Los juegos que usan PunyInformES pueden ser compilados a los formatos z3, z5 y z8. Comparado con la librería standard de Inform 6, esto supone que no ofrece soporte para Glulx pero incluye soporte para z3 (para el que la librería de Inform 6 carece).
 
-To compile games using PunyInform, we recommend the official Inform 6 compiler maintained by David Kinder, at https://github.com/DavidKinder/Inform6 . Binaries can be found at [if-archive](http://www.ifarchive.org/indexes/if-archiveXinfocomXcompilersXinform6Xexecutables.html) . PunyInform requires Inform v6.34 or newer.
+Para compilar juegos que usen PunyInformES, recomendamos el compilador oficial de Inform 6 que mantiene David Kinder, en https://github.com/DavidKinder/Inform6 . Se pueden encontrar ejecutables en [if-archive](http://www.ifarchive.org/indexes/if-archiveXinfocomXcompilersXinform6Xexecutables.html) . PunyInform requiere Inform v6.34 o posterior.
 
-![A minimal game in PunyInform](https://github.com/johanberntsson/PunyInform/blob/master/documentation/screenshots/simplegame.png?raw=true)
+![Un juego mínimo que utiliza PunyInformES](https://github.com/johanberntsson/PunyInform/blob/master/documentation/screenshots/simplegame.png?raw=true)
 
-## Motivation
+## Motivación
 
-The main goal of PunyInform is to allow for games which are fast and have a small memory footprint. This should make the games run well on older architectures, such as the 8-bit computers of the 1980s. Our main target is to make it suitable for games on the Commodore 64 using [Ozmoo](https://github.com/johanberntsson/ozmoo/).
+El objetivo principal de PunyInformES es permitir que los juegos sean más rápidos y tengan pocos requerimientos de memoria. Esto debería permitir que los juegos corran mejor en plataformas antiguas, como los ordenadores de 8-bit de los 80. Nuestro objetivo principal es hacerlo capaz de correr juegos en Commodore 64 usando [Ozmoo](https://github.com/johanberntsson/ozmoo/).
 
+## Créditos
 
-## Status
-
-We consider PunyInform ready for real-world use. Please check releasenotes.txt for more details on the latest version, what bugs have been fixed, what features have been added etc.
-
-If you are interested in our progress, please star or follow the project here on Github. Announcements are made on https://twitter.com/FRamsberg and on https://intfiction.org/c/authoring/inform-6-and-7/19
-
-You can see the manual on our [wiki](https://github.com/johanberntsson/PunyInform/wiki/Manual).
-
-You can see what tasks we're currently working on, tasks we've done and tasks coming up on our Trello board: https://trello.com/b/mfGVsB4H/punyinform
-
-## Publicity
-
-Fredrik Ramsberg has written a few articles describing PunyInform for beginners:
-
-* [PunyInform, a new library for writing text adventures for old computers](https://vintageisthenewold.com/punyinform-a-new-library-for-writing-text-adventures-for-old-computers/) gives a general overview and introduction.
-
-* [PunyInform: Installing the tools and compiling a game](https://vintageisthenewold.com/punyinform-installing-the-tools-and-compiling-a-game/) goes more into detail on how to setup an environment with PunyInform and the inform compiler on Windows, and getting started on a simple game.
-
-* [PunyInform Coding 1: The Basics](https://vintageisthenewold.com/punyinform-coding-1-the-basics/) covers the fundamentals of developing a game using PunyInform.
-
-Fredrik has also written [a comparison of PunyInform and the standard Inform 6 library](https://intfiction.org/t/punyinform-vs-inform-6-a-comparison/46625).
-
-## Credits
-
-PunyInform was conceived and designed by Johan Berntsson and Fredrik Ramsberg. Coding by Johan Berntsson, Fredrik Ramsberg, Pablo Martinez and Tomas Öberg. Includes code from the Inform 6 standard library, by Graham Nelson. Thanks to Stefan Vogt, Jason Compton, John Wilson, Hugo Labrande, Richard Fairweather and Adam Sommerfield for advice, testing, code contributions and promotion. Thanks to David Kinder and Andrew Plotkin for helping out with compiler issues and sharing their deep knowledge of the compiler. Huge thanks to Graham Nelson for creating the Inform 6 compiler and library in the first place.
+PunyInformES es la traducción de la librería PunyInform, concebida y diseñada por Johan Berntsson y Fredrik Ramsberg. El autor de la traducción es Pablo Martínez. Al igual que la librería original, incluye código de la librería standard de Inform 6, por Graham Nelson.
