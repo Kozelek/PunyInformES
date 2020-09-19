@@ -1,8 +1,8 @@
 # PunyInformES
 
-PunyInformES es una librería escrita en Inform 6 que permite crear aventuras de texto (o ficción interactiva, o aventuras conversacionales) usando la máquina virtual Z de la antigua empresa ![Infocom](https://es.wikipedia.org/wiki/Infocom). La característica principal de esta librería es que está pensada para que funcione correctamente tanto en ordenadores de 8-bit como en plataformas modernas. Proporciona un parser, implementación de verbos comunes así como un entorno para la creación de aventuras de texto.
+PunyInformES es una librería escrita en Inform 6 que permite crear aventuras de texto (o ficción interactiva, o aventuras conversacionales) usando la máquina virtual Z de la antigua empresa [Infocom](https://es.wikipedia.org/wiki/Infocom). La característica principal de esta librería es que está pensada para que funcione correctamente tanto en ordenadores de 8-bit como en plataformas modernas. Proporciona un parser, implementación de verbos comunes así como un entorno para la creación de aventuras de texto.
 
-PunyInformES es la traducción al castellano de ![PunyInform](https://github.com/johanberntsson/PunyInform), la cual está basada en la librería Inform 6, desarrollada por Graham Nelson. Se ha hecho el intento de facilitar a los autores habituados a Inform 6 para que puedan comenzar usando PunyInformES. Hay un manual describiendo las diferencias.
+PunyInformES es la traducción al castellano de [PunyInform](https://github.com/johanberntsson/PunyInform), la cual está basada en la librería Inform 6, desarrollada por Graham Nelson. Se ha hecho el intento de facilitar a los autores habituados a Inform 6 para que puedan comenzar usando PunyInformES. Hay un manual describiendo las diferencias.
 
 Los juegos que usan PunyInformES pueden ser compilados a los formatos z3, z5 y z8. Comparado con la librería standard de Inform 6, esto supone que no ofrece soporte para Glulx pero incluye soporte para z3 (para el que la librería de Inform 6 carece).
 
