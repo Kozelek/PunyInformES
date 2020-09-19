@@ -1,35 +1,35 @@
-! ext_quote_box.h, a library extension for PunyInform by Fredrik Ramsberg.
+! ext_quote_box.h, una extensión de la librería PunyInformES por Fredrik Ramsberg.
 !
-! This is an extension to let games show a simple quote box.
-! For z5+ games, the extension will try to center the quote box on the screen,
-! by reading the screen width reported by the interpreter in the header.
-! For z3, this information is not available. Instead, it can do it two ways:
-! 1: The game programmer tells the extension to assume the screen has a certain
-!      width and the extension uses this information to center the quote box.
-! 2: The game programmer tells the extension to just indent the quote box a
-!      fixed number of characters.
+! Esta es una extensión que permite a los juegos mostrar una caja con una cita.
+! Para los juegos de z5+, la extensión intentará centrar la cita en la pantalla,
+! leyendo el ancho de pantalla proporcionado por el intérprete en la cabecera.
+! Para z3, esta información no existe. En lugar de eso, lo hará de dos modos:
+! 1: El programador del juego hace asumir a la extensión que la pantalla tiene un
+!      cierto ancho y la extensión usa esta información para centrar la cita.
+! 2: El programador del juego dice a la extensión que indente la caja de la cita
+!      un número fijo de caracteres.
 
-! To use (1), set the constant QUOTE_V3_SCREEN_WIDTH to the desired width, which 
-! has to be > 6.
+! Para usar (1), indica en la constante QUOTE_V3_SCREEN_WIDTH el ancho deseado,
+! que debe ser > 6.
 
-! To use (2), set the constant QUOTE_V3_SCREEN_WIDTH to the desired number of
-! characters to indent by, which must be in the range 0-6.
+! Para usar (2), pon en la constante QUOTE_V3_SCREEN_WIDTH el número deseado de
+! caracteres con los que indentar, que debe estar en el rango 0-6.
 
-! By default, method (2) will be used, with 2 characters of indentation.
+! Por defecto, el método (2) será usado, con 2 caracteres de indentación.
 
-! To display a quote box, create a word array holding the number of lines, the
-! number of characters in the longest line, and then a string per line, and call
-! QuoteBox with the array name as the argument.
+! Para mostrar la caja de cita, crea un array de palabras que guarde el número de
+! líneas, el número de caracteres en la línea más larga y una cadena por línea, y
+! llama a QuoteBox con el nombre del array como argumento.
 
-! Array quote_1 static --> 5 35
-! "When I die, I want to go peacefully"
-! "in my sleep like my grandfather."
-! "Not screaming in terror, like the" 
-! "passengers in his car."
+! Array cita_1 static --> 5 32
+! "Cuando muera, quiero irme en paz"
+! "mientras duermo como mi abuelo."
+! "No gritando de terror, como los"
+! "pasajeros en un coche."
 ! "               -- Jack Handey";
 !
-! [AnyRoutine;
-!   QuoteBox(quote_1);
+! [CualquierRutina;
+!   QuoteBox(cita_1);
 ! ];
 
 System_file;
@@ -78,7 +78,7 @@ Array quote_buffer -> QUOTE_MAX_LENGTH + 3;
 #IfTrue RUNTIME_ERRORS > RTE_MINIMUM;
 #IfTrue RUNTIME_ERRORS == RTE_VERBOSE;
 	if(_quote_width > QUOTE_MAX_LENGTH) {
-		"ERROR: quote_box: Tried to print quote wider than ", QUOTE_MAX_LENGTH, " characters!^"; 
+		"ERROR: quote_box: ¡Intentó escribir una cita más ancha de ", QUOTE_MAX_LENGTH, " caracteres!^";
 	}
 #IfNot;
 	if(_quote_width > QUOTE_MAX_LENGTH) {
@@ -131,7 +131,7 @@ Array quote_buffer -> QUOTE_MAX_LENGTH + 3;
 !	@new_line;
 #IfV5;
 	@set_window 0;
-!	print "[Press any key to continue]";
+!	print "[Pulsa una tecla para continuar]";
 	@read_char _i;
 !	@split_window 0;
 	@erase_window -1;

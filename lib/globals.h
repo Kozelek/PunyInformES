@@ -82,12 +82,12 @@ Constant PHASE2 = 2; ! parse the given pattern with side effects
 
 !Constant WORDSIZE 2; ! set by the compiler from Inform 6.30
 
-Constant ALL_WORD     = 'all';
-Constant EXCEPT_WORD1 = 'but';
-Constant EXCEPT_WORD2 = 'except';
-Constant AND_WORD     = 'and';
-Constant THEN_WORD    = 'then';
-Constant comma_word   = 'comma,';  ! An "untypeable word" used to substitute
+Constant ALL_WORD     = 'todo';
+Constant EXCEPT_WORD1 = 'pero';
+Constant EXCEPT_WORD2 = 'excepto';
+Constant AND_WORD     = 'y';
+Constant THEN_WORD    = 'entonces';
+Constant comma_word   = 'coma,';  ! An "untypeable word" used to substitute
                                    ! for commas in parse buffers
 Attribute light;
 Attribute edible;
@@ -228,10 +228,10 @@ Constant FAKE_U_OBJ = 10009;
 Constant FAKE_D_OBJ = 10010;
 Constant FAKE_IN_OBJ = 10011;
 Constant FAKE_OUT_OBJ = 10012;
-Array abbr_direction_array static table 'n//' 's//' 'e//' 'w//' 'ne' 'nw' 'se' 'sw' 'u//' 'd//' 0 0;
-Array full_direction_array static table 'north' 'south' 'east' 'west' 'northeast' 'northwest' 'southeast' 'southwest' 'up' 'down' 'in' 'out';
+Array abbr_direction_array static table 'n//' 's//' 'e//' 'o//' 'ne' 'no' 'se' 'so' 0 0 0 0;
+Array full_direction_array static table 'norte' 'sur' 'este' 'oeste' 'noroeste' 'noreste' 'sureste' 'suroeste' 'arriba' 'abajo' 'dentro' 'fuera';
 Array direction_properties_array static table n_to s_to e_to w_to ne_to nw_to se_to sw_to u_to d_to in_to out_to;
-Array direction_name_array static table "north" "south" "east" "west" "northeast" "northwest" "southeast" "southwest" "up" "down" "in" "out";
+Array direction_name_array static table "norte" "sur" "este" "oeste" "noroeste" "noreste" "sureste" "suroeste" "arriba" "abajo" "dentro" "fuera";
 #IfV3;
 ! These arrays say the position of the first and last direction which has 1, 2, 3, 4, 5 and 6+ letters respectively
 Array _dir_start static -> 0  1  5 12  3 1 5;
@@ -243,10 +243,10 @@ Constant FAKE_U_OBJ = 10005;
 Constant FAKE_D_OBJ = 10006;
 Constant FAKE_IN_OBJ = 10007;
 Constant FAKE_OUT_OBJ = 10008;
-Array abbr_direction_array static table 'n//' 's//' 'e//' 'w//' 'u//' 'd//' 0 0;
-Array full_direction_array static table 'north' 'south' 'east' 'west' 'up' 'down' 'in' 'out';
+Array abbr_direction_array static table 'n//' 's//' 'e//' 'o//' 0 0 0 0;
+Array full_direction_array static table 'norte' 'sur' 'este' 'oeste' 'arriba' 'abajo' 'dentro' 'fuera';
 Array direction_properties_array static table n_to s_to e_to w_to u_to d_to in_to out_to;
-Array direction_name_array static table "north" "south" "east" "west" "up" "down" "in" "out";
+Array direction_name_array static table "norte" "sur" "este" "oeste" "arriba" "abajo" "dentro" "fuera";
 #IfV3;
 ! These arrays say the position of the first and last direction which has 1, 2, 3, 4, 5 and 6+ letters respectively
 Array _dir_start static -> 0 1 5 8 3 1 0;
@@ -257,10 +257,10 @@ Constant DIRECTION_COUNT = 8;
 
 #IfDef OPTIONAL_ALLOW_WRITTEN_NUMBERS;
 Array LanguageNumbers static table
-    'one' 1 'two' 2 'three' 3 'four' 4 'five' 5
-    'six' 6 'seven' 7 'eight' 8 'nine' 9 'ten' 10
-    'eleven' 11 'twelve' 12 'thirteen' 13 'fourteen' 14 'fifteen' 15
-    'sixteen' 16 'seventeen' 17 'eighteen' 18 'nineteen' 19 'twenty' 20;
+    'uno' 1 'dos' 2 'tres' 3 'cuatro' 4 'cinco' 5
+    'seis' 6 'siete' 7 'ocho' 8 'nueve' 9 'diez' 10
+    'once' 11 'doce' 12 'trece' 13 'catorce' 14 'quince' 15
+    'dieciseis' 16 'diecisiete' 17 'dieciocho' 18 'diecinueve' 19 'veinte' 20;
 #EndIf;
 
 
@@ -315,9 +315,9 @@ Constant DICT_BYTES_FOR_WORD = 4;
 Constant DICT_BYTES_FOR_WORD = 6;
 Constant HDR_SCREENHCHARS    = $20;
 Constant HDR_SCREENWCHARS    = $21;
-Constant MOVES__TX = " Moves: ";
-Constant SCORE__TX = " Score: ";
-Constant TIME__TX = " Time: ";
+Constant MOVES__TX = " Turnos: ";
+Constant SCORE__TX = " Puntos: ";
+Constant TIME__TX = " Tiempo: ";
 #EndIf;
 
 #Default Story        0;
@@ -487,12 +487,12 @@ Array task_scores -> 1;
 
 Object Directions
 	with
-		description "A look in that direction reveals nothing new.",
+		description "Una mirada en esa dirección no revela nada nuevo.",
 		short_name [;
 			if(selected_direction_index)
 				print (string) direction_name_array-->selected_direction_index;
 			else
-				print "direction";
+				print "dirección";
 			rtrue;
 		],
 #IfV5;
@@ -502,7 +502,7 @@ Object Directions
 #EndIf;
       _parse = parse+4*wn-2;
 			_w = _parse-->0;
-			if(_w == 'floor' or 'ground') {
+			if(_w == 'suelo') {
 #IfDef OPTIONAL_FULL_DIRECTIONS;
 				selected_direction_index = 10;
 #IfNot;
@@ -537,7 +537,7 @@ Object Directions
 			_i = _dir_start->_w1;
       if(_i > 0) {
         _len = _dir_end->_w1;
-!        print "Testing from ", _i, " to ", _len, "^";
+!        print "Probando desde ", _i, " a ", _len, "^";
         !			for(_i = 1 : _i <= _len : _i++) {
 .checkNextDir;
         				@loadw abbr_direction_array _i -> _w1;

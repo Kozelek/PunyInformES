@@ -1,57 +1,57 @@
-! ext_cheap_scenery.h, a library extension for PunyInform by Fredrik Ramsberg
+! ext_cheap_scenery.h, una extensión de la librería PunyInformES, por Fredrik Ramsberg
 !
-! This library extension provides a way to implement simple scenery objects 
-! which can only be examined, using just a single object for the entire game.
-! This helps keep both the object count and the dynamic memory usage down.
+! Esta extensión de la librería permite implementar objetos de escenario sencillos
+! que solo pueden ser examinados, usando solo un único objeto para todo el juego.
+! Esto permite reducir tanto el número de objetos como la memória dinámica.
 !
-! To use it, include this file after globals.h. Then add a property called 
-! cheap_scenery to the locations where you want to add cheap scenery objects.
-! You can add up to ten cheap scenery objects to one location in this way. For 
-! each scenery object, specify, in this order, one adjective, one noun, and one
-! description string or a routine to print one. Instead of an adjective, you
-! may give a synonym to the noun. If no adjective or synonym is needed, 
-! use the value 1 in that position.
+! Para usarlo, incluye este fichero tras globals.h. Luego añade una propiedad
+! cheap_scenery a la localidad donde quieras añadir los objetos de escenario 'baratos'.
+! Puedes añadir hasta diez objetos de escenario baratos a una localidad de este modo.
+! Para cada objeto de escenario especifica, en este orden, un adjetivo, un nombre y una
+! cadena de texto (string) descriptiva o una rutina que la escriba. En lugar de un
+! adjetivo, puedes darle un sinónimo al nombre. Si no se necesita adjetivo o sinónimo,
+! usa el valor 1 en esa posición.
 ! 
-! Note: If you want to use this library extension is a Z-code version 3 game, 
-! you must NOT declare cheap_scenery as a common property, or it will only be 
-! able to hold one scenery object instead of ten.
+! Nota: Si quieres usar esta extensión de librería en un juego de máquina Z versión 3,
+! NO debes declarar cheap_scenery como una propiedad común, o solo podrá tener un objeto
+! de escenario en lugar de diez.
 !
-! If you want to use the same description for a scenery object in several locations,
-! declare a constant to hold that string, and refer to the constant in each location.
+! Si quieres usar la misma descripción para un objeto de escenario en varias localidades,
+! declara una constante que tenga esa cadena de texto, y refiere la constante en cada
+! localidad.
 !
-! Before including this extension, you can also define a string or routine called 
-! SceneryReply. If you do, it will be used whenever the player does something to a 
-! scenery object other than examining it. If it's a string, it's printed. If it's a
-! routine it's called. If the routine prints something, it should return true, 
-! otherwise false. 
+! Antes de incluir esta extensión, puedes definir también una cadena o rutina llamada
+! SceneryReply. Si lo haces, se usará siempre que el jugador haga algo a un objeto de
+! escenario en lugar de examinarlo. Si es una cadena, se muestra. Si es una rutina, se
+! ejecuta. Si la rutina imprime algo, debe devolver verdadero (true), en caso contrario
+! devolverá falso (false).
 !
-! Example usage:
+! Ejemplo de uso:
 
 ! [SceneryReply;
 !   Push:
-!     "Now how would you do that?";
+!     "¿Cómo pretendes hacer eso?";
 !   default:
 !     rfalse;
 ! ];
 !
 ! Include "ext_cheap_scenery.h";
 !
-! Constant SCN_WATER = "The water is so beautiful this time of year, all clear and glittering.";
-! [SCN_SUN; 
+! Constant SCN_AGUA = "El agua es tan hermosa en esta época del año, tan clara y brillante.";
+! [SCN_SOL;
 !   deadflag = 1;
-!   "As you stare right into the sun, you feel a burning sensation in your eyes. 
-!     After a while, all goes black. With no eyesight, you have little hope of
-!     completing your investigations."; 
+!   "Al mirar directamente al sol, sientes una quemazón en los ojos. Tras un rato, todo se
+        oscurece. Sin poder ver, tienes pocas posibilidades de completar tu investigación.";
 ! ];
 !
-! Object RiverBank "River Bank"
+! Object RiverBank "Orilla del río"
 !   with
-!	 description "The river is quite wide here. The sun reflects in the blue water, the birds are 
-!      flying high up above.",
+!	 description "El río es bastante ancho por aquí. El sol refleja el agua azul, los
+        pájaros vuelan en las alturas.",
 !	 cheap_scenery
-!      'blue' 'water' SCN_WATER
-!      'bird' 'birds' "They seem so careless."
-!      1 'sun' SCN_SUN,
+!      'azul' 'agua' SCN_AGUA
+!      'pajaro' 'pajaros' "Parecen no tener ninguna preocupación."
+!      1 'sun' SCN_SOL,
 !   has light;
 
 
@@ -66,9 +66,9 @@ Constant RTE_NORMAL = 1;
 Constant RTE_VERBOSE = 2;
 #EndIf;
 
-Object CheapScenery "object"
+Object CheapScenery "objeto"
 	with
-		article "an",
+		article "un",
 		number 0,
 		parse_name [ _w1 _w2 _i _sw1 _sw2 _len;
 			_w1 = NextWordStopped();
@@ -78,7 +78,7 @@ Object CheapScenery "object"
 #IfTrue RUNTIME_ERRORS > RTE_MINIMUM;
 #IfTrue RUNTIME_ERRORS == RTE_VERBOSE;
 			if(_len % 3 > 0)
-				"ERROR: cheap_scenery property of current location has incorrect # of values!^";
+				"ERROR: ¡La propiedad cheap_scenery de la localidad actual tiene un # incorrecto de valores!^";
 #IfNot;
 			if(_len % 3 > 0)
 				"ERROR: cheap_scenery #1!^";
@@ -87,8 +87,8 @@ Object CheapScenery "object"
 				_sw1 = location.&cheap_scenery-->(_i+2);
 #IfTrue RUNTIME_ERRORS == RTE_VERBOSE;
 				if(~~(_sw1 ofclass String or Routine))
-					"ERROR: Element ", _i+2, " in cheap_scenery property of current location is not a string or routine!^",
-						"Element: ", (name) _sw1, "^";
+					"ERROR: ¡Elemento ", _i+2, " en la propiedad cheap_scenery de la localidad actual no es un string o rutina!^",
+						"Elemento: ", (name) _sw1, "^";
 #IfNot;
 				if(~~(_sw1 ofclass String or Routine))
 					"ERROR: cheap_scenery #2!^";
@@ -132,11 +132,10 @@ Object CheapScenery "object"
 				if(SceneryReply())
 					rtrue;
 				#endif;
-				"No need to concern yourself with that.";
+				"No necesitas fijarte en eso.";
 		],
 		found_in [;
 			if(location provides cheap_scenery) rtrue;
 		],
 	has concealed scenery;
 
-	

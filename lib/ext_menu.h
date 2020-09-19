@@ -19,20 +19,20 @@ Global menu_nesting;
 	!if (menu_choices ofclass Routine) menu_choices.call();
 	!else                              print (string) menu_choices;
 
-	print "There is information provided on the following:^^";
+	print "Se proporciona información en lo siguiente:^^";
 	for(i = 1: i <= lines: i++) {
 		menu_item = i;
 		indirect(EntryR);
 		print i, ": ", (string) item_name, "^";
 	}
 	if(menu_nesting == 1) {
-		print "q: Resume the game^";
+		print "q: Retomar el juego^";
 	} else {
-		print "q: Previous menu^";
+		print "q: Menú previo^";
 	}
 
 	for (::) {
-		print "^Select 1 to ", lines, " or ENTER to show the options again.^";
+		print "^Selecciona de 1 a ", lines, " o ENTER para mostrar las opciones de nuevo.^";
 		print "> ";
 
        _ReadPlayerInput(true);
@@ -56,11 +56,11 @@ Global menu_nesting;
 ];
 #IfNot;
 
-Constant NKEY__TX       = "N = next subject";
-Constant PKEY__TX       = "P = previous";
-Constant QKEY1__TX      = "  Q = resume game";
-Constant QKEY2__TX      = "Q = previous menu";
-Constant RKEY__TX       = "RETURN = read subject";
+Constant NKEY__TX       = "N = siguiente tema";
+Constant PKEY__TX       = "P = previo";
+Constant QKEY1__TX      = "  Q = retomar juego";
+Constant QKEY2__TX      = "Q = menú previo";
+Constant RKEY__TX       = "RETURN = leer tema";
 
 Constant NKEY1__KY      = 'N';
 Constant NKEY2__KY      = 'n';
@@ -151,7 +151,7 @@ Constant QKEY2__KY      = 'q';
 			if (i == 2) jump ReDisplay;
 			if (i == 3) break;
 
-			print "^[Please press SPACE.]";
+			print "^[Presiona ESPACIO.]";
 			@read_char 1 -> pkey; jump ReDisplay;
 		}
 	}
