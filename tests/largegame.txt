@@ -1,0 +1,10 @@
+
+> get all
+candle: Taken.
+
+> drop all
+candle: Dropped.
+
+> quit
+Are you sure you want to quit? yes
+

@@ -1,3 +1,4 @@
+
 > i.i
 You are empty handed.
 
@@ -60,16 +61,15 @@ black cube: Taken.
 Dropped.
 
 > drop cubes
-red cube: Dropped.
+Dropped.
 
 > drop cubes
-There is nothing to drop.
+There are no things available that match "drop cubes".
 
 > get black ball
 Taken.
 
 > s
-
 White Room
 It's all white. The ball room lies to the north.
 
@@ -88,7 +88,7 @@ small red ball: You put the small red ball into the transparent box.
 small red ball: Removed.
 
 > get all from transparent
-There is nothing to get.
+There are no things available that match "get all from transparent".
 
 > drop red ball
 Dropped.
@@ -112,7 +112,6 @@ red box: Taken.
 transparent box: Taken.
 
 > n
-
 Ball Room
 
 There is a blue table in the middle of the room.
@@ -160,5 +159,3 @@ You leave the table.
 > quit
 Are you sure you want to quit? yes
 
-
-  *** [Hit any key to exit.]

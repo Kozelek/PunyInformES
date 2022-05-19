@@ -1,9 +1,11 @@
 !% -~S
 !% $OMIT_UNUSED_ROUTINES=1
+
 ! ============================================================================ !
 !   Cloak of Darkness - a simple demonstration of Interactive Fiction
 !	   This version for INFORM written by Roger Firth on 17Sep99
 ! ============================================================================ !
+
 #Iftrue (#version_number == 8);
 Constant USEINFORM;
 Constant MANUAL_PRONOUNS;
@@ -12,6 +14,11 @@ Constant MANUAL_PRONOUNS;
 Constant Story	  "Cloak of Darkness";
 Constant Headline   "^A basic IF demonstration.^";
 Constant MAX_SCORE  2;
+
+Release 2;
+Serial "210920";
+
+Constant STATUSLINE_SCORE; Statusline score;
 
 [ DeathMessage; print "You have lost"; ];
 
@@ -62,7 +69,7 @@ Object  bar "Foyer bar"
 			be some sort of message scrawled in the sawdust on the floor.",
 		n_to  foyer,
 		before [ _test;
-			Look, Inv:
+			Look, Inv, Going:
 				rfalse;
 			Go:
 #ifdef USEINFORM;

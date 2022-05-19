@@ -1,38 +1,45 @@
-! ext_quote_box.h, una extensión de la librería PunyInformES por Fredrik Ramsberg.
+! ext_quote_box.h, a library extension for PunyInform by Fredrik Ramsberg.
 !
-! Esta es una extensión que permite a los juegos mostrar una caja con una cita.
-! Para los juegos de z5+, la extensión intentará centrar la cita en la pantalla,
-! leyendo el ancho de pantalla proporcionado por el intérprete en la cabecera.
-! Para z3, esta información no existe. En lugar de eso, lo hará de dos modos:
-! 1: El programador del juego hace asumir a la extensión que la pantalla tiene un
-!      cierto ancho y la extensión usa esta información para centrar la cita.
-! 2: El programador del juego dice a la extensión que indente la caja de la cita
-!      un número fijo de caracteres.
+! This is an extension to let games show a simple quote box.
+! For z5+ games, the extension will try to center the quote box on the screen,
+! by reading the screen width reported by the interpreter in the header.
+! For z3, this information is not available. Instead, it can do it two ways:
+! 1: The game programmer tells the extension to assume the screen has a certain
+!      width and the extension uses this information to center the quote box.
+! 2: The game programmer tells the extension to just indent the quote box a
+!      fixed number of characters.
 
-! Para usar (1), indica en la constante QUOTE_V3_SCREEN_WIDTH el ancho deseado,
-! que debe ser > 6.
+! To use (1), set the constant QUOTE_V3_SCREEN_WIDTH to the desired width, which
+! has to be > 6.
 
-! Para usar (2), pon en la constante QUOTE_V3_SCREEN_WIDTH el número deseado de
-! caracteres con los que indentar, que debe estar en el rango 0-6.
+! To use (2), set the constant QUOTE_V3_SCREEN_WIDTH to the desired number of
+! characters to indent by, which must be in the range 0-6.
 
-! Por defecto, el método (2) será usado, con 2 caracteres de indentación.
+! By default, method (2) will be used, with 2 characters of indentation.
 
-! Para mostrar la caja de cita, crea un array de palabras que guarde el número de
-! líneas, el número de caracteres en la línea más larga y una cadena por línea, y
-! llama a QuoteBox con el nombre del array como argumento.
+! To display a quote box, create a word array holding the number of lines, the
+! number of characters in the longest line, and then a string per line, and call
+! QuoteBox with the array name as the argument.
 
-! Array cita_1 static --> 5 32
-! "Cuando muera, quiero irme en paz"
-! "mientras duermo como mi abuelo."
-! "No gritando de terror, como los"
-! "pasajeros en un coche."
+! Array quote_1 static --> 5 35
+! "When I die, I want to go peacefully"
+! "in my sleep like my grandfather."
+! "Not screaming in terror, like the"
+! "passengers in his car."
 ! "               -- Jack Handey";
 !
-! [CualquierRutina;
-!   QuoteBox(cita_1);
+! [AnyRoutine;
+!   QuoteBox(quote_1);
 ! ];
+!
+! You can also add a second argument to QuoteBox. Setting it to true makes
+! QuoteBox skip waiting for a keypress after the quote box has been shown:
+!
+!   QuoteBox(quote_1, true); ! Don't wait for keypress
 
 System_file;
+
+Constant EXT_QUOTE_BOX = 1;
 
 #IfnDef RUNTIME_ERRORS;
 Constant RUNTIME_ERRORS = 2;
@@ -71,32 +78,34 @@ Constant QUOTE_INDENT_STRING = "";
 
 Array quote_buffer -> QUOTE_MAX_LENGTH + 3;
 
-[ QuoteBox p_quote_data _quote_lines _quote_width _screen_width _i _j _k _last_index;
+[ QuoteBox p_quote_data p_dont_pause _quote_lines _quote_width _screen_width _i _j _k _last_index;
 	_quote_lines = p_quote_data --> 0;
 	_quote_width = p_quote_data --> 1;
 #IfV5;
 #IfTrue RUNTIME_ERRORS > RTE_MINIMUM;
 #IfTrue RUNTIME_ERRORS == RTE_VERBOSE;
 	if(_quote_width > QUOTE_MAX_LENGTH) {
-		"ERROR: quote_box: ¡Intentó escribir una cita más ancha de ", QUOTE_MAX_LENGTH, " caracteres!^";
+		"ERROR: quote_box: Tried to print quote wider than ", QUOTE_MAX_LENGTH, " characters!^";
 	}
 #IfNot;
 	if(_quote_width > QUOTE_MAX_LENGTH) {
-		"ERROR: quote_box #1!^"; 
+		"ERROR: quote_box #1!^";
 	}
 #EndIf;
 #EndIf;
 	_screen_width = 0->$21;
-	_i = _quote_lines + 4;
+	_i = _quote_lines + 5;
 	@erase_window -2;
 	@split_window _i;
 	@set_window 1;
 !	@erase_window 1;
+	@new_line;
+	@new_line;
 #IfNot;
 	_screen_width = QUOTE_V3_SCREEN_WIDTH;
 #EndIf;
 	@new_line;
-	@new_line;
+	font off;
 	_last_index = 2 + _quote_lines;
 	for(_i = 1 : _i <= _last_index : _i++) {
 #IfDef QUOTE_INDENT_STRING;
@@ -110,8 +119,7 @@ Array quote_buffer -> QUOTE_MAX_LENGTH + 3;
 #IfV3;
 			for(_j = -2 : _j < _quote_width: _j++) @print_char '-';
 #EndIf;
-		} else 
-			_k =  p_quote_data-->_i;
+		}
 #IfV5;
 		style reverse;
 #EndIf;
@@ -126,21 +134,28 @@ Array quote_buffer -> QUOTE_MAX_LENGTH + 3;
 #EndIf;
 		@new_line;
 	}
-	
-!	print (string) p_line_1;
-!	@new_line;
+	font on;
+
 #IfV5;
 	@set_window 0;
-!	print "[Pulsa una tecla para continuar]";
-	@read_char _i;
-!	@split_window 0;
-	@erase_window -1;
+!	print "[Press any key to continue]";
+	if(p_dont_pause == 0) {
+		@read_char _i;
+		@erase_window -1;
+	} else
+		@split_window 0;
+	! Force a re-split to show game's statusline
+#IfDef PUNYINFORM_MAJOR_VERSION;
+	statusline_current_height = 0;
 #IfNot;
-	@new_line;
-!	print "[ENTER]";
-	quote_buffer -> 0 = 0;
-	read quote_buffer quote_buffer;
+	gg_statuswin_cursize = 0;
 #EndIf;
-!	" Ok.";
+#IfNot;
+!	@new_line;
+!	print "[ENTER]";
+	if(p_dont_pause == 0) {
+		quote_buffer -> 0 = 1;
+		read quote_buffer quote_buffer;
+	}
+#EndIf;
 ];
-

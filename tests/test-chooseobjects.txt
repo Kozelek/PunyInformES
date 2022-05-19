@@ -1,0 +1,22 @@
+
+> eat black
+(first taking the black cake)
+You decide to leave it for later.
+
+> drop all
+black cake: Dropped.
+
+> take black
+Do you mean the black cake or the black rod?
+
+> rod
+Taken.
+
+> take all
+direction: That's hardly portable.
+black cake: Taken.
+shrubbery: That's hardly portable.
+
+> quit
+Are you sure you want to quit? yes
+

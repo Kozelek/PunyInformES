@@ -1,35 +1,38 @@
-! ext_flags.h, una extensión de librería para PunyInform de Fredrik Ramsberg, adaptada
-! de flags.h de Adam Cadre.
+! ext_flags.h, a library extension for PunyInform by Fredrik Ramsberg, adapted
+! from flags.h by Adam Cadre.
 
-! Este es un sistema sencillo para proporcionar banderas on/off que solo ocupen un bit de
-! memoria; por tanto, no hay necesidad de malgastar memoria (y variables globales) declarando
-! una variable como "banderahecho" o algo así, que necesita dieciséis bits para un valor que
-! nunca será distinto de 0 o 1.
+! This is a simple system to provide on/off flags that only take up one bit of
+! memory; thus, there's no need to waste memory (and global variables) by
+! declaring a variable such as "doneflag" or some such, allocating an entire
+! sixteen bits to a variable that will never be anything other than 0 or 1.
 
-! Así es como debes usarla en tus programas. Tras incluir globals.h, pon el valor a FLAG_COUNT
-! del número de banderas que necesitas, y luego incluye ext_flags.h.
+! Here's how to use it in your programs. After inclusing globals.h,
+! set the constant FLAG_COUNT to the number of flags you need, then include
+! ext_flags.h.
 !
-! Cuando comiences a usar una nueva bandera, créate una constante con un nombre descriptivo.
-! También puedes añadir un comentario, o tener una lista cerca con el significado de cada
-! bandera.
+! When you start using a new flag, create a constant with a descriptive name.
+! You may also want to add a comment, or keep a list on the side regarding
+! the meaning of each flag.
 
-! Constant F_LORO_ALIMENTADO 0; ! ¿Ha sido alimentado el loro?
-! Constant F_BILLETE_OK 1;       ! ¿Ha reservado su billete de avión Hildegard con la tarjeta de crédito correcta?
-! Constant F_GATO_SALVADO 2;    ! ¿Ha salvado el jugador al gato del árbol?
+! Constant F_FED_PARROT 0; ! Has the parrot been fed?
+! Constant F_TICKET_OK 1; ! Has Hildegard booked her plane tickets with the correct credit card?
+! Constant F_SAVED_CAT 2;   ! Has the player saved the cat in the tree?
 
-! Ya te haces una idea. Fíjate en que la primera bandera es la #0.
+! You get the idea. Note that the first flag is flag #0.
 
-! Poner una bandera encendida o apagada se hace llamando a la rutina SetFlag(bandera#) o
-! ClearFlag(bandera#), que encienden o apagan una bandera respectivamente. Para indicar que el
-! jugador ha salvado al gato, haz "SetFlag(F_GATO_SALVADO);", y para apagar esa bandera, haz
-! "ClearFlag(F_GATO_SALVADO);"  (Menos las comillas, claro.)
+! Setting a flag on or off means calling the routine SetFlag(flag#) or
+! ClearFlag(flag#). To indicate that the player has saved the cat,
+! call "SetFlag(F_SAVED_CAT);", and to turn off that flag, call
+! "ClearFlag(F_SAVED_CAT);"  (Minus the quote marks, of course.)
 
-! Probar una bandera se logra llamando a FlagIsSet o FlagIsClear. Así que si tienes un código
-! que solo debería ejecutarse si has alimentado al loro, deberías rodearlo de una instruccion
-! "if (FlagIsSet(F_LORO_ALIMENTADO)) { ... }"
-! Naturalmente, puedes probar si una bandera está apagada usando FlagIsClear.
+! Testing a flag is accomplished by calling FlagIsSet or FlagIsClear. So if you have
+! a piece of code that should only be run if the parrot has been fed, you would
+! enclose it in an "if (FlagIsSet(F_FED_PARROT)) { ... }" statement.
+! Naturally, you can test if a flag is clear by calling FlagIsClear instead.
 
 System_file;
+
+Constant EXT_FLAGS = 1;
 
 Array flag_powers static ->
 	$$00000001

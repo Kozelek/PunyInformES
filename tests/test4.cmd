@@ -1,12 +1,12 @@
 transcript
 
-put me on table then kill it
+steal
+put me on table then get off
 throw ball at air
 small red
 throw ball at air
-red
-throw ball at air
-small red ball
+throw green ball at air
+drop green
 take all balls
 take red cube
 s

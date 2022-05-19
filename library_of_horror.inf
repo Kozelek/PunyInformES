@@ -1,9 +1,14 @@
 !% -~S
 !% $OMIT_UNUSED_ROUTINES=1
-! The very first lines of the main source code file for a game can contain compiler options, like the two lines above.
-! -~S disables strict error checking. This is otherwise used in z5 and z8 games by default. While useful for debugging,
-!   it adds ~10 KB to the story file size and it makes the game slower.
-! $OMIT_UNUSED_ROUTINES=1 makes the compiler remove all routines which aren't used. This can save some space.
+!% $ZCODE_LESS_DICT_DATA=1
+
+! The very first lines of the main source code file for a game can
+! contain compiler options, like the lines above. -~S disables
+! strict error checking. This is otherwise used in z5 and z8 games by
+! default. While useful for debugging, it adds ~10 KB to the story file
+! size and it makes the game slower.
+! $OMIT_UNUSED_ROUTINES=1 makes the compiler remove all routines which
+! aren't used. This can save some space.
 
 ! Library_of_horror.inf - a sample game which uses PunyInform
 
@@ -12,23 +17,28 @@
 ! Setup constants to customize PunyInform
 ! ====================================
 
-! Uncomment to add optional features to PunyLib
+! Uncomment to add optional features to PunyInform
 !Constant DEBUG;
-!Constant CUSTOM_ABBREVIATIONS;
-!Constant OPTIONAL_FULL_DIRECTIONS;
-!Constant OPTIONAL_ALLOW_WRITTEN_NUMBERS;
 !Constant OPTIONAL_EXTENDED_METAVERBS;
 !Constant OPTIONAL_EXTENDED_VERBSET;
 !Constant OPTIONAL_GUESS_MISSING_NOUN;
 Constant OPTIONAL_FULL_SCORE;
 Constant OPTIONAL_MANUAL_SCOPE;
-Constant RUNTIME_ERRORS = 0; ! 0 = Minimal error checking, 1 = Numeric error codes, 2: Error messages
+Constant OPTIONAL_REACTIVE_PARSE_NAME;
+! 0 = Minimal error checking, 1 = Numeric error codes, 2: Error messages
+Constant RUNTIME_ERRORS = 0;
 
 Constant INITIAL_LOCATION_VALUE = GloomyStreet;
 
+Constant STATUSLINE_SCORE; Statusline score;
+
 Constant Story	  "The Library Of Horror";
 Constant Headline   "^A PunyInform demo game, by Pablo Martinez and Fredrik Ramsberg.^";
-Release 4;
+Release 7;
+Serial "210920";
+
+! Get your own unique IFID for your game at https://www.tads.org/ifidgen/ifidgen
+Array UUID_ARRAY string "UUID://43E00AEE-DEAF-40D9-8306-11BC80779320//"; #Ifdef UUID_ARRAY; #Endif;
 
 Constant MAX_SCORE = 100;
 Constant TASKS_PROVIDED;
@@ -76,7 +86,8 @@ Include "globals.h";
 ];
 
 #IfV3;
-! The dictionary only holds six characters in z3 games, so we need to help print verbs longer than this.
+! The dictionary only holds six characters in z3 games, so we need to
+! help print verbs longer than this.
 [PrintVerb p_verb;
 	switch(p_verb) {
 		'blindfold': print "blindfold"; rtrue;
@@ -141,17 +152,18 @@ Include "puny.h";
 ! -- testing scope grammar token
 ! See: https://www.inform-fiction.org/manual/html/s32.html
 
-! Burn is available in the extended verb set, but we'll define it here instead of adding the weight of all those new verbs.
-! Also, we want it to work a little differently from the way it works in the library - the player shouldn't have to
-! carry the candles to burn the book.
+! Burn is available in the extended verb set, but we'll define it here
+! instead of adding the weight of all those new verbs. Also, we want it
+! to work a little differently from the way it works in the library -
+! the player shouldn't have to carry the candles to burn the book.
 
 [ BurnSub;
 	"That seems dangerous and pointless.";
 ];
 
 Verb 'burn' 'light'
-	* noun						-> Burn
-	* noun 'with' noun			-> Burn;
+	* noun				-> Burn
+	* noun 'with' noun		-> Burn;
 
 [ CoverSub;
 	"That seems pointless.";
@@ -176,8 +188,9 @@ Verb 'talk' 'report'
 
 
 ! ====================================
-! The following code, heavily inspired by the cheap_scenery extension, allows the player to ask
-! questions like "WHAT IS A LIBRARY" without using an object for each question.
+! The following code, heavily inspired by the cheap_scenery extension,
+! allows the player to ask questions like "WHAT IS A LIBRARY" without
+! using an object for each question.
 ! ====================================
 
 [ QueryTopic;
@@ -400,11 +413,11 @@ Object TopOfStairs "Staircase Leading Down"
 			Go:
 				if(selected_direction==d_to) {
 					if(FlagIsClear(F_TALKED_TO_MANAGER))
-						"You have no business running around in the basement. Better go talk to the library manager instead,
-							to find out where you're needed.";
+						"You have no business running around in the basement. Better go talk to the
+							library manager instead, to find out where you're needed.";
 					if(FlagIsSet(F_BOOK_DELIVERED))
-						"You're done for today, and the library manager told you to go home. Better not go snooping around
-						 	in the basement.";
+						"You're done for today, and the library manager told you to go home. Better
+							not go snooping around in the basement.";
 					if(self hasnt general) {
 						give self general;
 						QuoteBox(quote_stairs);
@@ -516,7 +529,7 @@ Object -> Frank "Frank the Robot"
 				if(location ~= _my_loc){
 					_dir_count = DIRECTION_COUNT - 4; ! Skip the last 4 directions (u_to, d_to, in_to, out_to)
 					for(_i=1 : _i <= _dir_count : _i++) {
-						_dir_prop = direction_properties_array-->_i;
+						_dir_prop = direction_properties_array->_i;
 						if(_my_loc provides _dir_prop && _my_loc._dir_prop == location) {
 							move self to location;
 							scope_modified = true;
@@ -531,7 +544,7 @@ Object -> Frank "Frank the Robot"
 								print "^When it sees you inside the room, it starts to get nervous.
 									~Oh, no, no, no, sir! It's not right for you to be here! There's
 									nothing to see here, really. Let me escort you.~ And he pushes you out
-									gently but firmly.^";
+									gently but firmly.^^";
 								move self to StorageRoom;
 								PlayerTo(StorageRoom);
 							}

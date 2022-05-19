@@ -1,0 +1,13 @@
+
+> i
+You are empty handed.
+
+> undo
+That is not a verb I recognize.
+
+> score
+There is no score in this game.
+
+> quit
+Are you sure you want to quit? yes
+

@@ -1,0 +1,48 @@
+> john, take aim
+grammar 3 0
+"Okay, I'm aiming."
+
+> john, take take aim
+grammar 3 0
+answer words 3 from 3
+There is no reply.
+
+> john, hello
+grammar 3 0
+answer words 1 from 3
+There is no reply.
+
+> john, take me
+grammar 3 0
+order 20: inv 25 take 20
+John has better things to do.
+
+> john, jump
+grammar 3 1
+I have nothing
+
+> john, open apple
+grammar 3 0
+answer words 2 from 3
+There is no reply.
+
+> john, close apple
+grammar 3 0
+Why do you want me to close the apple.
+
+> john, close off apple
+grammar 3 0
+I switch off the apple.
+
+> john, eat apple
+grammar 3 0
+I eat
+
+> john, drink apple
+grammar 3 0
+answer words 2 from 3
+There is no reply.
+
+> quit
+Are you sure you want to quit? yes
+
