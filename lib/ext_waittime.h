@@ -53,15 +53,15 @@ Constant MAX_WAIT_MINUTES 1440;
 	if (sys_statusline_flag == false) p_is_minutes = false;
 
 	if (noun == 0) {
-		"Time doesn't pass.";
+		"El tiempo no pasa.";
 	};
 
 	if ((p_is_minutes == false && noun > MAX_WAIT_MOVES) ||
 			(p_is_minutes && noun > MAX_WAIT_MINUTES)) {
-		"That's too long to wait.";
+		"Eso es demasiado tiempo.";
 	};
 
-	print "Time passes.^";
+	print "El tiempo pasa.^";
 	waittime_waiting = true;
 	_time_left = noun;
 	_minutes_passed = 1; ! Unless p_is_minutes is set, this value won't change
@@ -84,7 +84,7 @@ Constant MAX_WAIT_MINUTES 1440;
 	}
 	if(AfterRoutines() == false && waittime_waiting == 0 && _time_left > 0 &&
 			deadflag == GS_PLAYING)
-		print "^(waiting stopped)^";
+		print "^(espera detenida)^";
 	waittime_waiting = 0;
 ];
 
@@ -103,7 +103,7 @@ Constant MAX_WAIT_MINUTES 1440;
 	if (parsed_number < the_time) {
 		parsed_number = the_time - parsed_number;
 		noun = 1440 - parsed_number;
-		print "(tomorrow)^^";
+		print "(mañana)^^";
 	}
 	WaitMovesSub(true);
 ];
@@ -124,8 +124,12 @@ Constant MAX_WAIT_MINUTES 1440;
 	if (sys_statusline_flag == false) return GPR_FAIL;
 
 	_i = NextWord();
-	if (_i == 'midday' or 'noon' or 'midnight') {    ! then case (e) applies
-		if (_i == 'midnight')
+#Ifv5;
+	if (_i == 'mediodia' or 'mediodía' or 'medianoche') {   ! then case (e) applies
+#Ifnot;
+	if (_i == 'mediodia' or 'medianoche') {   ! then case (e) applies
+#Endif;
+		if (_i == 'medianoche')
 			_hr = 0;
 		else
 			_hr = 12;
@@ -146,12 +150,12 @@ Constant MAX_WAIT_MINUTES 1440;
 			_hr = 0;
 			_mn = 0;
 			_loop = 0;
-.tw_diglph;
+._tw_diglph;
 			_dig = _j->_loop;
 			_loop++;
 			if(_dig >= '0' && _dig <= '9') {
 				_hr = 10 * _hr + _dig - '0';
-				jump tw_diglph;
+				jump _tw_diglph;
 			}
 			if (_dig ~= ':')
 				return GPR_FAIL;
@@ -176,20 +180,20 @@ Constant MAX_WAIT_MINUTES 1440;
 					_hr = TryNumber(wn - 2);
 				} else {                            ! well, must be case (a)
 					_mn = TryNumber(wn-2);
-					if (_i == 'quarter')
+					if (_i == 'cuarto')
 						_mn = 15;
-					if (_i == 'twenty-five')
+					if (_i == 'veinticinco')
 						_mn = 25;
-					if (_i == 'half' or 'thirty')
+					if (_i == 'media' or 'treinta')
 						_mn = 30;
-					if (_j == 'minute' or 'minutes') {
+					if (_j == 'minuto' or 'minutos') {
 						_j = NextWordStopped();             ! ignore 'minutes'
 					}
 					_hr = TryNumber(wn);
 					wn++;
-					if (_j ~= 'past' or 'to')
+					if (_j ~= 'pasado' or 'pasada' or 'a')
 						_hr = -1;
-					if (_j == 'to') {
+					if (_j == 'a') {
 						_hr--;
 						_mn = 60 - _mn;
 						if (_hr == 0)
@@ -236,24 +240,22 @@ Constant MAX_WAIT_MINUTES 1440;
 
 
 #Ifdef STATUSLINE_SCORE;
-	Extend 'wait'
-		* 'for' number 'move'/'moves'/'turn'/'turns' -> WaitMoves
-		* 'for' number 'minute'/'minutes'            -> WaitMinutes
-		* 'for' number 'hour'/'hours'                -> WaitHours
-	    * number 'minute'/'minutes'                  -> WaitMinutes
-	    * number 'hour'/'hours'                      -> WaitHours
-		* number 'move'/'moves'/'turn'/'turns'       -> WaitMoves
+	Extend 'espera' 'esperar'
+		* 'durante' number 'turno'/'turnos'          -> WaitMoves
+		* 'durante' number 'minuto'/'minutos'        -> WaitMinutes
+		* 'durante' number 'hora'/'horas'            -> WaitHours
+		* number 'minuto'/'minutos'                  -> WaitMinutes
+		* number 'hora'/'horas'                      -> WaitHours
+		* number 'turno'/'turnos'                    -> WaitMoves
 		* number                                     -> WaitMoves;
 #Ifnot;
-	Extend 'wait'
-	    * 'until' parsetime                          -> WaitUntil
-	    * 'til' parsetime                            -> WaitUntil
-	    * 'till' parsetime                           -> WaitUntil
-		* 'for' number 'move'/'moves'/'turn'/'turns' -> WaitMoves
-		* 'for' number 'minute'/'minutes'            -> WaitMinutes
-		* 'for' number 'hour'/'hours'                -> WaitHours
-	    * number 'minute'/'minutes'                  -> WaitMinutes
-	    * number 'hour'/'hours'                      -> WaitHours
-		* number 'move'/'moves'/'turn'/'turns'       -> WaitMoves
+	Extend 'espera' 'esperar'
+		* 'hasta' parsetime                          -> WaitUntil
+		* 'durante' number 'turno'/'turnos'          -> WaitMoves
+		* 'durante' number 'minuto'/'minutos'        -> WaitMinutes
+		* 'durante' number 'hora'/'horas'            -> WaitHours
+		* number 'minuto'/'minutos'                  -> WaitMinutes
+		* number 'hora'/'horas'                      -> WaitHours
+		* number 'turno'/'turnos'                    -> WaitMoves
 		* number                                     -> WaitMoves;
 #Endif;

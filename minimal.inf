@@ -1,3 +1,4 @@
+!% -Cu
 !% -~S
 !% $OMIT_UNUSED_ROUTINES=1
 !% $ZCODE_LESS_DICT_DATA=1
@@ -11,8 +12,8 @@
 ! aren't used. This can save some space.
 ! $ZCODE_LESS_DICT_DATA=1 removes an empty data byte for every dictionary word.
 
-Constant Story      "Minimal";
-Constant Headline   "^A sample game which uses PunyInform.^";
+Constant Story      "Mínima";
+Constant Headline   "^Un juego de ejemplo que usa PunyInform.^";
 
 ! Uncomment ONE of the two following lines, to show either time or score/turns
 ! Leaving both commented out makes the library bigger.
@@ -23,27 +24,32 @@ Constant STATUSLINE_SCORE; Statusline score;
 ! The value is what will be shown as the score on statusline in z3
 Constant NO_SCORE = 0;
 
-! Customize the statusline in z5+ (will have no effect in z3)
+! Customize the statusline in z5+ (has no effect in z3)
 !Constant OPTIONAL_SL_NO_SCORE;
 !Constant OPTIONAL_SL_NO_MOVES;
 
 ! Uncomment to add optional features to PunyInform
 !Constant DEBUG;
+!Constant DIALECT_US; ! Affects OPTIONAL_LANGUAGE_NUMBER
 !Constant CUSTOM_ABBREVIATIONS;
 !Constant CUSTOM_PLAYER_OBJECT = myPlayerObj;
 Constant OPTIONAL_NO_DARKNESS;
+!Constant OPTIONAL_NON_FLASHING_STATUSLINE;
+!Constant OPTIONAL_FULL_DIRECTIONS;
+!Constant OPTIONAL_SHIP_DIRECTIONS;
 !Constant OPTIONAL_ALLOW_WRITTEN_NUMBERS;
+!Constant OPTIONAL_GUESS_MISSING_NOUN;
 !Constant OPTIONAL_EXTENDED_METAVERBS;
 !Constant OPTIONAL_EXTENDED_VERBSET;
 !Constant OPTIONAL_FLEXIBLE_INVENTORY;
+!Constant OPTIONAL_LANGUAGE_NUMBER;
+!Constant OPTIONAL_LIST_TOGETHER;
 !Constant OPTIONAL_PRINT_SCENERY_CONTENTS;
 !Constant OPTIONAL_SCORED;
 !Constant OPTIONAL_FULL_SCORE; ! Comment out NO_SCORE when uncommenting this
-!Constant OPTIONAL_FULL_DIRECTIONS;
 !Constant OPTIONAL_SIMPLE_DOORS;
-!Constant OPTIONAL_SHIP_DIRECTIONS;
-!Constant OPTIONAL_GUESS_MISSING_NOUN;
 !Constant OPTIONAL_MANUAL_SCOPE;
+!Constant OPTIONAL_MANUAL_SCOPE_BOOST;
 !Constant OPTIONAL_MANUAL_REACTIVE;
 !Constant OPTIONAL_ORDERED_TIMERS;
 !Constant OPTIONAL_PROVIDE_UNDO;
@@ -53,7 +59,7 @@ Constant OPTIONAL_NO_DARKNESS;
 ! Define any library constants you need here, like MAX_SCORE, AMUSING_PROVIDED,
 ! MAX_CARRIED, SACK_OBJECT,  etc.
 
-Constant INITIAL_LOCATION_VALUE = Library;
+Constant INITIAL_LOCATION_VALUE = Libreria;
 
 Include "globals.h";
 
@@ -61,7 +67,7 @@ Include "globals.h";
 
 ! Define the entry point routines you need here, like Amusing, DarkToDark etc.
 
-! Uncomment to add PunyLib extensions
+! Uncomment to add PunyInform extensions
 !Include "ext_menu.h";
 !Include "ext_flags.h";
 !Include "ext_talk_menu.h"; ! Note: Also include ext_flags.h to allow use of flags
@@ -70,19 +76,19 @@ Include "globals.h";
 
 Include "puny.h";
 
-! Uncomment to add PunyLib extensions
+! Uncomment to add PunyInform extensions
 !Include "ext_waittime.h";
 
-Object Library "The Library"
+Object Libreria "La librería"
 	with
-		description "You are in a library.";
+		description "Estás en la librería.";
 
-Object -> Box "box"
+Object -> Box "caja"
 	with
-		name 'box',
-		inside_description "It feels so nice, standing in the box.",
-	has container open openable enterable;
+		name 'caja',
+		inside_description "Se está tan bien, de pie en la caja.",
+	has female container open openable enterable;
 
 [Initialise;
-	print "^^And so the story begins...^^";
+	print "^^Y así comienza la historia...^^";
 ];

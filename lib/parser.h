@@ -7,27 +7,30 @@
 
 System_file;
 
-[ YesOrNo;
-    for (::) {
-        _ReadPlayerInput(true);
-        if(parse -> 1 == 1) {
-        	! one word reply
-            if(parse --> 1 == 'yes' or 'y//') rtrue;
-            if(parse --> 1 == 'no' or 'n//') rfalse;
-        }
-        PrintMsg(MSG_YES_OR_NO);
-    }
+[ YesOrNo n;
+	for (::) {
+		_ReadPlayerInput(true, true);
+		n = parse -> 1;
+		parse -> 1 = 0;
+		if(n == 1) {
+			! one word reply
+			n = parse --> 1;
+			if(n == 'si' or 's//') rtrue;
+			if(n == 'no' or 'n//') rfalse;
+		}
+		PrintMsg(MSG_YES_OR_NO);
+	}
 ];
 
 [ _UserFilter _obj _noun _ret;
 	!  UserFilter consults the user's filter (or checks on attribute)
 	!  to see what already-accepted nouns are acceptable
-    if(noun_filter > 0 && noun_filter < 49) {
-        if (_obj has (noun_filter-1)) rtrue;
-        rfalse;
-    }
+	if(noun_filter > 0 && noun_filter < 49) {
+		if (_obj has (noun_filter-1)) rtrue;
+		rfalse;
+	}
 	_noun = noun; noun = _obj;
-    _ret = indirect(noun_filter);
+	_ret = indirect(noun_filter);
 	noun = _noun;
 	return _ret;
 ];
@@ -75,7 +78,7 @@ System_file;
 	if(_second ~= 0 && second == 0) {
 		second = _GuessMissingNoun(_second -> 2, _prep, 2);
 	}
-	!print scope_stage, " ", phase2_necessary, " ",_num_nouns, " ", _noun, "=", noun, ":", _second, "=", second, "^";
+	!print scope_stage, " ", phase2_necessary, " num_nouns ",_num_nouns, " noun ", _noun, "=", noun, ": second ", _second, "=", second, "^";
 	if(_noun ~= 0  && noun ~= 0) {
 		if(_num_nouns == 1) {
 			!print "message complete: ", noun, "^";
@@ -85,6 +88,10 @@ System_file;
 			!print "message complete: ", noun, " ", second, "^";
 			rtrue;
 		}
+	} else if(_num_nouns == 2 && _second ~=0 && second ~= 0 && _noun->2 == TOPIC_OBJECT) {
+		! for example: "say hello" (assuming X) -> noun = 0, second = X
+		!print "message complete: ", noun, " ", second, "^";
+		rtrue;
 	}
 #EndIf;
 
@@ -108,7 +115,7 @@ System_file;
 			if(_num_preps == 0) print " ", (address) _data;
 			++_num_preps;
 		} else {
-			@print_char ' ';
+			print " ";
 			if(p_noun == 0) {
 				if(_type == TT_ROUTINE_FILTER && _data == ADirection) {
 					print (string) SOMEDIRECTION_STR;
@@ -120,9 +127,9 @@ System_file;
 					}
 				} else print (name) second;
 			} else {
-				if(noun ~= 0) {
+				if(noun ~= 0 && metaclass(noun) ~= ROUTINE) {
 					p_noun = 0; ! avoid repeat (we don't need p_noun anymore)
-					if(parser_all_found) print "all"; else print (name) noun;
+					if(parser_all_found) print "todo"; else print (name) noun;
 				} else if(_type == TT_OBJECT && _token->2 == CREATURE_OBJECT) {
 					print (string) SOMEONE_STR;
 				} else {
@@ -135,11 +142,11 @@ System_file;
 ];
 
 [ _AskWhichNoun p_num_matching_nouns _i;
-	print "Do you mean ";
+	print "¿Quieres decir ";
 	for(_i = 1 : _i <= p_num_matching_nouns : _i++) {
 		if(_i > 1) {
 			if(_i == p_num_matching_nouns) {
-				print " or ";
+				print " o ";
 			} else {
 				print ", ";
 			}
@@ -149,13 +156,13 @@ System_file;
 	print "?";
 ];
 
-[ _CreatureTest obj;
+[ _CreatureTest p_obj;
 	! Will this obj do for a "creature" token?
-    if (actor ~= player) rtrue;
-    if (obj has animate) rtrue;
-    if (obj has talkable && action == ##Ask or ##Answer or ##Tell or ##AskFor)
+	if (actor ~= player) rtrue;
+	if (p_obj has animate) rtrue;
+	if (p_obj has talkable && action == ##Ask or ##Answer or ##Tell or ##AskFor)
 		rtrue;
-    rfalse;
+	rfalse;
 ];
 
 [ _ParseTopic p_wn p_parse_pointer p_preposition;
@@ -176,43 +183,67 @@ System_file;
 	}
 ];
 
-[ _ReadPlayerInput p_no_prompt _result;
-! #IfV5;
-!   print "Width: ", HDR_SCREENWCHARS->0,"^";
-! #EndIf;
+#Ifv5;
+[ _ReadPlayerInput p_no_prompt p_no_statusline _result;
+#Ifnot;
+[ _ReadPlayerInput p_no_prompt _result; ! NOTE: Must have at least 2 vars, so calls with 2 params don't break!
+#EndIf;
 #IfV5;
 	style roman;
 	@buffer_mode 0;
 #EndIf;
 	if(p_no_prompt == false) PrintMsg(MSG_PROMPT);
 	! library entry routine
+#Ifdef AfterPrompt;
 	RunEntryPointRoutine(AfterPrompt);
+#Endif;
 #IfV5;
-	DrawStatusLine();
+	if(p_no_statusline == false) DrawStatusLine();
 	buffer->1 = 0;
+	if (clr_on && clr_fginput > 1) {
+		@set_colour clr_fginput clr_bg;
+	}
 	@aread buffer parse -> _result;
 	@buffer_mode 1;
+	if (clr_on && clr_fginput > 1) {
+		@set_colour clr_fg clr_bg;
+	}
 #IfNot;
 	@sread buffer parse;
 #EndIf;
 
+#Ifdef BeforeParsing;
 	! call library entry routine
 	RunEntryPointRoutine(BeforeParsing);
+#Endif;
 
+#IfV5;
+    Translation();
+#Endif;
 	num_words = parse -> 1;
 	! Set word after last word in parse array to all zeroes, so it won't match any words.
-	_result = 2 * (parse -> 1) + 1;
+	_result = num_words + num_words + 1;
 	parse-->_result = 0;
-	parse-->(_result + 1) = 0;
+	_result++;
+	parse-->_result = 0;
 ];
 
 #Ifdef OPTIONAL_ALLOW_WRITTEN_NUMBERS;
 [ NumberWord p_o _i _n;
-    ! try to parse  "one" up to "twenty".
-    _n = LanguageNumbers-->0;
-    for(_i = 1 : _i <= _n : _i = _i + 2)
-        if (p_o == LanguageNumbers-->_i) return LanguageNumbers-->(_i+1);
-    return 0;
+	! try to parse  "one" up to "twenty".
+	_n = LanguageNumbers-->0;
+#Ifv5;
+	@log_shift _n (-1) -> _n; ! Divide by 2
+	@add LanguageNumbers 2 -> sp;
+	@scan_table p_o sp _n $84 -> _i ?_found;
+	return 0;
+._found;
+	return _i-->1;
+#Ifnot;
+	for(_i = 1 : _i <= _n : _i = _i + 2)
+		if (p_o == LanguageNumbers-->_i) return LanguageNumbers-->(_i+1);
+	return 0;
+#Endif;
 ];
 #Endif;
 
@@ -220,51 +251,92 @@ System_file;
 	!  Takes word number p_wordnum and tries to parse it as an
 	! unsigned decimal number, returning
 	!
-	!  -1000                if it is not a number
-	!  the number           if it has between 1 and 4 digits
-	!  10000                if it has 5 or more digits.
-    _i = wn; wn = p_wordnum; _j = NextWord(); wn = _i;
+	!  -1000				if it is not a number
+	!  the number		   if it has between 1 and 4 digits
+	!  10000				if it has 5 or more digits.
+	_i = wn; wn = p_wordnum; _j = NextWord(); wn = _i;
 #Ifdef OPTIONAL_ALLOW_WRITTEN_NUMBERS;
-    _j = NumberWord(_j); if (_j >= 1) return _j;
+	_j = NumberWord(_j); if (_j >= 1) return _j;
 #Endif;
 
-    _i = p_wordnum*4+1; _j = parse->_i; _num = _j+buffer; _len = parse->(_i-1);
+	_i = p_wordnum*4+1; _j = parse->_i; _num = _j+buffer; _len = parse->(_i-1);
 
-    ! allow for a entry point routine to override normal parsing
-    _tot = ParseNumber(_num, _len); if(_tot ~= 0) return _tot;
+#Ifdef ParseNumber;
+	! allow for a entry point routine to override normal parsing
+	_tot = ParseNumber(_num, _len); if(_tot ~= 0) return _tot;
+#Endif;
 
-    ! this uses Horner's algorithm: 2421 = 10*(10*(10*(2)+4)+2)+1
-    for (_i=0: _i<_len: _i++) {
-        _digit = _num->_i;
-        if(_digit < '0' || _digit > '9') jump baddigit;
-        _d = _digit - '0';
-        if(_len <=4) _tot = _tot*10 + _d;
-    }
+	! this uses Horner's algorithm: 2421 = 10*(10*(10*(2)+4)+2)+1
+	for (_i=0: _i<_len: _i++) {
+		_digit = _num->_i;
+		if(_digit < '0' || _digit > '9') jump _trynumber_baddigit;
+		_d = _digit - '0';
+		if(_len <=4) _tot = _tot*10 + _d;
+	}
    	if (_len > 4) return 10000;
-    return _tot;
-.baddigit;
+	return _tot;
+._trynumber_baddigit;
 	return -1000;
 ];
 
-[ _CopyInputArray p_src_input_array p_dst_input_array _i;
-	!_n = MAX_INPUT_CHARS + 3;
-	for(_i = 0: : _i++) {
-		p_dst_input_array->_i = p_src_input_array->_i;
-		! abort when 0 found in the text, which starts
-		! from 1 in v1-4, and from 2 in v5-v8.
 #IfV5;
-		if(p_dst_input_array->_i == 0 && _i>2) break;
-#IfNot;
-		if(p_dst_input_array->_i == 0 && _i>1) break;
-#EndIf;
-	}
+[ _CopyInputArray p_src_input_array p_dst_input_array _i;
+	_i = (p_src_input_array->1) + 2;
+	@copy_table p_src_input_array p_dst_input_array _i;
 ];
+#IfNot;
+[ _CopyInputArray p_src_input_array p_dst_input_array _i _v;
+	_v = p_src_input_array->0;
+	p_dst_input_array->0 = _v;
+.copy_next;
+		_i++;
+		_v = p_src_input_array->_i;
+		p_dst_input_array->_i = _v;
+		! ! abort when 0 found in the text, which starts
+		! ! from 1 in v1-4, and from 2 in v5-v8.
+		@jz _v ?~copy_next;
+];
+#EndIf;
 
+#IfV5;
+[ _CopyParseArray p_src_parse_array p_dst_parse_array _n;
+	_n = p_src_parse_array->1;
+	@log_shift _n 2 -> _n; ! Multiply by 4
+	_n = _n + 2;
+	@copy_table p_src_parse_array p_dst_parse_array _n;
+];
+#IfNot;
 [ _CopyParseArray p_src_parse_array p_dst_parse_array _n _i;
-	!_n = 2 + 4 * (MAX_INPUT_WORDS + 1);
-	_n = 2 + 4*p_src_parse_array->1;
-	for(_i = 0: _i < _n: _i++)
+	_n = 4*p_src_parse_array->1;
+	_n++;
+.copy_next;
 		p_dst_parse_array->_i = p_src_parse_array->_i;
+		@inc_chk _i _n ?~copy_next;
+];
+#EndIf;
+
+[ _PatternRanking p_pattern _i _val;
+	! Return a biased pattern ranking:
+	! this is used to select more basic patterns in some situations,
+	! and since when the parsning fails but there are two possible
+	! patterns, once with preposition and one with basic object slots,
+	! then give bias to the more basic form (without prepositions).
+	! This gives better error messages.
+	_i = (p_pattern-->0 & $400); ! give bias to action_reverse
+	p_pattern = p_pattern + 2;
+	for(::) {
+		_val = p_pattern->0;
+		if(_val == TT_END) {
+			return _i;
+		} else if(_val == TOKEN_SINGLE_PREP or TOKEN_FIRST_PREP) {
+			_i = _i + 2; ! give bias to patterns without prepositions
+		} else if(_val ~= TOKEN_MIDDLE_PREP or TOKEN_LAST_PREP) {
+			! Alternative prepositions should be skipped, and all other
+			! tokens should add to the length
+			_i++;
+		}
+		p_pattern = p_pattern + 3;
+	}
 ];
 
 #IfDef DEBUG;
@@ -280,7 +352,7 @@ System_file;
 	}
 ];
 
-[ _CheckPattern p_pattern _i _action_number _token_top _token_next _token_bottom;
+[ _PrintGrammarPattern p_pattern _i _action_number _token_top _token_next _token_bottom;
 	! action number is the first two bytes
 	_action_number = p_pattern-->0;
 	p_pattern = p_pattern + 2;
@@ -305,28 +377,28 @@ System_file;
 #EndIf;
 
 
-! Keep the routines WordAddress, WordLength, NextWord and NextWordStopped just next to _CheckNoun,
-! since they will typically be called from parse_name routines, which are called from _CheckNoun
+! Keep the routines WordAddress, WordLength, NextWord and NextWordStopped just next to _ParseNounPhrase,
+! since they will typically be called from parse_name routines, which are called from _ParseNounPhrase
 
-[ WordAddress p_wordnum;    ! Absolute addr of 'wordnum' string in buffer
+[ WordAddress p_wordnum;	! Absolute addr of 'wordnum' string in buffer
 	return buffer + parse->(p_wordnum*4+1);
 ];
 
-[ WordLength p_wordnum;     ! Length of 'wordnum' string in buffer
+[ WordLength p_wordnum;	 ! Length of 'wordnum' string in buffer
 	return parse->(p_wordnum*4);
 ];
 
-[ WordValue p_wordnum;      ! Dictionary value of 'wordnum' string in buffer
-    return parse-->(p_wordnum*2-1);
+[ WordValue p_wordnum;	  ! Dictionary value of 'wordnum' string in buffer
+	return parse-->(p_wordnum*2-1);
 ];
 
-[ NumberWords;              ! Number of parsed strings in buffer
-    return parse->1;
+[ NumberWords;			  ! Number of parsed strings in buffer
+	return parse->1;
 ];
 
 [ _PeekAtNextWord _i;
 	_i = NextWord();
-	--wn; ! wn was modified by NextWord, restore it
+	wn--; ! wn was modified by NextWord, restore it
 	return _i;
 ];
 
@@ -344,56 +416,79 @@ System_file;
 	return NextWord();
 ];
 
-[ _CalculateObjectLevel p_obj;
+[ _CalculateObjectLevel p_obj _score;
 	! set priority levels for inclusion in which?
 	! queries. Low level objects will only be
 	! considered if there are no higher levels in play
+	! This routine should return a value between 0 and 990.
+	! The last digit of the return value must be 0.
 	if(meta == true) {
 		! if meta then add all matching objects
-		return 5;
+		return 900;
 	}
-	if (p_obj has concealed) return 1;
-	if(p_obj has scenery) return 2;
-	if(action == ##Take && p_obj in actor) {
+	if (p_obj has concealed) return 200;
+
+	_score = 500;
+
+	if(p_obj has scenery) _score = 300;
+	else if((action == ##Take && p_obj in actor) ||
+			(object_token_type == MULTIINSIDE_OBJECT && (parent(p_obj) == location or actor ||
+					(second ~= 0 && parent(p_obj) ~= second)))) {
 		! take gives low priority for already held objects
-		return 3;
-	}
-	if(object_token_type == HELD_OBJECT or MULTIHELD_OBJECT && p_obj notin actor) {
+		! and MULTIINSIDE gives low priority for objects directly in location + objects not inside the second object
+		_score = 400;
+	} else if(object_token_type == HELD_OBJECT or MULTIHELD_OBJECT or MULTIEXCEPT_OBJECT && p_obj notin actor) {
 		! low priority for not held objects
-		return 3;
+		_score = 400;
+		if(object_token_type == MULTIEXCEPT_OBJECT && p_obj in second) {
+			! lower priority for object in/on the second object
+			_score = _score - 10;
+		}
 	}
-	return 4;
+	if(action == ##Exit && actor notin p_obj)
+		_score = _score - 50;
+
+	if(p_obj ~= Directions)
+		_score = _score + 10;
+
+	return _score;
 ];
 
+Constant _PARSENP_CHOOSEOBJ_WEIGHT = 1000;
 
 #Ifdef ParseNoun;
-[ _CheckNoun p_parse_pointer _i _j _k _p _obj _matches
-		_which_best_level _current_word _name_array _name_array_len _best_score
-		_result _stop _parse_noun_words;
+[ _ParseNounPhrase p_parse_pointer p_expecting_single_noun
+		_i _j _k _p _obj _matches _best_word_count _current_word
+		_name_array _name_array_len _best_score _result _parse_noun_words;
 #Ifnot;
-[ _CheckNoun p_parse_pointer _i _j _k _p _obj _matches
-		_which_best_level _current_word _name_array _name_array_len _best_score
-		_result _stop;
+[ _ParseNounPhrase p_parse_pointer p_expecting_single_noun
+		_i _j _k _p _obj _matches _best_word_count _current_word
+		_name_array _name_array_len _best_score _result;
 #Endif;
-#IfDef DEBUG_CHECKNOUN;
-	print "Entering _CheckNoun!^";
+#IfDef DEBUG_PARSENOUNPHRASE;
+	print "Entering _ParseNounPhrase, first word is ";
+	_i = WordValue(wn);
+	if(_i == 0) print "[Unknown]";
+	else print (address) _i;
+	new_line;
 #EndIf;
 	! return 0 if no noun matches
 	! return -n if more n matches found (n > 1)
 	! else return object number
 	! side effects:
-	! - uses parser_check_multiple
+	! - uses parser_check_multiple (>0 if considering multiple nouns)
+	! - uses parser_two (== max entries when matching multiple nouns)
 	! - which_object
-	!     - stores number of objects in -> 0
-	!     - stores number of words consumed in -> 1
-	!     - stores all matching nouns if more than one in -->1 ...
+	!	 - stores number of objects in -> 0
+	!	 - stores number of words consumed in -> 1
+	!	 - stores all matching nouns if more than one in -->1 ...
 
 	! don't check if wn out of range
 	if(wn > num_words) return 0;
 
 	! this is needed after a which question, so that we
 	! can answer 'the pink book' and similar
-	while(p_parse_pointer --> 0 == 'a//' or 'the' or 'an') {
+	while(p_parse_pointer --> 0 == 'un' or 'una' or 'unos' or 'unas' or 'el' or 'la' or 'los' or 'las') {
 		wn = wn + 1;
 		p_parse_pointer = p_parse_pointer + 4;
 	}
@@ -407,15 +502,14 @@ System_file;
 
 #IfDef DEBUG;
 	if(meta) {
-		_name_array_len = Directions; _stop = top_object + 1;
+		_name_array_len = Directions; parser_one = top_object + 1;
 	} else {
-		_name_array_len = 0; _stop = scope_objects;
+		_name_array_len = 0; parser_one = scope_objects;
 	}
-	for(_i = _name_array_len: _i < _stop: _i++) {
+	for(_i = _name_array_len: _i < parser_one: _i++) {
 		if(meta) _obj = _i; else _obj = scope-->_i;
 #IfNot;
-	_stop = scope_objects;
-	for(_i = 0: _i < _stop: _i++) {
+	for(_i = 0: _i < scope_objects: _i++) {
 		_obj = scope-->_i;
 #Endif;
 		if(parser_check_multiple && _obj == Directions && selected_direction ~= 0) continue;
@@ -425,14 +519,14 @@ System_file;
 #Ifdef ParseNoun;
 		_parse_noun_words = 0;
 #Endif;
-#IfDef DEBUG_CHECKNOUN;
+#IfDef DEBUG_PARSENOUNPHRASE;
 		print "Testing ", (the) _obj, "...^";
 #EndIf;
 		if((noun_filter == 0 || _UserFilter(_obj) ~= 0)) {
 #Ifdef ParseNoun;
 			_result = ParseNoun(_obj);
 			if(_result >= 0) {
-				jump register_candidate;
+				jump _register_candidate;
 			}
 			else if(wn > _k) {
 				_parse_noun_words = wn - _k;
@@ -461,9 +555,9 @@ System_file;
 				}
 #Ifnot; ! Not DEBUG
 #Ifdef OPTIONAL_REACTIVE_PARSE_NAME;
-			if(_obj has reactive && _obj.parse_name) {
+			if(_obj has reactive && (_result = _obj.parse_name) ~= 0 && _result ofclass routine) {
 #Ifnot;
-			if(_obj.parse_name) {
+			if((_result = _obj.parse_name) ~= 0 && _result ofclass routine) {
 #Endif;
 				_result = _obj.parse_name();
 #Endif;
@@ -474,7 +568,7 @@ System_file;
 				wn = _k;
 #Endif;
 				if(_result >= 0) {
-					jump register_candidate;
+					jump _register_candidate;
 				}
 			}
 
@@ -490,7 +584,7 @@ System_file;
 #IfNot;
 				@div _name_array_len 2 -> _name_array_len;
 #EndIf;
-#IfDef DEBUG_CHECKNOUN;
+#IfDef DEBUG_PARSENOUNPHRASE;
 				print "Trying to find ", (address) _current_word," in name (length ",_name_array_len,").^";
 #EndIf;
 #IfV3;
@@ -498,17 +592,17 @@ System_file;
 #EndIf;
 				while(_IsSentenceDivider(_p) == false) {
 #IfV5;
-					@scan_table _current_word _name_array _name_array_len -> _j ?success;
+					@scan_table _current_word _name_array _name_array_len -> _j ?_word_found_in_name_prop;
 #IfNot;
 					_j = 0;
-.next_word_in_name_prop;
+._next_word_in_name_prop;
 					@loadw _name_array _j -> sp;
-					@je sp _current_word ?success;
-					@inc_chk _j _name_array_len ?~next_word_in_name_prop;
+					@je sp _current_word ?_word_found_in_name_prop;
+					@inc_chk _j _name_array_len ?~_next_word_in_name_prop;
 #EndIf;
-					jump register_candidate;
-.success;
-#IfDef DEBUG_CHECKNOUN;
+					jump _register_candidate;
+._word_found_in_name_prop;
+#IfDef DEBUG_PARSENOUNPHRASE;
 					print " - matched ", (address) _current_word,"^";
 #EndIf;
 					_result++;
@@ -516,73 +610,82 @@ System_file;
 					_current_word = _p-->0;
 				}
 			}
-.register_candidate;
+._register_candidate;
 #Ifdef ParseNoun;
 			_result = _result + _parse_noun_words;
 #Endif;
-			if(_result > 0 && _result  >= _best_score) {
+			if(_result ~= 0 && _result >= _best_word_count) {
+				! This object is matched with at least as many words as the longest matches this far
 				_j = _CalculateObjectLevel(_obj);
 #Ifdef ChooseObjects;
-				! give ChooseObjects a chance to modify the level
-				_j = _j + 8*ChooseObjects(_obj, 2);
+				! give ChooseObjects a chance to modify the score
+				_j = _j + _PARSENP_CHOOSEOBJ_WEIGHT * ChooseObjects(_obj, 2);
 #Endif;
-				if(_result == _best_score) {
+
+				if(_j == _best_score && _result == _best_word_count && _matches < parser_two) {
 					_matches++;
 					which_object-->_matches = _obj;
-					which_level-->_matches = _j;
-					if(_which_best_level < _j) {
-						_which_best_level = _j;
-					}
-#IfDef DEBUG_CHECKNOUN;
-					print "Same best score ", _best_score, ". Matches are now ", _matches,"^";
+#IfDef DEBUG_PARSENOUNPHRASE;
+					print "Same best result: word count ", _result, ", score ", _best_score, ". Matches are now ", _matches,"^";
 #EndIf;
-				} else if(_result > _best_score) {
-#IfDef DEBUG_CHECKNOUN;
-					print "New best score ", _result, ". Old score was ", _best_score,"^";
+				} else if(_j > _best_score || _result > _best_word_count) {
+#IfDef DEBUG_PARSENOUNPHRASE;
+					print "New best result: word count ", _result, ", score ", _j , "^";
 #EndIf;
-					_best_score = _result;
+					_best_word_count = _result;
+					_best_score = _j;
 					_matches = 1;
 					which_object-->1 = _obj;
-					which_level-->1 = _j;
-					_which_best_level = _j;
 				}
 			}
 		}
-.not_matched;
 	}
 
-	! remove all objects that are less than _which_best_level
-	! (so that concealed/scenery are not considered if there are
-	! better non-concealed options available)
-    for(_i = 1, _j = 1 : _i <= _matches : _i++) {
-        if(which_level --> _i < _which_best_level) {
-        	continue;
+	for(_i = p_parse_pointer + (_best_word_count - 1) * 4: _i >= p_parse_pointer: _i = _i - 4) {
+		_j = _i-->0;
+		if(_j && (_j-> #dict_par1) & 4) parser_action = ##PluralFound;
+	}
+
+#Ifdef ChooseObjectsFinal;
+	if(_matches > 1 && parser_action ~= ##PluralFound && parser_all_found == 0) {
+		if(parser_phase == PHASE1) {
+			phase2_necessary = PHASE2_SUCCESS;
+		} else {
+			! ChooseObjectsFinal may call ChooseObjectsPick(n) or ChooseObjectsDiscard(n) to modify the array.
+			parser_one = _matches;
+			ChooseObjectsFinal(which_object + 2, _matches);
+			_matches = parser_one;
 		}
-        if(_i ~= _j) {
-        	which_object --> _j = which_object --> _i;
-        }
-        _j = _j + 1;
-    }
-    _matches = _j - 1;
+	}
+#Endif;
 
 	wn = _k;
-	which_object->0 = _matches;
-    if(_best_score > 0) {
-    	which_object->1 = _best_score;
-	} else {
-    	which_object->1 = 0;
+	which_object->0 = _matches; ! _matches is always < parser_one
+	which_object->1 = _best_word_count;
+
+	if(p_expecting_single_noun) {
+#Ifdef ChooseObjectsFinal;
+		! if p_expecting_single_noun is true, then try calling ChooseObjectsFinal
+		! to reduce a set of indistiguishable nouns to a single one.
+		if(_matches > 1) {
+			parser_one = which_object -> 0;
+ 			ChooseObjectsFinal(which_object + 2, parser_one);
+			parser_action = 0; ! we expect a single object, so no plural
+			_matches = parser_one;
+		}
+#EndIf;
 	}
 
 	if(_matches == 1) {
 		_result = which_object-->1;
-#IfDef DEBUG_CHECKNOUN;
+#IfDef DEBUG_PARSENOUNPHRASE;
 		print "Matched a single object: ", (the) _result,
 			", num words ", which_object->1, ", wn ", wn, "^";
 #EndIf;
 		return _result;
 	}
-#IfDef DEBUG_CHECKNOUN;
-				print "Matches: ", _matches,", num words ", which_object->1, "^";
+#IfDef DEBUG_PARSENOUNPHRASE;
+		print "Matches: ", _matches,", num words ", which_object->1, "^";
 #EndIf;
 	if(_matches > 1) {
 		return -_matches;
@@ -590,37 +693,65 @@ System_file;
 	return 0;
 ];
 
-[ _GetNextNoun p_parse_pointer p_phase _noun _oldwn _num_words_in_nounphrase
-		_pluralword _i _j _k _m _all_found;
+#Ifdef ChooseObjectsFinal;
+! ChooseObjectsFinal may call ChooseObjectsFinal_Pick(n) or ChooseObjectsFinal_Discard(n) to modify the array.
+
+[ ChooseObjectsFinal_Pick p_n _arr;
+	_arr = which_object + 2;
+#Iftrue RUNTIME_ERRORS > RTE_MINIMUM;
+	if(p_n < 0 || p_n > parser_one - 1)
+		_RunTimeError(ERR_ILLEGAL_CHOOSEOBJNO);
+#EndIf;
+	_arr-->0 = _arr-->p_n;
+	parser_one = 1;
+];
+
+[ ChooseObjectsFinal_Discard p_n _i _arr;
+	_arr = which_object + 2;
+#Iftrue RUNTIME_ERRORS > RTE_MINIMUM;
+	if(p_n < 0 || p_n > parser_one - 1)
+		_RunTimeError(ERR_ILLEGAL_CHOOSEOBJNO);
+#EndIf;
+	parser_one--;
+	for(_i=p_n: _i<parser_one: _i++) {
+		_arr-->_i = _arr-->(_i+1);
+	}
+];
+#Endif; !Ifdef ChooseObjectsFinal
+
+
+[ _GetNextNoun p_parse_pointer p_expecting_single_noun _noun _oldwn
+		_num_words_in_nounphrase _pluralword _i _j _k _m _all_found;
 	! try getting a noun from the <p_parse_pointer> entry in parse
 	! return:
 	!   <noun number> if found
 	!   0  if no noun found (but we didn't write an error message)
 	!   -1 if we should give up parsing completely (because
-	!      the player has entered a new command line).
+	!	  the player has entered a new command line).
 	!   -2 if parsing failed, and error message written
 	!
 	! Side effects:
 	! - if found, then wn will be set to the first word in the noun phrase,
-	!       skipping any articles
+	!	   skipping any articles
 	! - if plural matched, then parser_action set to ##PluralFound
 	!
 	! NOTE: you need to update parse_pointer after calling _GetNextNoun since
 	! wn can change
 
 	parser_action = 0;
+	which_object->0 = 0;
 
 	! special rule to avoid "all in"
 	! (since 'in' in this combination is usually
 	! a preposition but also matches a direction noun)
 	if(p_parse_pointer-->0 == ALL_WORD &&
-		(p_parse_pointer + 4)-->0 == 'in') {
+		p_parse_pointer-->2 == 'in') {
 		++wn;
 		return 0;
 	}
 
-	! skip 'the', 'all' etc
-	while(p_parse_pointer --> 0 == 'a//' or 'the' or 'an' or ALL_WORD or EXCEPT_WORD1 or EXCEPT_WORD2) {
+	! skip 'all' etc
+	while(p_parse_pointer --> 0 == ALL_WORD or EXCEPT_WORD1 or EXCEPT_WORD2) {
 		if(p_parse_pointer --> 0 == ALL_WORD) {
 			parser_all_found = true; !TODO: do we really need the global?
 			_all_found = true;
@@ -633,23 +764,30 @@ System_file;
 	}
 
 	! check for pronouns
-	if(p_parse_pointer --> 0 == 'it' or 'him' or 'her' or 'them') {
-		switch(p_parse_pointer --> 0) {
-		'it': _noun = itobj;
-		'him': _noun = himobj;
-		'her': _noun = herobj;
-		'them': _noun = themobj;
+	_k = p_parse_pointer --> 0;
+	if(_k == '-lo' or '-la' or '-los' or '-las' or '-le' or '-les' or '-te') { ! TODO terminaciones en lo la los las
+		p_parse_pointer = p_parse_pointer + 4;
+		switch(_k) {
+		'-lo': _noun = el_obj;
+		'-la': _noun = la_obj;
+		'-los': _noun = los_obj;
+		'-las': _noun = las_obj;
+		'-le': _noun = el_obj;
+		'-les': _noun = la_obj;
+		'-te': _noun = player;
 		}
 		if(_noun == 0) {
 			phase2_necessary = PHASE2_ERROR;
-			if(p_phase == PHASE2) {
-				print "I don't know what ~",(address) p_parse_pointer --> 0, "~ refers to.^";
+			if(parser_phase == PHASE2) {
+				PrintMsg(MSG_PARSER_NO_IT, _k);
+!				print "I don't know what ~",(address) p_parse_pointer --> 0, "~ refers to.^";
 				return -2;
 			}
 		} else if(TestScope(_noun) == false) {
 			phase2_necessary = PHASE2_ERROR;
-			if(p_phase == PHASE2) {
-				print "You can't see ~",(address) p_parse_pointer --> 0, "~ (", (name) _noun, ") at the moment.^";
+			if(parser_phase == PHASE2) {
+				PrintMsg(MSG_PARSER_CANT_SEE_IT, _k, _noun);
+!				print "You can't see ~",(address) p_parse_pointer --> 0, "~ (", (name) _noun, ") at the moment.^";
 				return -2;
 			}
 	 	}
@@ -657,27 +795,42 @@ System_file;
 			! a filter was defined, but failed for it/his/her
 			return 0;
 		}
-		++wn;
+		wn++;
 		return _noun;
 	}
 
 	! not a pronoun, continue
 #IfDef DEBUG_GETNEXTNOUN;
-	print "Calling _CheckNoun(",p_parse_pointer,");^";
+	print "Calling _ParseNounPhrase(",p_parse_pointer,");^";
 	if(p_parse_pointer-->0 > 2000) print (address) p_parse_pointer-->0, " ", _pluralword, "^";
 #Endif;
-	_noun = _CheckNoun(p_parse_pointer);
+    ! try normal parsing of noun phrase
+	_k = TryNumber(wn);
+	parser_two = MAX_WHICH_OBJECTS;
+	_noun = _ParseNounPhrase(p_parse_pointer, p_expecting_single_noun);
+	if(_k > 0 && (_noun == 0 || which_object -> 1 == 1)) { ! only number parsed
+		! now we try <number> <noun> instead, skipping the <number> first
+		wn = wn + 1;
+		parser_two = _k;
+		! assume that it is plural if there is a number at first
+		_k = parser_action;
+		if(parser_two > 0) parser_action = ##PluralFound;
+		_noun = _ParseNounPhrase(p_parse_pointer + 4, p_expecting_single_noun);
+		! restore parser_action if no words matched (perhaps out of scope)
+		if(which_object -> 1 == 0) parser_action = _k;
+	}
 	_num_words_in_nounphrase = which_object -> 1;
 
 	! check if the noun phrase contains a plural word
 	_pluralword = false;
 	if(parser_action == ##PluralFound) _pluralword = true;
-	for(_i = p_parse_pointer + (_num_words_in_nounphrase - 1) * 4: _i >= p_parse_pointer: _i = _i - 4) {
-		_j = _i-->0;
-		if(_j && (_j-> #dict_par1) & 4) _pluralword = true;
-	}
 
-.recheck_noun;
+	! If there are multiple objects to choose from and the first one is concealed,
+	! we consider it like no object was matched
+	if(_noun < 0 && (which_object-->1) has concealed)
+		_noun = 0;
+
+._getnextnoun_recheck_noun;
 	if(_noun < 0) {
 		if(_pluralword || _all_found) {
 			! we don't have to ask here, because the input was
@@ -687,7 +840,7 @@ System_file;
 			wn = wn + _num_words_in_nounphrase;
 			return 0;
 		}
-		if(p_phase == PHASE1) {
+		if(parser_phase == PHASE1) {
 			phase2_necessary = PHASE2_DISAMBIGUATION;
 			wn = wn + _num_words_in_nounphrase;
 			return 1; ! a random noun in phase 1 just to avoid which? question
@@ -718,9 +871,9 @@ System_file;
 			! processing "take transparent". If the player responds
 			! 'box' then we don't know if it is the transparent or
 			! opqaue box unless we also add the 'transparent' word
-			! before calling _CheckNoun
+			! before calling _ParseNounPhrase
 
-			_oldwn = wn; ! wn is used in _CheckNoun, so save it
+			_oldwn = wn; ! wn is used in _ParseNounPhrase, so save it
 
 			! add the original words to the new input. For example,
 			! if the input was 'take book' and we added 'red'
@@ -732,7 +885,7 @@ System_file;
 			_CopyParseArray(parse, parse3);
 			for(_i = 0 : _i < parse3 -> 1 : _i++) {
 				!print "Testing ", (address) (parse3 + 2 + _i * 4) --> 0, "^";
-				_j-->0 = (parse3 + 2 + _i * 4) --> 0;
+				_j-->0 = parse3 --> (_i + _i + 1);
 
 				! note that we have to add this is correct order otherwise
 				! parse_name routines may not work, so we need to test
@@ -741,7 +894,7 @@ System_file;
 #IfDef DEBUG;
 				!_PrintParseArray(parse);
 #Endif;
-				_m = (parse2 + 4 * _oldwn - 2)-->0;
+				_m = parse2-->(_oldwn + _oldwn - 1);
 				parse->1 = 2;
 				if(_m == _j-->0) {
 					! don't allow repeated words (red red etc)
@@ -753,7 +906,7 @@ System_file;
 				!_PrintParseArray(parse);
 #Endif;
 				wn = 1;
-				_noun = _CheckNoun(_j);
+				_noun = _ParseNounPhrase(_j, p_expecting_single_noun);
 				if(_noun <= 0) {
 					! the normal word order didn't work. Try the other way
 					!print "testing other word order^";
@@ -761,7 +914,7 @@ System_file;
 					!_PrintParseArray(parse);
 #Endif;
 					_m = _j-->0;
-					_j-->0 = (parse2 + 4 * _oldwn - 2)-->0;
+					_j-->0 = parse2-->(_oldwn + _oldwn - 1);
 					parse->1 = 2;
 					if(_m == _j-->0) {
 						! don't allow repeated words (red red etc)
@@ -773,15 +926,15 @@ System_file;
 					!_PrintParseArray(parse);
 #Endif;
 					wn = 1;
-					_noun = _CheckNoun(_j);
+					_noun = _ParseNounPhrase(_j, p_expecting_single_noun);
 				}
 				if(_noun == Directions && which_object->1 < parse->1) {
-					! _CheckNoun only matched a direction and
+					! _ParseNounPhrase only matched a direction and
 					! should be treated as new input instead
 					parse->1 = which_object->1;
 					return -1;
 				}
-				wn = _oldwn; ! restore wn after the _CheckNoun calls
+				wn = _oldwn; ! restore wn after the _ParseNounPhrase calls
 				if(_noun > 0) {
 					! we have successfully disambiguated the noun phrase.
 					! now we need to restore the length of the
@@ -790,8 +943,8 @@ System_file;
 					! don't forget to restore the old arrays
 					_CopyInputArray(buffer2, buffer);
 					_CopyParseArray(parse2, parse);
-                    num_words = parse -> 1;
-					jump recheck_noun;
+					num_words = parse -> 1;
+					jump _getnextnoun_recheck_noun;
 				}
 			}
 			PrintMsg(MSG_PARSER_CANT_DISAMBIGUATE);
@@ -832,14 +985,6 @@ System_file;
 	rfalse;
 ];
 
-[ ParseToken p_token_type p_token_data;
-	! DM defines ParseToken as ParseToken(tokentype,tokendata)
-	! ParseToken is similar to a general parse routine,
-	! and returns GPR_FAIL, GPR_MULTIPLE, GPR_NUMBER,
-	! GPR_PREPOSITION, GPR_REPARSE or the object number
-	return _ParseToken(p_token_type, p_token_data, -PHASE1);
-];
-
 [ ImplicitGrabIfNotHeld p_noun _ks;
 	! return true if p_noun isn't held by the player at the end of the call
 	! (so that you can use it like: if(_ImplicitGrabIfNotHeld(...)) { }
@@ -874,8 +1019,56 @@ System_file;
 	rfalse;
 ];
 
-[ _ParseToken p_pattern_pointer p_parse_pointer p_phase _noun _i _token
-		_token_type _token_data _old_wn _j _k _parse_plus_2 _num_already_added;
+[ ParseToken p_token_type p_token_data;
+	! DM defines ParseToken as ParseToken(tokentype,tokendata)
+	! ParseToken is similar to a general parse routine,
+	! and returns GPR_FAIL, GPR_MULTIPLE, GPR_NUMBER,
+	! GPR_PREPOSITION, GPR_REPARSE or the object number
+	return _ParseToken(p_token_type, p_token_data, -1);
+];
+
+[_ObjInMultipleObjects p_obj p_special_count p_count _i;
+! Call with p_special_count = true if p_count holds the count
+! Otherwise, count is in multiple_objects-->0
+	if(p_special_count == 0)
+		p_count = multiple_objects-->0;
+#Ifv5;
+!	@loadw multiple_objects 0 -> sp;
+	@add multiple_objects 2 -> sp;
+!	@scan_table p_obj sp sp -> _i ?rtrue;
+	@scan_table p_obj sp p_count -> _i ?rtrue;
+#Ifnot;
+	for(_i = 1: _i <= p_count: _i++) {
+		if(multiple_objects --> _i == p_obj) {
+			rtrue;
+		}
+	}
+#Endif;
+	rfalse;
+];
+
+[ _CheckForAndObject p_parse_plus_2 _i;
+	if(_PeekAtNextWord() == comma_word or AND_WORD) {
+		! check the next word after "and" or comma
+		if((wn + 1) > parse->1) {
+			!print "and followed by nothing^";
+			! there is no word, so the pattern fails
+			return GPR_FAIL;
+		}
+		_i = (p_parse_plus_2 + 4 * wn) --> 0; ! Word value
+		if(_i ~= 0 && _i -> DICT_BYTES_FOR_WORD & 1 == 0) {
+			! this is not a verb so we assume it is a list
+			! of nouns instead. Continue to parse
+			++wn;
+			rfalse;
+		}
+		!print "and followed by a verb^";
+	}
+];
+
+[ _ParseToken p_pattern_pointer p_parse_pointer _noun _i _j _k _token
+		_token_type _token_data _old_wn _parse_plus_2 
+		_num_already_added;
 	! ParseToken is similar to a general parse routine,
 	! and returns GPR_FAIL, GPR_MULTIPLE, GPR_NUMBER,
 	! GPR_PREPOSITION, GPR_REPARSE or the object number
@@ -885,9 +1078,9 @@ System_file;
 	! when the calling routine already has them at hand)
 	object_token_type = -1;
 	_parse_plus_2 = parse + 2;
-	if(p_phase < 0) {
+	if(_noun < 0) {
 		! called from ParseToken (DM library API)
-		p_phase = -p_phase;
+		! since third argument is -1 instead of default 0
 		_token = p_pattern_pointer;
 		_token_data = p_parse_pointer;
 		p_parse_pointer = _parse_plus_2 + 4 * (wn - 1);
@@ -897,7 +1090,9 @@ System_file;
 		_token_data = (p_pattern_pointer + 1) --> 0;
 	}
 	_token_type = _token & $0f;
-	if(_token_type ~= TT_PREPOSITION or TT_SCOPE) _UpdateScope(actor);
+	if(_token_type ~= TT_PREPOSITION or TT_SCOPE) {
+		_UpdateScope(actor, PARSING_REASON);
+	}
 	! first set up filters, if any
 	noun_filter = 0;
 	if(_token_type == TT_ROUTINE_FILTER) {
@@ -913,14 +1108,13 @@ System_file;
 		scope_routine = _token_data;
 		! check what type of routine (single or multi)
 		scope_stage = 1;
-		_i = indirect(scope_routine);
-		if(_i == 1)
+		if(indirect(scope_routine) == 1)
 			_token_data = MULTI_OBJECT;
 		else
 			_token_data = NOUN_OBJECT;
 		! trigger add to scope
 		scope_stage = 2;
-		_UpdateScope();
+		_UpdateScope(actor, PARSING_REASON);
 		! not a real error, just to make sure that phase2 runs
 		phase2_necessary = PHASE2_SCOPE;
 	} else if(_token_type == TT_PARSE_ROUTINE) {
@@ -965,12 +1159,18 @@ System_file;
 		if(_token_data == NOUN_OBJECT or HELD_OBJECT or CREATURE_OBJECT) {
 			if(_PeekAtNextWord() == ALL_WORD or EXCEPT_WORD1 or EXCEPT_WORD2) {
 				! we don't accept all/all-but with held or creature
-				if(scope_stage == 2 && p_phase == PHASE2) {
-					PrintMsg(MSG_PARSER_NOT_MULTIPLE_VERB);
+				_noun = parse-->((wn+1)*2 - 1);
+				if(_noun == 'but') {
+					return GPR_FAIL;
+				} else {
+					phase2_necessary = PHASE2_ERROR;
+					if(parser_phase == PHASE2) {
+						PrintMsg(MSG_PARSER_NOT_MULTIPLE_VERB);
+						return GPR_FAIL;
+					}
 				}
-				return GPR_FAIL;
 			}
-			_noun = _GetNextNoun(p_parse_pointer, p_phase);
+			_noun = _GetNextNoun(p_parse_pointer, true);
 			if(_noun == -2) {
 				return GPR_FAIL;
 			}
@@ -978,13 +1178,26 @@ System_file;
 				return GPR_REPARSE;
 			}
 			if(_noun == 0) {
-				parser_unknown_noun_found = p_parse_pointer;
-				return GPR_FAIL;
+				! Here we got a list of nouns when we only expected
+				! one. Let's give ChooseObjectsFinal a chance
+				! to reduce the numbers before failing
+				parser_one = which_object -> 0;
+#Ifdef ChooseObjectsFinal;
+				if(parser_one > 1) {
+					ChooseObjectsFinal(which_object + 2, parser_one);
+				}
+#Endif;
+				if(parser_one == 1) {
+					_noun = which_object --> 1;
+				} else {
+					parser_unknown_noun_found = p_parse_pointer;
+					return GPR_FAIL;
+				}
 			}
 			p_parse_pointer = _parse_plus_2 + 4 * (wn - 1);
 			if(_token_data == CREATURE_OBJECT && _CreatureTest(_noun) == 0)  {
 				phase2_necessary = PHASE2_ERROR;
-				if(p_phase == PHASE2) {
+				if(parser_phase == PHASE2) {
 					PronounNotice(_noun);
 					PrintMsg(MSG_PARSER_ONLY_TO_ANIMATE);
 				}
@@ -992,7 +1205,7 @@ System_file;
 			}
 			if(_token_data == HELD_OBJECT && actor == player && _noun notin actor) {
 				phase2_necessary = PHASE2_ERROR;
-				if(p_phase == PHASE2) {
+				if(parser_phase == PHASE2) {
 #Ifdef DisallowTakeAnimate;
 					if(_noun hasnt scenery or static &&
 							(_noun hasnt animate || DisallowTakeAnimate(_noun) == false) &&
@@ -1010,7 +1223,7 @@ System_file;
 		} else if(_token_data == MULTI_OBJECT or MULTIHELD_OBJECT or MULTIEXCEPT_OBJECT or MULTIINSIDE_OBJECT) {
 			for(::) {
 				_old_wn = wn;
-				_noun = _GetNextNoun(p_parse_pointer, p_phase);
+				_noun = _GetNextNoun(p_parse_pointer, false);
 				if(_noun == -2) {
 					return GPR_FAIL;
 				}
@@ -1032,17 +1245,13 @@ System_file;
 						! copy which_object to multiple_objects
 						for(_i = 0: _i < which_object->0: _i++) {
 							! don't add if already in multiple_objects
-							_k = 1;
-							for(_j = 0: _j < multiple_objects-->0: _j++) {
-								if(multiple_objects --> _j == which_object--> (_i + 1)) {
-									_k = 0;
-									! this was already added
-									!print _i, " ", _j, " ", (the) multiple_objects --> _j, " == ", (the) which_object--> (_i + 1), "^";
+							_k = which_object--> (_i + 1);
+							if(_ObjInMultipleObjects(_k) == false) {
+								_j = (multiple_objects --> 0) + 1;
+								if(_j < MAX_MULTIPLE_OBJECTS) {
+									multiple_objects --> 0 = _j;
+									multiple_objects --> _j = _k;
 								}
-							}
-							if(_k) {
-								multiple_objects --> 0 = 1 + (multiple_objects --> 0);
-								multiple_objects --> (multiple_objects --> 0) = which_object--> (_i + 1);
 							}
 						}
 #IfDef DEBUG_PARSETOKEN;
@@ -1056,13 +1265,19 @@ System_file;
 							! so we clear scope and copy Xs into scope
 							! before GetNextNoun. Later we need to restore scope
 							scope_objects = multiple_objects --> 0;
-							for(_noun = 0: _noun < multiple_objects --> 0 : _noun++) {
+#Ifv5;
+							@log_shift scope_objects 1 -> sp; ! Multiply by 2
+							@add multiple_objects 2 -> sp;
+							@copy_table sp scope sp;
+#Ifnot;
+							for(_noun = 0: _noun < scope_objects : _noun++) {
 								scope-->_noun = multiple_objects-->(_noun + 1);
 							}
-							_noun = _GetNextNoun(p_parse_pointer + 4, p_phase);
+#Endif;
+							_noun = _GetNextNoun(p_parse_pointer + 4, false);
 							scope_modified = true; ! restore scope
 							if(_noun <= 0) {
-								if(p_phase == PHASE2) {
+								if(parser_phase == PHASE2) {
 									PrintMsg(MSG_PARSER_NOTHING_TO_VERB, wn);
 								}
 								return GPR_FAIL;
@@ -1073,13 +1288,7 @@ System_file;
 							! we started parsing this NP (e.g. get books
 							! but X), then it should not be used since
 							! the "but" object only refers to this NP.
-							_k = 1;
-							for(_i = 0: _i < _num_already_added: _i++) {
-								if(_noun == multiple_objects-->(_i + 1)) {
-									_k = 0;
-								}
-							}
-							if(_k) {
+							if(_ObjInMultipleObjects(_noun, true, _num_already_added) == false) {
 								parser_all_except_object = _noun;
 							}
 							! allow 'take all Xs but Y one'
@@ -1088,6 +1297,15 @@ System_file;
 								wn = wn + 1;
 							}
 						}
+						! check if get [all] Xs (and|,) Y...
+						_i = _CheckForAndObject(_parse_plus_2);
+						if(_i == false) {
+							p_parse_pointer = _parse_plus_2 + 4 * (wn - 1);
+							parser_all_found = false;
+							continue;
+						}
+						if(_i == GPR_FAIL)
+							return _i;
 						return GPR_MULTIPLE;
 					}
 					if(p_parse_pointer-->0 == ALL_WORD) {
@@ -1100,12 +1318,12 @@ System_file;
 						p_parse_pointer = _parse_plus_2 + 4 * (wn - 2);
 						if(p_parse_pointer-->0 == EXCEPT_WORD1 or EXCEPT_WORD2) {
 							!print "take all but^";
-							if(p_phase == PHASE2) {
+							if(parser_phase == PHASE2) {
 								PrintMsg(MSG_PARSER_UNKNOWN_SENTENCE);
 							}
 							return GPR_FAIL;
 						}
-						p_parse_pointer = _parse_plus_2 + 4 * (_old_wn);
+						p_parse_pointer = _parse_plus_2 + 4 * _old_wn;
 						if(p_parse_pointer-->0 == EXCEPT_WORD1 or EXCEPT_WORD2) {
 
 							!print "take all but <noun>^";
@@ -1118,7 +1336,7 @@ System_file;
 						_AddMultipleNouns(_token_data);
 						parser_all_found = true;
 						if(multiple_objects --> 0 == 0) {
-							if(p_phase == PHASE2) {
+							if(parser_phase == PHASE2) {
 								PrintMsg(MSG_PARSER_NOTHING_TO_VERB, wn);
 								return GPR_FAIL;
 							}
@@ -1136,43 +1354,20 @@ System_file;
 					return GPR_FAIL;
 				}
 				! adding a single object - check if it's already there
-				_j = false;
-				_k = multiple_objects-->0;
-				if(_k > 0) {
-					for(_i = 1: _i <= _k: _i++) {
-						if(multiple_objects-->_i == _noun) {
-							_j = true;
-							break;
-						}
-					}
-				}
-				! If _j == false, the object is not in the list, so add it!
-				if(_j == false) {
+				if(_ObjInMultipleObjects(_noun) == false) {
 					p_parse_pointer = _parse_plus_2 + 4 * (wn - 1);
-					multiple_objects --> 0 = 1 + (multiple_objects --> 0);
-					multiple_objects --> (multiple_objects --> 0) = _noun;
+					_j = (multiple_objects --> 0) + 1;
+					multiple_objects --> 0 = _j;
+					multiple_objects --> _j = _noun;
 				}
-				! check if we should continue: and or comma
-				! not followed by a verb
-				if(_PeekAtNextWord() == comma_word or AND_WORD) {
-					! check the next word after "and" or comma
-					if((wn + 1) > parse->1) {
-						! there is no word, so the pattern fails
-						pattern_pointer = pattern_pointer + 3;
-						!print "and followed by nothing^";
-						return GPR_FAIL;
-					}
-					_i = (_parse_plus_2 + 4*wn ) --> 0; ! Word value
-					if(_i ~= 0 && _i -> DICT_BYTES_FOR_WORD & 1 == 0) {
-						! this is not a verb so we assume it is a list
-						! of nouns instead. Continue to parse
-						++wn;
-						p_parse_pointer = _parse_plus_2 + 4 * (wn - 1);
-						!print "and followed by a noun^";
-						continue;
-					}
-					!print "and followed by a verb^";
+				! check if we should continue: and or comma followed by a noun
+				_i = _CheckForAndObject(_parse_plus_2);
+				if(_i == false) {
+					p_parse_pointer = _parse_plus_2 + 4 * (wn - 1);
+					continue;
 				}
+				if(_i == GPR_FAIL)
+					return _i;
 				break;
 			}
 			if(multiple_objects --> 0 == 0) {
@@ -1192,7 +1387,7 @@ System_file;
 			if(p_pattern_pointer ~= 0) {
 				! loop over all possible prepositions and update wn
 				! if topic and preposition matched
-				for(_i = 3: (p_pattern_pointer + _i)->0 >= TOKEN_SINGLE_PREP: _i = _i + 3) {
+				for(_i = 3: p_pattern_pointer->_i >= TOKEN_SINGLE_PREP: _i = _i + 3) {
 					!print (address) (p_pattern_pointer + _i + 1) --> 0, "^";
 					if(_ParseTopic(wn, p_parse_pointer, (p_pattern_pointer + _i + 1) --> 0)) {
 						break;
@@ -1218,7 +1413,7 @@ System_file;
 	}
 ];
 
-[ _AddMultipleNouns p_multiple_objects_type   _i _addobj _obj _p _ceil;
+[ _AddMultipleNouns p_multiple_objects_type   _i _j _addobj _obj _p _ceil;
 	multiple_objects --> 0 = 0;
 	for(_i = 0: _i < scope_objects: _i++) {
 		_obj = scope-->_i;
@@ -1233,8 +1428,13 @@ System_file;
 			_p = parent(_obj);
 			_ceil = TouchCeiling(player);
 			_addobj = false;
-			if((_p == _ceil || (_p ~= 0 && _p in _ceil && _p has scenery or static && _p hasnt concealed && _p has container or supporter)) && _obj hasnt scenery or concealed or static or animate)
-				_addobj = true;
+			if((_p == _ceil || (_p ~= 0 && _p in _ceil && _p has scenery or static && _p hasnt concealed && _p has container or supporter)) && _obj hasnt scenery or concealed or static) {
+#Ifdef DisallowTakeAnimate;
+                if(_obj hasnt animate || DisallowTakeAnimate(_obj) == false ) _addobj = true;
+#IfNot;
+                if(_obj hasnt animate) _addobj = true;
+#Endif;
+            }
 			if(scope_stage == 2) _addobj = true; ! added by scope routine
 		MULTIINSIDE_OBJECT:
 			_p = parent(_obj);
@@ -1254,8 +1454,9 @@ System_file;
 		}
 #Endif;
 		if(_addobj) {
-			multiple_objects --> 0 = 1 + (multiple_objects --> 0);
-			multiple_objects --> (multiple_objects --> 0) = _obj;
+			_j = (multiple_objects --> 0) + 1;
+			multiple_objects --> 0 = _j;
+			multiple_objects --> _j = _obj;
 			!print "Adding ", (name) _obj, "^";
 		}
 	}
@@ -1337,6 +1538,8 @@ Array guess_object-->5;
 	CREATURE_OBJECT:
 		if(_creature_count == 1)
 			_noun = guess_object-->GUESS_CREATURE;
+	TOPIC_OBJECT:
+		! we can't guess anything when parsing a topic
 	default:
 		if(_noun == 0 && _container_count == 1 &&
 			action == ##Open or ##Close) {
@@ -1353,7 +1556,7 @@ Array guess_object-->5;
 
 	if(_noun == _assumed) _noun = 0;
 	if(_noun) {
-		print "(assuming ";
+		print "(suponiendo ";
 		if(p_prep) {
 			print (address) (p_prep+1) --> 0, " ";
 		}
@@ -1364,7 +1567,7 @@ Array guess_object-->5;
 
 #EndIf;
 
-[ _ParsePattern p_pattern p_phase _parse_pointer _noun _i _j _k _word _type _current_wn _old_dir_index;
+[ _ParsePattern p_pattern _parse_pointer _noun _i _j _k _word _type _current_wn _old_dir_index _next_word;
 	! Check if the current pattern will parse, with side effects if PHASE2
 	! _ParsePattern will return:
 	!   -1 if need to reparse
@@ -1375,7 +1578,6 @@ Array guess_object-->5;
 	pattern_pointer = p_pattern - 1;
 	num_noun_groups = 0;
 	noun = 0;
-	second = 0;
 	consult_from = 0;
 	consult_words = 0;
 	inp1 = 0;
@@ -1397,6 +1599,7 @@ Array guess_object-->5;
 
 	while(true) {
 		pattern_pointer = pattern_pointer + 3;
+		_next_word = _parse_pointer-->2;
 #IfDef DEBUG_PARSEPATTERN;
 		print "TOKEN: ", pattern_pointer -> 0, " wn ", wn, " _parse_pointer ", _parse_pointer, "^";
 #EndIf;
@@ -1406,18 +1609,18 @@ Array guess_object-->5;
 		if(_type == TT_END) {
 			if(_IsSentenceDivider(_parse_pointer)) {
 				! check if dictionary word after sentence divider
-				if(parse->1 > wn && (_parse_pointer + 4)-->0 == 0) {
+				if(parse->1 > wn && _next_word == 0) {
 					! uknown word, so probably an unknown word in a
 					! list matching the multi token, such as
 					! 'get box and SDASDASD'
-					if(p_phase == PHASE2) {
+					if(parser_phase == PHASE2) {
 						parser_unknown_noun_found = _parse_pointer + 4;
 						PrintMsg(MSG_PARSER_DONT_UNDERSTAND_WORD);
 					} else {
 						phase2_necessary = PHASE2_ERROR;
 					}
 					return wn;
-				} else if(parse->1 > wn && ((((_parse_pointer + 4)-->0) + DICT_BYTES_FOR_WORD)->0 & 1) == 0) {
+				} else if(parse->1 > wn && (_next_word->DICT_BYTES_FOR_WORD & 1) == 0) {
 					_current_wn = wn;
 					wn++;
 					if(Directions.parse_name()) {
@@ -1425,7 +1628,7 @@ Array guess_object-->5;
 					}
 					! neither a verb nor a direction, so probably a list
 					! of nouns without a matching multi token
-					if(p_phase == PHASE2) {
+					if(parser_phase == PHASE2) {
 						PrintMsg(MSG_PARSER_NOT_MULTIPLE_VERB);
 					} else {
 						phase2_necessary = PHASE2_ERROR;
@@ -1444,7 +1647,7 @@ Array guess_object-->5;
 				return 100; ! pattern matched
 			}
 			! Fail because the grammar line ends here but not the input
-			if(p_phase == 2) {
+			if(parser_phase == PHASE2) {
 				! last resort when no other error message printed
 				PrintMsg(MSG_PARSER_UNKNOWN_SENTENCE);
 			}
@@ -1456,7 +1659,7 @@ Array guess_object-->5;
 #IfDef DEBUG_PARSEPATTERN;
 			print "Fail, since grammar line has not ended but player input has.^";
 #EndIf;
-			if(p_phase == PHASE2) {
+			if(parser_phase == PHASE2) {
 				!print "You need to be more specific.^";
 				if(_FixIncompleteSentenceOrComplain(p_pattern - 1)) {
 					! sentence was corrected
@@ -1471,20 +1674,39 @@ Array guess_object-->5;
 #EndIf;
 		_current_wn = wn;
 		_old_dir_index = selected_direction_index;
-		_noun = _ParseToken(pattern_pointer, _parse_pointer, p_phase);
+		_noun = _ParseToken(pattern_pointer, _parse_pointer);
+
+		! reparse if prompted by _ParseToken
+		switch(_noun) {
+		GPR_NOUN:
+			_noun = _ParseToken(TT_OBJECT, NOUN_OBJECT, -1);
+		GPR_HELD:
+			_noun = _ParseToken(TT_OBJECT, HELD_OBJECT, -1);
+		GPR_MULTI:
+			_noun = _ParseToken(TT_OBJECT, MULTI_OBJECT, -1);
+		GPR_MULTIHELD:
+			_noun = _ParseToken(TT_OBJECT, MULTIHELD_OBJECT, -1);
+		GPR_MULTIEXCEPT:
+			_noun = _ParseToken(TT_OBJECT, MULTIEXCEPT_OBJECT, -1);
+		GPR_MULTIINSIDE:
+			_noun = _ParseToken(TT_OBJECT, MULTIINSIDE_OBJECT, -1);
+		GPR_CREATURE:
+			_noun = _ParseToken(TT_OBJECT, CREATURE_OBJECT, -1);
+        }
+
 		! the parse routine can change wn, so update _parse_pointer
 		_parse_pointer = parse + 2 + 4 * (wn - 1);
 
 		switch(_noun) {
 		GPR_FAIL:
 			if(_type == TT_PARSE_ROUTINE) {
-				if(p_phase == PHASE2) {
-				    if(scope_stage == 2) {
+				if(parser_phase == PHASE2) {
+					if(scope_stage == 2) {
 						scope_stage = 3;
 						indirect(scope_routine);
-                    } else {
-                        PrintMsg(MSG_PARSER_UNKNOWN_SENTENCE);
-                    }
+					} else {
+						PrintMsg(MSG_PARSER_UNKNOWN_SENTENCE);
+					}
 				}
 				return _current_wn - 1;
 			}
@@ -1496,7 +1718,7 @@ Array guess_object-->5;
 				continue; ! keep parsing
 			}
 			if(parser_unknown_noun_found ~= 0) {
-				if(p_phase == PHASE2) {
+				if(parser_phase == PHASE2) {
 					_word = parser_unknown_noun_found --> 0;
 					if(scope_routine ~= 0) {
 						scope_stage = 3;
@@ -1508,19 +1730,23 @@ Array guess_object-->5;
 						if(_k) {
 							@get_prop_len _k -> _j;
 		#IfV5;
-							@log_shift _j (-1) -> _j;
+							@log_shift _j (-1) -> _j; ! Divide by 2
+							@scan_table _word _k _j -> _i ?~_no_loc_name;
+							inp1 = 1;
+._no_loc_name;
 		#IfNot;
 							@div _j 2 -> _j;
-		#EndIf;
 							for(_i = 0: _i < _j: _i++) {
 								if(_word == (_k-->_i)) {
 									inp1 = _i;
 								}
 							}
+		#EndIf;
 						}
-						if(inp1 > -1) {
+						if(inp1 ~= -1) {
 							PrintMsg(MSG_PARSER_NO_NEED_REFER_TO);
-						} else if(_word == ALL_WORD) {
+						} else if(_word == ALL_WORD || 
+                                  parser_action ==  ##PluralFound) {
 							PrintMsg(MSG_PARSER_NOT_MULTIPLE_VERB);
 						} else {
 							PrintMsg(MSG_PARSER_NOSUCHTHING);
@@ -1536,6 +1762,12 @@ Array guess_object-->5;
 					! works the same when goblin isn't in scope.
 					phase2_necessary = PHASE2_ERROR;
 					wn = wn + 1;
+				}
+			} else {
+				if(parser_phase == PHASE2) {
+					if(pattern_pointer->0 == TOKEN_SINGLE_PREP or TOKEN_LAST_PREP) {
+						PrintMsg(MSG_PARSER_UNKNOWN_SENTENCE);
+					}
 				}
 			}
 			return wn - verb_wordnum; ! pattern didn't match
@@ -1567,7 +1799,7 @@ Array guess_object-->5;
 		GPR_NUMBER:
 			! parsed_number contains the new number
 			if(parsed_number == -1000)  {
-				if(p_phase == PHASE2) {
+				if(parser_phase == PHASE2) {
 					PrintMsg(MSG_PARSER_BAD_NUMBER);
 				}
 				return wn - verb_wordnum; ! bad match
@@ -1580,7 +1812,7 @@ Array guess_object-->5;
 			if(_noun == Directions) {
 				if(noun == Directions) {
 					! This is second, and noun is already Directions.
-					if(p_phase == PHASE2)
+					if(parser_phase == PHASE2)
 						PrintMsg(MSG_PARSER_NOT_MULTIPLE_DIRS);
 					phase2_necessary = PHASE2_ERROR;
 					return wn - verb_wordnum;
@@ -1600,16 +1832,26 @@ Array guess_object-->5;
 [ PronounNotice p_object;
 	if(p_object == 0 or player or Directions) return;
 	if(p_object has pluralname) {
-		themobj = p_object;
-	} else if(p_object has animate) {
-		if(p_object has female) herobj = p_object;
-		else if(p_object has neuter) itobj = p_object;
-		else himobj = p_object;
-	} else itobj = p_object;
-	!print "he ", himobj, " she ", herobj, " it ", itobj, "^";
+		if(p_object has female) las_obj = p_object;
+		if(p_object hasnt female) los_obj = p_object;
+	} else {
+		if(p_object has female) la_obj = p_object;
+		if(p_object hasnt female) el_obj = p_object;
+	}
+	! print "el ", el_obj, " la ", la_obj, " los ", los_obj, " las ", las_obj, "^";
 ];
 
-[ _ParseAndPerformAction _word_data _verb_grammar _i _j _pattern _noun _score _best_score _best_pattern _best_pattern_pointer _best_phase2 _action _verb_offset;
+[ ResetInputAction p_action;
+	! p_action values:
+	!   -1: Don't set input_action etc as long as input_action has this value (used when the parser performs implicit actions)
+	!   -2: Set input_action etc the next time an action is performed
+	input_action = p_action;
+	input_noun = 0;
+	input_second = 0;
+	input_direction = 0;
+];
+
+[ _ParseAndPerformAction _word_data _verb_grammar _i _j _pattern _noun _score _best_score _best_pattern _best_phase2 _best_second _action _verb_offset _selected_direction _selected_direction_index;
 	! returns
 	! 1/true: if error was found
 	! -n: if <n> words were used to find a match,
@@ -1620,10 +1862,12 @@ Array guess_object-->5;
 	! 1 is returned. If the input is "open box" then
 	! the whole input is matched and 2 returned.
 
+	ResetInputAction(-1); ! -1 means input_action etc won't be set (by implicit actions etc)
 	multiple_objects-->0 = 0;
 	selected_direction_index = 0;
 	selected_direction = 0;
 	action = -1;
+	action_to_be = action;
 	meta = false;
 	which_object->1 = 0;
 	actor = player;
@@ -1636,6 +1880,7 @@ Array guess_object-->5;
 	scope_routine = 0;
 	noun_filter = 0;
 	object_token_type = -1;
+	parser_all_found = false;
 
 	verb_wordnum = 1;
 
@@ -1644,23 +1889,36 @@ Array guess_object-->5;
 		return -1;
 	}
 
-.reparse;
-	verb_word = (parse - 2) --> (2 * verb_wordnum);
-.reparse2;
-	if(UnsignedCompare(verb_word, (HDR_DICTIONARY-->0)) == -1) {
-		! Not a verb. Try the entry point routine before giving up
+._perform_reparse;
+	verb_word = parse --> (verb_wordnum + verb_wordnum - 1);
+._perform_reparse_2;
+!	if(UnsignedCompare(verb_word, (HDR_DICTIONARY-->0)) == -1) {
+	if(verb_word == 0) {
+#Ifdef UnknownVerb;
+		! Not a dictionary word. Try the UnknownVerb routine before giving up
 		verb_word = UnknownVerb(verb_word);
+#Endif;
 		if(verb_word == 0) {
 			! unknown word
 #IfDef DEBUG_PARSEANDPERFORM;
 			print "Case 1, Word ", verb_word, "^";
 #EndIf;
-			jump first_word_unknown;
+			jump _first_word_unknown;
 		}
 	}
 
 	_word_data = verb_word + DICT_BYTES_FOR_WORD;
-	! check if it is a direction
+
+#Ifdef UnknownVerb;
+	if((_word_data->0) & 1 == 0) {
+        ! This dictionary word isn't a verb. Try UnknownVerb
+		verb_word = UnknownVerb(verb_word);
+        if(verb_word) {
+	        _word_data = verb_word + DICT_BYTES_FOR_WORD;
+        }
+    }
+#EndIf;
+
 	if((_word_data->0) & 1 == 0) { ! This word does not have the verb flag set.
 		! try a direction instead
 		wn = verb_wordnum;
@@ -1672,36 +1930,38 @@ Array guess_object-->5;
 			_pattern = NextWord();
 			if(_pattern == 0 or comma_word or THEN1__WD) {
 				action = ##Go;
+				action_to_be = action;
 				noun = Directions;
 				inp1 = Directions;
-				jump parse_success;
+				jump _parsing_was_successful;
 			}
 			! bad direction command, such as "n n"
 			PrintMsg(MSG_PARSER_PARTIAL_MATCH, _i);
 			rtrue;
 		}
 		! not a direction, check if beginning of a command
-		_noun = _CheckNoun(parse+2);
+		_UpdateScope(actor, PARSING_REASON);
+		_noun = _ParseNounPhrase(parse+2, false);
 		if(_noun > 0 && verb_wordnum == 1) {
 			! The sentence starts with a noun, now
 			! check if comma afterwards
 			wn = wn + which_object->1;
 			_pattern = NextWord();
 			if(_pattern == comma_word) {
-				jump conversation;
+				jump _this_is_conversation;
 			}
 		}
 		! fall through to first_word_unknown below
 		!jump first_word_unknown;
 
-.first_word_unknown;
-		if(actor ~= player) jump treat_bad_line_as_conversation;
+._first_word_unknown;
+		if(actor ~= player) jump _treat_bad_line_as_conversation;
 		if(parse-->3 == ',//') { PrintMsg(MSG_PARSER_UNKNOWN_PERSON); rtrue; }
 		PrintMsg(MSG_PARSER_UNKNOWN_VERB);
 		rtrue;
 
 
-.conversation;
+._this_is_conversation;
 		if(_noun hasnt animate && _noun hasnt talkable) {
 			PrintMsg(MSG_PARSER_CANT_TALK, _noun);
 			rtrue;
@@ -1710,7 +1970,7 @@ Array guess_object-->5;
 		! set actor
 		actor = _noun;
 		verb_wordnum = wn;
-		verb_word = (parse - 2) --> (2 * verb_wordnum);
+		verb_word = parse --> (verb_wordnum + verb_wordnum - 1);
 		if(actor provides grammar) {
 			parser_one = 0;
 			_i = actor.grammar();
@@ -1729,7 +1989,7 @@ Array guess_object-->5;
 			}
 			if(_i == 1) {
 				++wn; ! to account for the correctly parsed verb
-				jump parse_success;
+				jump _parsing_was_successful;
 			}
 			if(_i ~= 0) {
 				! _i == 'verb', so use its grammar instead
@@ -1739,10 +1999,12 @@ Array guess_object-->5;
 				! restore in case the rule fails.
 				_verb_offset = 1;
 				verb_wordnum = verb_wordnum - _verb_offset;
-				jump reparse2;
+				jump _perform_reparse_2;
 			}
+		!} else {
+		!	_UpdateScope(actor, TALKING_REASON);
 		}
-		jump reparse;
+		jump _perform_reparse;
 	}
 
 	! Now it is known word, and it is not a direction, in the first position
@@ -1765,7 +2027,7 @@ Array guess_object-->5;
 	_pattern = _verb_grammar + 1;
 	for(_i = 0 : _i < _verb_grammar->0: _i++) {
 		print "############ Pattern ",_i," ",_pattern,"^";
-		_pattern = _CheckPattern(_pattern);
+		_pattern = _PrintGrammarPattern(_pattern);
 	}
 	@new_line;
 #EndIf;
@@ -1773,18 +2035,19 @@ Array guess_object-->5;
 	! Phase 1: look for best pattern without side effects
 	_best_score = 0;
 	_best_pattern = 0;
+	parser_phase = PHASE1;
 	_pattern = _verb_grammar + 1;
 	for(_i = 0 : _i < _verb_grammar->0 : _i++) {
 #IfDef DEBUG_PARSEANDPERFORM;
 		print "### PHASE 1: Pattern ",_i," address ", _pattern, "^";
 #EndIf;
-		_score = _ParsePattern(_pattern, PHASE1);
+		_score = _ParsePattern(_pattern);
 
 		! Special rule to convert AskTo to action, topic
 		if(action == ##AskTo && _score == 100) {
 			_noun = noun;
 			wn = consult_from;
-			jump conversation;
+			jump _this_is_conversation;
 		}
 
 #IfDef DEBUG_PARSEANDPERFORM;
@@ -1812,13 +2075,22 @@ Array guess_object-->5;
 				_score == _best_score &&
 				_best_phase2 > 0 &&  ! if previous best requested reparsing
 				phase2_necessary == 0 &&  ! and we don't request reparsing
-				consult_from == 0) ! and this pattern didn't include 'topic'
+				consult_from == 0 ! and this pattern didn't include 'topic'
+				)
+				||
+				(
+				! we override previous best if this pattern is equally
+				! good but shorter, so that for example get without a
+				! noun picks "get multi" instead of "get 'out' 'off' noun"
+				_score == _best_score && _best_pattern ~= 0 &&
+				_PatternRanking(_pattern) < _PatternRanking(_best_pattern)
+				)
 				)
 			{
 			_best_score = _score;
 			_best_pattern = _pattern;
-			_best_pattern_pointer = pattern_pointer;
 			_best_phase2 = phase2_necessary;
+			_best_second = second; ! need to save for multiexcept in phase 2
 #IfDef DEBUG_PARSEANDPERFORM;
 		print "### PHASE 1: new best pattern ", _i, " ", _best_phase2, " ", _score, "^";
 #EndIf;
@@ -1837,6 +2109,7 @@ Array guess_object-->5;
 	! skip phase 2 if last pattern matched perfectly
 	! (since all data is then already setup and there
 	! are no side effects to consider)
+	parser_phase = PHASE2;
 #IfDef DEBUG_PARSEANDPERFORM;
 	print "### After phase 1, _best_score = ", _best_score, ", _best_phase2 = ", _best_phase2, "^";
 #EndIf;
@@ -1844,7 +2117,7 @@ Array guess_object-->5;
 #IfDef DEBUG_PARSEANDPERFORM;
 		print "### Skipping phase 2^";
 #EndIf;
-		jump parse_success;
+		jump _parsing_was_successful;
 	}
 	if(_verb_offset ~= 0) {
 		! restore the normal verb_wordnum after trying a
@@ -1859,15 +2132,18 @@ Array guess_object-->5;
 		! grammar instead.
 		verb_word = usual_grammar_after;
 		usual_grammar_after = 0;
-		jump reparse2;
+		jump _perform_reparse_2;
 	}
-	if(player ~= actor) jump treat_bad_line_as_conversation;
+	if(player ~= actor) jump _treat_bad_line_as_conversation;
 	if(_best_score < parse->1) {
 		if(_best_score == 0) {
 			PrintMsg(MSG_PARSER_UNKNOWN_SENTENCE);
+		} else if(_best_phase2 == PHASE2_DISAMBIGUATION) {
+			PrintMsg(MSG_PARSER_PARTIAL_MATCH, wn - 1);
 		} else if(_best_phase2 > 0) {
 			! call again to generate suitable error message
-			_score = _ParsePattern(_best_pattern, PHASE2);
+			second = _best_second;
+			_score = _ParsePattern(_best_pattern);
 		} else {
 			! parser_unknown_word is set when we tried to parse
 			! a noun but were found a word that was didn't match
@@ -1876,20 +2152,20 @@ Array guess_object-->5;
 			! another context but not right now. Reasons may
 			! be that it matches something that isn't in scope,
 			! or this word isn't a noun word.
+			_i = (_best_pattern-> (wn*3 - 1)) & $0f;
 			if(parser_unknown_noun_found ~= 0 &&
 				parser_unknown_noun_found-->0 == 0) {
 				! this is not a dictionary word.
 				PrintMsg(MSG_PARSER_DONT_UNDERSTAND_WORD);
-			} else if((((_best_pattern - 1 + wn*3 )-> 0) & $0f) == TT_END) {
+			} else if(_i == TT_END) {
 				! the sentence matched the pattern
-				if((parse - 2 + wn*4)-->0 == ALL_WORD) {
+				if(parse-->(wn + wn - 1) == ALL_WORD) {
 					PrintMsg(MSG_PARSER_NOT_MULTIPLE_VERB);
 				} else {
 					PrintMsg(MSG_PARSER_NOSUCHTHING);
 				}
 			} else {
 				! we didn't match the pattern at all
-				_i = ((_best_pattern - 1 + wn*3 )-> 0) & $0f;
 				if(_i == TT_PREPOSITION or TT_OBJECT) {
 					! missing preposition
 					_PrintPatternSyntax(_best_pattern -1);
@@ -1909,16 +2185,16 @@ Array guess_object-->5;
 #IfDef DEBUG_PARSEANDPERFORM;
 	print "### PHASE 2: Pattern address ", _best_pattern, "^";
 #EndIf;
-	_score = _ParsePattern(_best_pattern, PHASE2);
+	_score = _ParsePattern(_best_pattern);
 #IfDef DEBUG_PARSEANDPERFORM;
 	print "### PHASE 2: result ", _score, "^";
 #EndIf;
 	if(_score == -1) rfalse; ! force a complete reparse
-	if(_score == 100) jump parse_success;
+	if(_score == 100) jump _parsing_was_successful;
 	action = -1; ! to stop each_turn etc.
 	rtrue; ! ParsePattern wrote some error message
 
-.treat_bad_line_as_conversation;
+._treat_bad_line_as_conversation;
 	! this is used when not understood and the actor is an NPC
 	action = ##NotUnderstood;
 	consult_from = verb_wordnum; ! usually 3 (<person> , <command>)
@@ -1929,7 +2205,7 @@ Array guess_object-->5;
 	special_word = NextWord();
 	! fall through to jump parse_success;
 
-.parse_success;
+._parsing_was_successful;
 	! we want to return how long the successfully sentence was
 	! but wn can be destroyed by action routines, so store in _i
 
@@ -1950,6 +2226,7 @@ Array guess_object-->5;
 	if(action == ##AskFor && noun ~= player && actor == player) {
 		! Convert "ask P for X" to "P, give X to me"
 		actor = noun; noun = second; second = player; action = ##Give;
+		!_UpdateScope(actor, TALKING_REASON);
 	}
 
 	! prepare noun and second to point at dictionary words
@@ -1957,8 +2234,8 @@ Array guess_object-->5;
 	if(consult_from && action == ##Answer or ##Ask or ##Tell or ##NotUnderstood) {
 		if(0 == noun or second) {
 			for(_i=0 : _i < consult_words : _i++) {
-				_noun = (parse-->(2 * (consult_from + _i) - 1));
-				if(action == ##NotUnderstood || _noun ~= 'a//' or 'an' or 'the') {
+				_noun = parse-->(2 * (consult_from + _i) - 1);
+				if(action == ##NotUnderstood || _noun ~= 'el' or 'la' or 'los' or 'las' or 'un' or 'una' or 'unos' or 'unas') {
 					if(noun == 0)
 						noun = _noun;
 					else ! At this point we know that second is 0
@@ -1968,7 +2245,7 @@ Array guess_object-->5;
 			}
 		}
 	}
-
+	
 	if(actor ~= player) {
 		! The player's "orders" property can refuse to allow conversation
 		! here, by returning true.  If not, the order is sent to the
@@ -1985,6 +2262,11 @@ Array guess_object-->5;
 			PrintMsg(MSG_PARSER_BE_MORE_SPECIFIC);
 			rtrue;
 		}
+		if(multiple_objects --> 0 > 1) {
+			! Orders to NPCs should only be single objects
+			PrintMsg(MSG_PARSER_NO_MULTIPLES_FOR_NPC);
+			rtrue;
+		}
 		if(RunRoutines(actor, orders)) rtrue;
 		if(RunRoutines(player, orders)) rtrue;
 		if(action == ##NotUnderstood) {
@@ -1994,30 +2276,35 @@ Array guess_object-->5;
 			inp2 = actor;
 			if(BeforeRoutines()) rtrue;
 			if(RunLife(actor, action)) rtrue;
-		    PrintMsg(MSG_ASK_DEFAULT);
+			PrintMsg(MSG_ASK_DEFAULT);
 		} else {
 			if(RunLife(actor, ##Order)) rtrue;
-		    PrintMsg(MSG_ORDERS_WONT, actor);
+			PrintMsg(MSG_ORDERS_WONT, actor);
 		}
 		if(num_words_parsed < 0) return -num_words_parsed;
 		return num_words_parsed;
 	}
 
+	action_to_be = NULL; ! We're done with parsing, and the action is now final
+
 	if(multiple_objects --> 0 == 0) {
 		! single action
 		if(inp1 > 1) PronounNotice(noun);
+		ResetInputAction(-2); ! Allow input_action to be set by PerformPreparedAction
 		PerformPreparedAction();
 	} else {
 		! multiple action
 		! (a) check the multiple list isn't empty;
 		! (b) warn the player if it has been cut short because too long;
 		! (c) generate a sequence of actions from the list
-		!     (stopping in the event of death or movement away).
+		!	 (stopping in the event of death or movement away).
 		if(parser_check_multiple == MULTIINSIDE_OBJECT && second has container && second hasnt open) {
-        	PrintMsg(MSG_PARSER_CONTAINER_ISNT_OPEN, second);
+			PrintMsg(MSG_PARSER_CONTAINER_ISNT_OPEN, second);
 		} else {
 			_score = 0;
 			_action = action;
+			_selected_direction = selected_direction;
+			_selected_direction_index = selected_direction_index;
 			for(_noun = 1: _noun <= multiple_objects --> 0 : _noun++) {
 				action = _action; ! This may have been altered by a previous interation for multitokens
 				inp1 = multiple_objects --> _noun;
@@ -2057,10 +2344,20 @@ Array guess_object-->5;
 				! don't pick up held objects if other objects available
 				! however, if this is the only object then allow it to
 				! get the 'you already have it' message.
-                !if(action == ##Take && noun in player && (multiple_objects --> 0 > 1 || parser_all_found)) continue;
+				!if(action == ##Take && noun in player && (multiple_objects --> 0 > 1 || parser_all_found)) continue;
+
+				! make sure that selected_direction* is only active when
+				! the processed noun (or second) is a direction
+				if(Directions == noun or second) {
+					selected_direction = _selected_direction;
+					selected_direction_index = _selected_direction_index;
+				} else {
+					selected_direction = 0; selected_direction_index = 0;
+				}
 
 				if(parser_all_found || multiple_objects --> 0 > 1) print (name) noun, ": ";
 				if(inp1 > 1) PronounNotice(noun);
+				ResetInputAction(-2); ! Allow input_action to be set by PerformPreparedAction
 				PerformPreparedAction();
 				++_score;
 			}

@@ -1,6 +1,10 @@
+!% -Cu
 !% -~S
 !% $OMIT_UNUSED_ROUTINES=1
 !% $ZCODE_LESS_DICT_DATA=1
+!% $MAX_ABBREVS=96
+!!% $ZCODE_MAX_INLINE_STRING=9999    ! Requires Inform 6.42
+!!% $OMIT_SYMBOL_TABLE=1             ! Requires Inform 6.42, and can not be used with DEBUG
 
 ! The very first lines of the main source code file for a game can
 ! contain compiler options, like the lines above. -~S disables
@@ -9,6 +13,115 @@
 ! size and it makes the game slower.
 ! $OMIT_UNUSED_ROUTINES=1 makes the compiler remove all routines which
 ! aren't used. This can save some space.
+! ZCODE_LESS_DICT_DATA=1 removes one empty data byte for each dictionary word
+! $MAX_ABBREVS=96 increases the maximum number of abreviations from 64 to 96,
+! by removing the option to use 32 dynamic strings
+! @ZCODE_MAX_INLINE_STRING=9999 makes the compiler place all strings used in
+! code inline with the code, rather than placing longer strings in the high
+! memory string area. This saves some bytes. 
+
+! Unless compiling in DEBUG mode, one can also define $OMIT_SYMBOL_TABLE=1 to
+! tell the compiler not to include names of properties, attributes and more,
+! thus saving some space.
+
+! Abbreviations created with ZAbbrevMaker 0.9 - https://github.com/heasm66/ZAbbrevMaker
+Constant CUSTOM_ABBREVIATIONS;
+Abbreviate ". ";
+Abbreviate ", ";
+Abbreviate "├│n";
+Abbreviate " de ";
+Abbreviate "├¡a";
+Abbreviate "├ís";
+Abbreviate "No puedes";
+Abbreviate "biblioteca";
+Abbreviate "ent";
+Abbreviate "├ín";
+Abbreviate "habitaci";
+Abbreviate "├í a";
+Abbreviate "Frank";
+Abbreviate "├®n";
+Abbreviate "├│tano";
+Abbreviate "No es";
+Abbreviate "las paredes";
+Abbreviate "con";
+Abbreviate "├▒a";
+Abbreviate "├▒o";
+Abbreviate "_to/";
+Abbreviate "libro";
+Abbreviate "Es un";
+Abbreviate "No hay";
+Abbreviate "encargado";
+Abbreviate " es";
+Abbreviate " la";
+Abbreviate " de";
+Abbreviate " un";
+Abbreviate "o p";
+Abbreviate "tra";
+Abbreviate " que";
+Abbreviate " nada";
+Abbreviate "tante";
+Abbreviate " en";
+Abbreviate " el";
+Abbreviate " sal";
+Abbreviate " hac";
+Abbreviate " al";
+Abbreviate " se";
+Abbreviate "hay";
+Abbreviate "Las";
+Abbreviate "rece";
+Abbreviate " fue";
+Abbreviate "tie";
+Abbreviate " aqu├¡";
+Abbreviate " me";
+Abbreviate "├ípid";
+Abbreviate " te";
+Abbreviate " in";
+Abbreviate " llamas";
+Abbreviate " ve";
+Abbreviate " ca";
+Abbreviate " su";
+Abbreviate " ahora";
+Abbreviate " oscu";
+Abbreviate "par";
+Abbreviate "ada";
+Abbreviate "que";
+Abbreviate "des";
+Abbreviate " pue";
+Abbreviate "las";
+Abbreviate "nes";
+Abbreviate "cerr";
+Abbreviate "nte";
+Abbreviate "ndo";
+Abbreviate "├¡ mismo";
+Abbreviate " sobre";
+Abbreviate " hab";
+Abbreviate "Per";
+Abbreviate " necesit";
+Abbreviate "caleras";
+Abbreviate "per";
+Abbreviate "ido";
+Abbreviate " no";
+Abbreviate "├¡.";
+Abbreviate " primer";
+Abbreviate " po";
+Abbreviate " co";
+Abbreviate "nas";
+Abbreviate " lo";
+Abbreviate "~┬í";
+Abbreviate "Est";
+Abbreviate " re";
+Abbreviate " lle";
+Abbreviate "pro";
+Abbreviate "├¡mbolos";
+Abbreviate " oeste";
+Abbreviate "car";
+Abbreviate "n embargo";
+Abbreviate "hor";
+Abbreviate " to";
+Abbreviate "l crepitar";
+Abbreviate "ier";
+Abbreviate "ible";
+Abbreviate "Inform";
 
 ! Library_of_horror.inf - a sample game which uses PunyInform
 
@@ -24,6 +137,7 @@
 !Constant OPTIONAL_GUESS_MISSING_NOUN;
 Constant OPTIONAL_FULL_SCORE;
 Constant OPTIONAL_MANUAL_SCOPE;
+Constant OPTIONAL_MANUAL_SCOPE_BOOST;
 Constant OPTIONAL_REACTIVE_PARSE_NAME;
 ! 0 = Minimal error checking, 1 = Numeric error codes, 2: Error messages
 Constant RUNTIME_ERRORS = 0;
@@ -32,10 +146,10 @@ Constant INITIAL_LOCATION_VALUE = GloomyStreet;
 
 Constant STATUSLINE_SCORE; Statusline score;
 
-Constant Story	  "The Library Of Horror";
-Constant Headline   "^A PunyInform demo game, by Pablo Martinez and Fredrik Ramsberg.^";
-Release 7;
-Serial "210920";
+Constant Story	  "La biblioteca de los horrores";
+Constant Headline   "^Un juego de demostración de PunyInform, por Pablo Martínez y Fredrik Ramsberg.^";
+Release 10;
+Serial "231010";
 
 ! Get your own unique IFID for your game at https://www.tads.org/ifidgen/ifidgen
 Array UUID_ARRAY string "UUID://43E00AEE-DEAF-40D9-8306-11BC80779320//"; #Ifdef UUID_ARRAY; #Endif;
@@ -50,6 +164,9 @@ Constant TASK_BLOCK_ROBOT = 2;
 Constant TASK_BURN_BOOK = 3;
 Constant TASK_LEAVE = 4;
 
+Constant MAX_SCOPE = 10;
+Constant MAX_TIMERS = 2;
+
 ! ====================================
 ! Include globals.h
 ! ====================================
@@ -59,29 +176,29 @@ Include "globals.h";
 ! Define library entry routines
 ! ====================================
 [ PrintRank;
-	print ", earning you the rank of ";
-	if (score >= 100) "Hero.";
-	if (score >= 70) "Brave.";
-	if (score >= 50) "Trustworthy.";
-	if (score >= 30) "Promising.";
-	if (score >= 10) "Well-meaning.";
-	"Novice.";
+	print ", otorgándote el rango de ";
+	if (score >= 100) "Héroe.";
+	if (score >= 70) "Valiente.";
+	if (score >= 50) "Confiable.";
+	if (score >= 30) "Prometedor.";
+	if (score >= 10) "Bienintencionado.";
+	"Novato.";
 ];
 [ PrintTaskName task_number;
 	switch (task_number) {
-		TASK_TALK_MANAGER: 	"talking to the manager";
-		TASK_GIVE_BOOK: 	"giving the manager the book";
-		TASK_BLOCK_ROBOT: 	"obstructing the robot";
-		TASK_BURN_BOOK: 	"burning the evil book";
-		TASK_LEAVE: 		"leaving the library";
+		TASK_TALK_MANAGER: 	"hablando con el encargado";
+		TASK_GIVE_BOOK: 	"dando el libro al encargado";
+		TASK_BLOCK_ROBOT: 	"obstaculizando al robot";
+		TASK_BURN_BOOK: 	"quemando el libro maléfico";
+		TASK_LEAVE: 		"saliendo de la biblioteca";
 	}
 ];
 
 
 [ DeathMessage;
 	switch(deadflag) {
-		3: print "You have summoned demons set to destroy the world";
-		4: print "You have been incinerated";
+		3: print "Has invocado demonios dispuestos a destruir el mundo";
+		4: print "Has sido incinerado";
 	}
 ];
 
@@ -90,7 +207,7 @@ Include "globals.h";
 ! help print verbs longer than this.
 [PrintVerb p_verb;
 	switch(p_verb) {
-		'blindfold': print "blindfold"; rtrue;
+		'vendar': print "vendar los ojos"; rtrue;
 	}
 	rfalse;
 ];
@@ -100,41 +217,44 @@ Include "globals.h";
 ! Setup flags
 ! ====================================
 Constant FLAG_COUNT = 5;
-Constant F_TALKED_TO_MANAGER = 0;
-Constant F_FRANK_BLOCKED_BY_BOX = 1;
-Constant F_BOOK_DELIVERED = 2;
-Constant F_STARTED_FIRE = 3;
-Constant F_FRANK_HAS_SEEN_BOOK = 4;
+Constant F_TALKED_TO_MANAGER = 1;
+Constant F_FRANK_BLOCKED_BY_BOX = 2;
+Constant F_BOOK_DELIVERED = 3;
+Constant F_STARTED_FIRE = 4;
+Constant F_FRANK_HAS_SEEN_BOOK = 5;
 Include "ext_flags.h";
 
 ! ====================================
 ! Setup cheap scenery
 ! ====================================
-[SceneryReply;
+[SceneryReply p_word1 p_word2 p_id_or_routine;
 	default:
-		"Better just leave it alone and get on with the task at hand.";
+		p_word1 = p_word2 + p_id_or_routine; ! Avoid compiler warnings for unused vars
+		"Mejor déjalo estar y sigue con la tarea.";
 ];
 Include "ext_cheap_scenery.h";
 
 ! ====================================
 ! Setup quote box
 ! ====================================
+#Ifv3;
 Constant QUOTE_V3_SCREEN_WIDTH 40;
+#Endif;
 Include "ext_quote_box.h";
 
 Array quote_stairs static --> 5 34
-"It is by going down into the abyss"
-"that we recover the treasures of"
-"life. Where you stumble, there"
-"lies your treasure."
+"Es al descender al abismo cuando"
+"recuperamos los tesoros de la"
+"vida. Donde tropiezas, allí"
+"yace tu tesoro."
 "              -- Joseph Campbell";
 
 Array quote_darkchamber static --> 6 35
-"Light thinks it travels faster than"
-"anything but it is wrong. No matter"
-"how fast light travels, it finds"
-"the darkness has always got there"
-"first, and is waiting for it."
+"La luz cree que viaja más rápido que"
+"cualquier cosa, pero se equivoca. No"
+"importa cuán rápido viaje, siempre"
+"descubre que la oscuridad ha llegado"
+"antes, y la está esperando."
 "              -- Terry Pratchett";
 
 
@@ -158,33 +278,49 @@ Include "puny.h";
 ! the player shouldn't have to carry the candles to burn the book.
 
 [ BurnSub;
-	"That seems dangerous and pointless.";
+	"Eso parece peligroso e inútil.";
 ];
 
-Verb 'burn' 'light'
-	* noun				-> Burn
-	* noun 'with' noun		-> Burn;
+Verb 'quema' 'quemar'
+	* noun					-> Burn
+	* noun 'con' noun		-> Burn;
+
+Extend 'enciende' first
+	* noun					-> Burn
+	* noun 'con' noun		-> Burn;
+
+Extend 'encender' first
+	* noun					-> Burn
+	* noun 'con' noun		-> Burn;
 
 [ CoverSub;
-	"That seems pointless.";
+	"Eso parece inútil.";
 ];
 
 
-Extend only 'cover' replace
-	* noun 'with'/'using' held	-> Cover;
+Extend only 'cubrir' 'cubre' replace
+	* noun 'con'/'usando' held	-> Cover;
 
-Verb 'blindfold' = 'cover';
+Verb 'venda' = 'cubre';
+Verb 'vendar' = 'cubrir';
 
-Extend 'put' first
-	* held 'on' creature		-> Cover reverse
-	* held 'over' noun 			-> Cover reverse;
+Extend 'pon' first
+	* held 'en' creature		-> Cover reverse
+	* held 'sobre' noun 		-> Cover reverse;
+Extend 'poner' first
+	* held 'en' creature		-> Cover reverse
+	* held 'sobre' noun 		-> Cover reverse;
 
 [ TalkToSub;
-	print_ret (The) noun, " doesn't seem interested.";
+	print_ret (The) noun, " no parece", (_n) noun ," interesad", (_o) noun ,".";
 ];
 
-Verb 'talk' 'report'
-	* 'to' creature -> TalkTo;
+Extend 'habla' first
+	* 'con' creature -> TalkTo
+	* creature -> TalkTo;
+Extend 'hablar' first
+	* 'con' creature -> TalkTo
+	* creature -> TalkTo;
 
 
 ! ====================================
@@ -197,13 +333,13 @@ Verb 'talk' 'report'
   switch (scope_stage) {
 	  1: rfalse;
 	  2: ScopeWithin(WhatIsTopics); rtrue;
-	  3: "You haven't the faintest.";
+	  3: "No tienes ni idea.";
   }
 ];
 
 [ QuerySub; noun.description();];
 
-Verb 'what' * 'is'/'was' scope=QueryTopic -> Query;
+Verb 'que' * 'es'/'era' scope=QueryTopic -> Query;
 
 Class MultiTopic
 	with
@@ -263,31 +399,33 @@ Class MultiTopic
 
 Object WhatIsTopics "WhatIsTopics";
 
-MultiTopic -> WhatIsTopic_1 "topic"
+MultiTopic -> WhatIsTopic_1 "tema"
 	with
 		topics
-			1 'library' "A library is venue where books are kept and people can borrow said books."
-			1 'grue' "A grue is a sinister creature lurking in the dark. If anyone has actually seen a grue,
-				they have not lived long enough to tell the tale."
-			1 'manager' "Library managers oversee the daily activities and functions of a library.";
+			1 'biblioteca' "Una biblioteca es un lugar donde se guardan libros y la gente puede tomarlos prestados."
+			1 'grue' "Un grue es una criatura siniestra que acecha en la oscuridad. Si alguien ve realmente a un grue,
+				no vivirá lo suficiente para contarlo."
+			1 'encargado' "Los encargados de las bibliotecas supervisan las actividades y funciones diarias de una biblioteca.";
 
 ! ====================================
 ! The rooms and game objects start here.
 ! ====================================
 
-Object GloomyStreet "Gloomy Street"
+Object GloomyStreet "Calle Sombría"
 	with
 		description
-			"The houses in this area seem hastily abandoned as if a mysterious tragedy had sown
-				panic among its former inhabitants. All you see are shattered windows and ripped doors.
-				In front of you, to the south, is the strangely well preserved and beautiful
-				library building where you have to work.",
+			"Las casas de esta zona parecen abandonadas precipitadamente, como si una misteriosa tragedia hubiera sembrado
+				pánico entre sus antiguos habitantes. Todo lo que ves son ventanas destrozadas y puertas arrancadas.
+				Frente a ti, al sur, está el extrañamente bien conservado y hermoso
+				edificio de la biblioteca donde tienes que trabajar.",
 		cheap_scenery
-			'windows' 'doors' "Remains of a distant and mysterious tragedy!"
-			'houses' 'street' "Creepy and abandoned."
-			1 'library' "It's a beautiful building. Looks like 19th century Art Nouveau architecture to you.",
+			1 'edificio' "Es un edificio precioso. Parece arquitectura Art Nouveau del siglo XIX.",
+		cheap_scenery_fem
+			CS_THEM 'ventanas' 'puertas' "¡Restos de una tragedia lejana y misteriosa!"
+			'casas//p' 'calle' "Casas sombrías y abandonadas."
+			1 'biblioteca' "Es un edificio precioso. Parece arquitectura Art Nouveau del siglo XIX.",
 		s_to Library,
-		cant_go "Your work is to the south, though you are tempted to go home and forget all about it.",
+		cant_go "Tu trabajo está al sur, aunque estás tentado de volver a casa y olvidarte de todo.",
 		after [;
 			Go:
 				if(FlagIsSet(F_STARTED_FIRE))
@@ -297,80 +435,77 @@ Object GloomyStreet "Gloomy Street"
 					<Look>;
 					deadflag = 2;
 					if(FlagIsSet(F_BOOK_DELIVERED))
-						"^You leave the library with mixed feelings. On the one hand, you're glad
-							to be done with your modest task and to get out of this gloomy neighbourhood.
-							On the other hand, there's something about that library that makes your hair
-							stand on end.
-							^^Oh well. Maybe it's better to forget about it and enjoy a quiet afternoon in your flat.";
+						"^Sales de la biblioteca con sentimientos encontrados. Por un lado, te alegras
+							de haber terminado tu modesta tarea y de salir de este tétrico barrio.
+							Por otro, hay algo en esa biblioteca que te pone los pelos de punta.
+							de punta.
+							^^En fin. Quizás sea mejor olvidarlo y disfrutar de una tarde tranquila en tu piso.";
 					else
-						"^You managed to escape the burning building just in time! As you catch your breath
-							on the street slabs, you watch the walls blackened by the flames, the door falling
-							to pieces on the floor and the windows bursting in the heat.
-							^^A sound reaches you, distant but discernible, beyond the crackling of the flames.
-							It is a sinister laugh, echoing through the lonely streets, the laughter of the
-							library manager.
-							^^Terrified, you walk away from that place, never to return. In the future,
-							you'll be more careful about the jobs you choose.";
+						"^¡Has conseguido escapar del edificio en llamas justo a tiempo! Mientras recuperas el aliento
+							sobre las baldosas de la calle, observas las paredes ennegrecidas por las llamas, la puerta cayéndose
+							a pedazos y las ventanas estallando por el calor.
+							^^ Te llega un sonido, lejano pero perceptible, más allá del crepitar de las llamas.
+							Es una risa siniestra que resuena en las calles solitarias, la risa del 
+							encargado de la biblioteca.
+							^^ Aterrorizado, te alejas de aquel lugar, para no volver jamás. En el futuro,
+							tendrás más cuidado con los trabajos que elijas.";
 				}
 		],
 	has light;
 
-Object Library "The Library"
+Object Library "La biblioteca"
 	with
 		description [;
 			if(FlagIsSet(F_STARTED_FIRE))
-				"You watch in horror as the flames reach the books, climbing the shelves
-					and turning each volume into a fireball. To the east is the interior
-					of the building, and to the north, you can escape to the outside.";
-			"The library seems surprisingly large inside. Tens of thousands of valuable antique
-			volumes line the high shelves. The air feels charged with dust and the smell of antiquity.
-			^^To the east, it is possible to go deeper into the building. To the north is the exit to the outside.";
+				"Contemplas horrorizado cómo las llamas alcanzan los libros, trepan por las estanterías
+					y convierten cada volumen en una bola de fuego. Al este se halla el interior
+					del edificio, y al norte, se puede escapar al exterior.";
+			"La biblioteca parece sorprendentemente grande por dentro. Decenas de miles de valiosos
+			volúmenes antiguos. El aire parece cargado de polvo y olor a antigüedad.
+			^^ Al este, es posible adentrarse en el edificio. Al norte está la salida al exterior.";
 		],
 		cheap_scenery
-			'volumes' 'books' "One could spend a lifetime reading only a fraction of the books in this room."
-			'shelf' 'shelves' "Full of every conceivable book in this world."
-			1 'library' "It's a beautiful old library.",
+			CS_THEM 'volumenes' 'libros' "Uno podría pasarse toda la vida leyendo sólo una parte de los libros de esta sala.",
+		cheap_scenery_fem
+			CS_THEM 1 'estanterias' "Llenas de todos los libros imaginables de este mundo."
+			1 'biblioteca' "Es una hermosa biblioteca antigua.",
 		n_to GloomyStreet,
 		e_to TopOfStairs,
-		cant_go "You'd love to explore the library, but you have other things on your mind right now.",
+		cant_go "Te encantaría explorar la biblioteca, pero ahora tienes otras cosas en la cabeza.",
 	has light;
 
-Object -> Manager "library manager"
+Object -> Manager "encargado de la biblioteca"
 	with
-		article "the",
+		article "el",
 		description
-			"Although at first glance he looks like a normal middle-aged man, something is
-				unsettling about this person. Perhaps it is the fact that he wears black or
-				the constant movement of his eyes and his whispers to himself. Or maybe it is
-				the mysterious and arcane looking symbols hanging over his whole body.",
+			"Aunque a primera vista parece un hombre normal de mediana edad, hay algo
+				inquietante en esta persona. Tal vez sea el hecho de que viste de negro o
+				el constante movimiento de sus ojos y sus susurros para sí mismo. O tal vez sean
+				los símbolos misteriosos y arcanos que cuelgan de todo su cuerpo.",
 		describe [;
-			print "^The manager of the library is here, deeply concentrated on the arrangement of one of the shelves";
-			if(FlagIsClear(F_TALKED_TO_MANAGER)) print ". Perhaps you should talk to him and ask him about the job";
+			print "^El encargado de la biblioteca está aquí, profundamente concentrado en la disposición de una de las estanterías";
+			if(FlagIsClear(F_TALKED_TO_MANAGER)) print ". Tal vez deberías hablar con él y preguntarle sobre el trabajo";
 			".";
 		],
-		parse_name [ _w1;
-			_w1 = NextWordStopped();
-			if(_w1 == 'manager') return 1;
-			if(_w1 == 'library' && NextWordStopped() == 'manager') return 2;
-		],
+		name 'encargado',
 		before [;
 			TalkTo:
 				if(FlagIsClear(F_TALKED_TO_MANAGER)) {
 					SetFlag(F_TALKED_TO_MANAGER);
 					Achieved(TASK_TALK_MANAGER);
-					"He looks up from the shelf in surprise. When he sees you, he smiles (there is
-						something unsettling about his smile) and says: ~Wow! I forgot you were coming
-						today. You're the new assistant, right? I imagined you taller. Never mind! I
-						won't be able to spend much time with you today. You'd better come tomorrow.~
-						^^Just as you're about to leave the library upset, you hear his voice again.
-						~Wait! Maybe I do need you. There's a book I need, Where the Wild Things Are
-						by Maurice Sendak. I must have left it in the repair shop in the basement.
-						Frank the Robot is down there. He'll help you find it.~
-						^^After saying this, he turns his back on you and continues to arrange the shelf.
-						^^(Did he mention... a robot?)";
+					"Levanta la vista de la estantería sorprendido. Cuando te ve, sonríe (hay
+						algo inquietante en su sonrisa) y dice: ~¡Vaya! Olvidé que venías
+						hoy. Eres el nuevo ayudante, ¿verdad? Te imaginaba más alto. No te preocupes.
+						No podré pasar mucho tiempo contigo hoy. Será mejor que vengas mañana.
+						^^Justo cuando estás a punto de salir de la biblioteca con irritación, escuchas
+						su voz de nuevo. ~¡Espera! Tal vez sí te necesite. Hay un libro que necesito,
+						Donde viven los monstruos de Maurice Sendak. Debo haberlo dejado en el taller
+						del sótano. Frank el Robot está allí abajo. Él te ayudará a encontrarlo.
+						^^Después de decir esto, te da la espalda y sigue arreglando la estantería.
+						^^(¿Ha dicho algo sobre... un robot?)";
 				} else
-					"~Can't you see I'm busy? I can't waste my time with nonsense! Ask Frank for help!~
-						^^Once again, he directs his attention to the fascinating shelf.";
+					"~¿No ves que estoy ocupado? ¡No puedo perder el tiempo con tonterías! ¡Pídele ayuda a Frank!
+						^^Una vez más, dirige su atención a la fascinante estantería.";
 		],
 		life [;
 			Ask, Tell, Show:
@@ -383,41 +518,43 @@ Object -> Manager "library manager"
 					scope_modified = true;
 					SetFlag(F_BOOK_DELIVERED);
 					Achieved(TASK_GIVE_BOOK);
-					"When you approach the manager, for a moment, he seems ready to get angry about
-						the interruption, but his face lights up when he sees the book in your hand.
-						^^~Great! You've done exactly what I asked!~
-						^^In confidence, he adds: ~I'm glad you didn't waste your time with things that
-						are none of your business. It makes me trust you more.~
-						^^He pats you on the back twice and says: ~Come first thing tomorrow. We'll
-						start working for real.~ And again he turns towards the shelf.";
+					"Cuando te acercas al encargado, por un momento parece dispuesto a enfadarse por
+						la interrupción, pero su cara se ilumina cuando ve el libro en tu mano.
+						^^~¡Genial! Has hecho exactamente lo que te pedí.~
+						^^En confianza, añade: ~Me alegro de que no hayas perdido el tiempo con cosas que
+						no son de tu incumbencia. Eso me hace confiar más en ti.~
+						^^Te da dos palmaditas en la espalda y te dice: ~Ven mañana a primera hora. Empezaremos a trabajar de verdad.~
+						Y de nuevo se vuelve hacia la estantería.";
 				}
 		],
 	has animate;
 
-Object TopOfStairs "Staircase Leading Down"
+Object TopOfStairs "Escaleras descendentes"
 	with
 		description [;
 			if(FlagIsSet(F_STARTED_FIRE))
-				"The fire has reached the dusty little room! The boxes and their contents are burning
-					too. From the stairs and from the library to the west comes the sound of the
-					crackling of the flames. How could it spread so quickly?";
-			"This is a small, dusty room, with some boxes piled up and stairs leading down to the
-			dark basement. A beam of light comes from the west, leading to the main hall of the library,";
+				"El fuego ha alcanzado la pequeña y polvorienta habitación. Las cajas y su contenido están ardiendo
+					también. Desde la escalera y desde la biblioteca hacia el oeste llega el sonido del
+					crepitar de las llamas. ¿Cómo ha podido propagarse tan rápidamente?";
+			"Es una habitación pequeña y polvorienta, con algunas cajas apiladas y una escalera que baja al
+			sótano oscuro. Un haz de luz viene del oeste y conduce a la sala principal de la biblioteca.";
 		],
 		cheap_scenery
-			'beam' 'light' "The light beam stands out clearly in the darkness of the room."
-			'box' 'boxes' "The boxes are full of books waiting to be placed on their shelves. There's
-							nothing here that would interest you."
-			1 'stairs' "The stairs lead towars the darkness of the basement.",
+			1 'haz' "El haz de luz destaca claramente en la oscuridad de la habitación.",
+		cheap_scenery_fem
+			1 'luz' "El haz de luz destaca claramente en la oscuridad de la habitación."
+			'caja' 'cajas//p' "Las cajas están llenas de libros esperando a ser colocados en sus estanterías. Aquí no hay
+							nada que te interese."
+			'escalera' 'escaleras' "La escalera conduce a la oscuridad del sótano.",
 		before [;
 			Go:
 				if(selected_direction==d_to) {
 					if(FlagIsClear(F_TALKED_TO_MANAGER))
-						"You have no business running around in the basement. Better go talk to the
-							library manager instead, to find out where you're needed.";
+						"No tienes nada que hacer merodeando por el sótano. Mejor ve a hablar con el
+							encargado de la biblioteca, para saber dónde te necesitan.";
 					if(FlagIsSet(F_BOOK_DELIVERED))
-						"You're done for today, and the library manager told you to go home. Better
-							not go snooping around in the basement.";
+						"Has terminado por hoy y el director de la biblioteca te ha dicho que te vayas a casa. Mejor
+							no vayas a husmear por el sótano.";
 					if(self hasnt general) {
 						give self general;
 						QuoteBox(quote_stairs);
@@ -428,99 +565,101 @@ Object TopOfStairs "Staircase Leading Down"
 		d_to BottomOfStairs,
 	has light;
 
-Object BottomOfStairs "Basement, Near Staircase"
+Object BottomOfStairs "Sótano, junto a escalera"
 	with
 		description [;
 			if(FlagIsSet(F_STARTED_FIRE))
-				"The walls of the corridor burn fiercely, from the stairs going up to the room
-					to the east. The heat is suffocating.";
-			"It's nearly dark here, since the lamp in the ceiling is missing its light bulb.
-				However, there's enough light coming in from the stairs to make
-				out your surroundings. There is more light to the east.";
+				"Las paredes del pasillo arden ferozmente, desde la escalera que sube a la habitación
+					que da al este. El calor es sofocante.";
+			"Aquí está casi oscuro, ya que a la lámpara del techo le falta la bombilla.
+				Sin embargo, hay suficiente luz proveniente de la escalera para distinguir
+				tus alrededores. Hay más luz hacia el este.";
 		],
+		cheap_scenery_fem
+			'escalera' 'escaleras'  "La escalera asciende hacia la biblioteca.",
 		u_to TopOfStairs,
 		e_to Hallway,
 	has light;
 
 ! Data that Frank needs to print where he came from.
-#IfDef OPTION_FULL_DIRECTIONS;
-Array opposite_directions static table "south" "north" "west" "east" "southwest" "southeast" "northwest" "northeast"
-	"down" "up" "out" "in";
+#IfDef OPTIONAL_FULL_DIRECTIONS;
+Array opposite_directions static table "el sur" "el norte" "el oeste" "el este" "el sureste" "el suroeste" "el noroeste" "el noreste"
+	"abajo" "arriba" "el exterior" "el interior";
 #IfNot;
-Array opposite_directions static table "south" "north" "west" "east" "down" "up" "out" "in";
+Array opposite_directions static table "el sur" "el norte" "el oeste" "el este" "abajo" "arriba" "el exterior" "el interior";
 #EndIf;
 
-Object -> Frank "Frank the Robot"
+Object -> Frank "Frank el robot"
 	with
 		number 0,
-		name 'frank' 'the' 'robot',
+		name 'frank' 'el' 'robot',
 		when_off [; ! The first time the player spots Frank, he turns on automatically and his daemon is started.
 			give self on;
 			give self moved;
 			StartDaemon(self);
-			"Frank the Robot is standing here, all dark and quiet. As you enter the room,
-				some LEDs light up, and Frank's eyes start to glow with a feeble yellow light.
-				Its voice begins to sound with bizarre metallic courtesy. ~Hey, hello, sir!
-				You must be the new employee, right? My name is Frank, short for Frankfurter
-				Gelenkroboter 2100. But please, just call me Frank. I'm here to help
-				you in your search for the book.~";
+			"Frank el Robot está aquí de pie, todo oscuro y silencioso. Al entrar en la habitación,
+				algunos LEDs se encienden, y los ojos de Frank empiezan a brillar con una débil luz amarilla.
+				Su voz empieza a sonar con una extraña cortesía metálica. ~¡Hola, señor!
+				Usted debe de ser el nuevo empleado, ¿verdad? Mi nombre es Frank, abreviatura de Frankfurter
+				Gelenkroboter 2100. Pero, por favor, llámeme Frank. Estoy aquí para ayudarle
+				en su búsqueda del libro.~";
 		],
 		before [;
 			TalkTo:
-				"~My apologies, sir, my understanding of spoken language is not ideal, but they
-					will undoubtedly improve this aspect in the next software update!~";
+				"~Mis disculpas, señor, mi comprensión del lenguaje hablado no es ideal, pero
+					sin duda mejorarán este aspecto en la próxima actualización del software.~";
 			SwitchOff:
-				"A bright light arc juts out from near the button and the electric shock makes
-					you jump back. ~I wouldn't advise it, sir.~";
+				"Un arco de luz brillante sobresale cerca del botón y la descarga eléctrica te hace
+					saltar hacia atrás. ~No se lo aconsejo, señor.~";
 			Cover:
 				if(second==Box) {
 					if(child(Box))
-						"But the box isn't empty!";
+						"¡Pero la caja no está vacía!";
 					SetFlag(F_FRANK_BLOCKED_BY_BOX);
 					move Box to self;
 					scope_modified = true;
 					Achieved(TASK_BLOCK_ROBOT);
 					self.number = 3; ! Make the box stay in place this many moves minus one.
-					"You take advantage of a moment when Frank doesn't look in your direction
-						and quickly place the box on it. The robot loses its cool and starts
-						spinning, while its voice sounds muffled from the inside. ~Sir, I seem
-						to have a problem with my sensors! Give me a few moments to fix it!~";
+					"Aprovechas un momento en que Frank no mira en tu dirección
+						y colocas rápidamente la caja sobre él. El robot pierde la calma y empieza
+						a girar, mientras su voz suena apagada desde el interior. ~¡Señor, parece que
+						hay un problema con mis sensores! ¡Deme unos momentos para arreglarlo!~";
 				}
-				"It doesn't look like it would fit.";
+				"No parece que encaje.";
 		],
 		react_before [;
 			Go:
 				if(location == StorageRoom && selected_direction == e_to && FlagIsClear(F_FRANK_BLOCKED_BY_BOX)) {
-					print "Frank rolls up in front of you, blocking your path. ";
+					print "Frank aparece delante de ti, bloqueándote el paso. ";
 					if(self hasnt general) {
 						give self general;
-						"~Oh, sir, forgive my rudeness, but I beg you not to enter this room.
-							It is not safe. And besides, there's nothing unusual to see in
-							there. Nothing at all. It's an incredibly dull room.~ Its
-							voice becomes deep and threatening for a second. ~So I strongly
-							advise you not to insist.~";
+						"~Oh, señor, perdone mi rudeza, pero le ruego que no entre en esta habitación.
+							No es segura. Y además, no hay nada inusual que ver
+							allí. Nada en absoluto. Es una habitación increíblemente aburrida.~
+							Su voz se vuelve profunda y amenazante por un segundo. ~Así que
+							le recomiendo que no insista.~";
 					}
-					"~Please, sir, don't insist. There's nothing to see there.~";
+					"~Por favor, señor, no insista. No hay nada que ver allí.~";
 				}
 		],
 		daemon [ _my_loc _i _dir_prop _dir_count;
 			! Frank may want to say something about the box
 			if(FlagIsSet(F_FRANK_BLOCKED_BY_BOX)) {
 				if(Frank in location)
-					print "^Frank's going around like crazy trying to get free in vain.^";
+					print "^Frank da vueltas como loco tratando de liberarse en vano.^";
 				if(--self.number == 0) {
 					ClearFlag(F_FRANK_BLOCKED_BY_BOX);
 					remove Box;
 					scope_modified = true;
 					if(Frank in location)
-						"^From one of the robot's arms comes a kind of blade that cuts the box
-							in half. Once released, it rises another of its arms, and a flame of
-							fire comes out that turns the cardboard into ashes.
-						^^~Oh, hahaha, you won't believe it, sir! It looks like I had a cardboard
-						box on top of me. What a silly oversight on my part!~";
+						"^De uno de los brazos del robot sale una especie de cuchilla que corta la caja
+							por la mitad. Una vez liberado, eleva otro de sus brazos, y sale una llama de
+							fuego que convierte el cartón en cenizas.
+						^^~¡Oh, jajaja, no se lo va a creer, señor! Parece que tenía una caja de 
+							cartón encima de mí. ¡Qué descuido más tonto por mi parte!~";
 					else
-						"^From some other room, you hear the sound of the cardboard box falling to
-							the floor and then what sounds like a quick burst of fire.";
+						"^Desde otra habitación, se oye el sonido de la caja de cartón cayendo
+							al suelo, y a continuación algo que suena como una rápida ráfaga de fuego.";
 				}
 			}
 			! Frank wants to follow the player around, but can't go up/down/in/out
@@ -533,18 +672,18 @@ Object -> Frank "Frank the Robot"
 						if(_my_loc provides _dir_prop && _my_loc._dir_prop == location) {
 							move self to location;
 							scope_modified = true;
-							print "^Frank enters from the ", (string) opposite_directions-->_i, ".^";
+							print "^Frank entra desde ", (string) opposite_directions-->_i, ".^";
 							if (location == RepairShop && WildThingsBook in Box && Box in location &&
 									FlagIsClear(F_FRANK_HAS_SEEN_BOOK)) {
 								SetFlag(F_FRANK_HAS_SEEN_BOOK);
-								print "^~Oh, here it is, sir! The book that the master asked for! Right
-									inside that cardboard box!~^";
+								print "^~¡Oh, aquí está, señor! ¡El libro que pidió el maestro! Justo
+									dentro de esa caja de cartón!~^";
 							}
 							if(location == DarkChamber) {
-								print "^When it sees you inside the room, it starts to get nervous.
-									~Oh, no, no, no, sir! It's not right for you to be here! There's
-									nothing to see here, really. Let me escort you.~ And he pushes you out
-									gently but firmly.^^";
+								print "^Cuando te ve dentro de la habitación, empieza a ponerse nervioso.
+									~¡Oh, no, no, no, señor! ¡No está bien que esté aquí! No hay
+									nada que ver aquí, de verdad. Permítame acompañarlo.~ Y te empuja fuera
+									suave pero firmemente.^^";
 								move self to StorageRoom;
 								PlayerTo(StorageRoom);
 							}
@@ -559,35 +698,35 @@ Object -> Frank "Frank the Robot"
 				<<TalkTo self>>;
 		],
 		description [;
-			print "Frank looks like a cross between a bunch of stacked toasters and a phlegmatic
-				English butler. Something tells you it's better not to anger it: Some parts of its
-				anatomy look very much like weapons.^";
+			print "Frank parece un cruce entre un montón de tostadoras apiladas y un flemático
+				mayordomo inglés. Algo te dice que es mejor no enfadarlo: Algunas partes de su
+				anatomía se parecen mucho a armamentos.^";
 			return 2;
 		],
 	has animate proper switchable transparent;
 
-Object Hallway "Hallway"
+Object Hallway "Pasillo"
 	with
 		description [;
 			if(FlagIsSet(F_STARTED_FIRE))
-				"The walls of the corridor burn fiercely, from the stairs to the west to the room to
-					the south. The heat is suffocating.";
-			"A wide hallway leads from the stairs to the west to another room to the south. There
-				are some dusty doors along the walls, but they have all been nailed shut a long time ago.";
+				"Las paredes del pasillo arden ferozmente, desde las escaleras al oeste hasta la habitación al
+					sur. El calor es sofocante.";
+			"Un amplio pasillo conduce desde las escaleras al oeste hasta otra habitación al sur. Hay
+				algunas puertas polvorientas a lo largo de las paredes, pero todas han sido cerradas con clavos hace mucho tiempo.";
 		],
-		cheap_scenery 'door' 'doors' "Regular doors, but old and worn, with some cobweb on them.",
+		cheap_scenery_fem 'puerta' 'puertas//p' "Puertas normales, pero viejas y desgastadas, con algunas telarañas.",
 		w_to BottomOfStairs,
 		s_to StorageRoom,
 	has light;
 
-Object StorageRoom "Storage Room"
+Object StorageRoom "Trastero"
 	with
 		description [;
-			if(FlagIsSet(F_STARTED_FIRE)) "The fire has arrived to the storage room as well,
-				turning the cobwebs and dust to ash. ";
-			print "A large storage room, which is now empty except for cobweb and dust. ";
-			"Some light is coming from the north and west. A smaller, dark passage leads east. There's a
-				yellow sign above the dark passage.";
+			if(FlagIsSet(F_STARTED_FIRE)) "El fuego ha llegado también al almacén,
+				convirtiendo las telarañas y el polvo en cenizas. ";
+			else print "Un gran almacén, que ahora está vacío salvo por las telarañas y el polvo. ";
+			"Algo de luz viene del norte y del oeste. Un pasadizo más pequeño y oscuro conduce al este. Hay un
+				letrero amarillo sobre el pasadizo oscuro.";
 		],
 		before [;
 			Go:
@@ -597,81 +736,85 @@ Object StorageRoom "Storage Room"
 				}
 		],
 		cheap_scenery
-			'dust' 'cobweb' "Doesn't look like this part of the basement is ever cleaned."
-			'yellow' 'sign' "~Dangerous area! Keep out!~",
+			1 'polvo' "No parece que esta parte del sótano se limpie nunca."
+			'letrero' 'amarillo' "~¡Zona peligrosa! ¡No se acerquen!~",
+		cheap_scenery_fem
+			1 'telaranas//p' "No parece que esta parte del sótano se limpie nunca.",
 		n_to Hallway,
 		w_to RepairShop,
 		e_to DarkChamber,
 	has light;
 
-Object RepairShop "Repair Shop"
+Object RepairShop "Taller de reparaciones"
 	with
 		description [;
-			if(FlagIsSet(F_STARTED_FIRE)) "Here, too, the workbench has begun to burn, along with the walls and tools.
-				The only way out is to the east.";
-			"This is a smaller room, with a workbench and various specialized tools. The whole room
-				is quite clean. There's an exit to the east.";
+			if(FlagIsSet(F_STARTED_FIRE)) "Aquí, también, el banco de trabajo ha empezado a arder, junto con las paredes y las herramientas.
+				La única salida es hacia el este.";
+			"Se trata de una sala más pequeña, con un banco de trabajo y diversas herramientas especializadas. Toda la habitación
+				está bastante limpia. Hay una salida al este.";
 		],
 		cheap_scenery
-			'bench' 'workbench' "It's an old and worn workbench."
-			'specialized' 'tools' "The tools are for repairing books, you can tell that much (but not much else than that).",
+			'banco' 'trabajo' "Es un banco de trabajo viejo y desgastado.",
+		cheap_scenery_fem
+			CS_THEM 'herramientas' 'especializadas' "Las herramientas son para reparar libros, eso se nota (pero no mucho más que eso).",
 		e_to StorageRoom,
 	has light;
 
-Object -> Box "cardboard box"
+Object -> Box "caja de cartón"
 	with
-		name 'cardboard' 'box',
-		description "It's an old and worn box, albeit in reasonably good shape. It appears quite sturdy.",
-	has container open;
+		name 'caja' 'de' 'carton',
+		description "Es una caja vieja y desgastada, aunque en bastante buen estado. Parece bastante resistente.",
+	has container open female;
 
-Object -> -> WildThingsBook "small book"
+Object -> -> WildThingsBook "libro pequeño"
 	with
-		name 'small' 'book' 'books//p',
-		description "Where the Wild Things Are, by Maurice Sendak.",
+		name 'libro' 'pequeno' 'libros//p',
+		description "Donde viven los monstruos, de Maurice Sendak.",
 		before [;
 			Open, Close:
-				"The manager just asked you to get the book, not read it.";
+				"El encargado acaba de pedirte que traigas el libro, no que lo leas.";
 		];
 
-Object DarkChamber "Dark chamber"
+Object DarkChamber "Cámara oscura"
 	with
 		description [;
 			if (self hasnt general) {
 				give self general;
-				print "Upon entering the room, two candles on a table light up spontaneously, as if by magic.^^";
+				print "Al entrar en la sala, dos velas sobre una mesa se encienden espontáneamente, como por arte de magia.^^";
 			}
 			if(FlagIsSet(F_STARTED_FIRE))
-				"The table, the book and the candles are now wrapped in fire. Long tongues of fire
-					run down the black-painted walls. The only way out is to the west.";
-			print "This is a very unsettling room. All the walls are painted black, with strange golden
-				symbols. In the middle of the room there is a large round table covered with a black
-				velvet tablecloth. On it rests an immense red ";
-			if (EvilBook has open) print "open";
-			else print "closed";
-			" book. On both sides of the book, two red candles flood the room with the smell of
-				burning wax. The only exit is towards the west.";
+				"La mesa, el libro y las velas están ahora envueltos en fuego. Largas lenguas de fuego
+					corren por las paredes pintadas de negro. La única salida es hacia el oeste.";
+			print "Es una habitación muy inquietante. Todas las paredes están pintadas de negro, con extraños
+				símbolos dorados. En el centro de la habitación hay una gran mesa redonda cubierta con un mantel de
+				terciopelo negro. Sobre ella descansa un inmenso libro rojo ";
+			if (EvilBook has open) print "abierto";
+			else print "cerrado";
+			". A ambos lados del libro, dos velas rojas inundan la habitación con el olor a
+				cera ardiente. La única salida está hacia el oeste.";
 		],
 		cheap_scenery
-			'wall' 'walls' "The walls absorb so much light, it almost looks like the golden symbols float in a void."
-			'strange' 'symbols' "These symbols might be letters in some ancient script. You wouldn't know."
-			'velvet' 'tablecloth' "It's heavy and all black.",
+			CS_THEM 'simbolo' 'simbolos' "Estos símbolos podrían ser letras de alguna escritura antigua. No lo sabes."
+			'mantel' 'terciopelo' "Es pesado y completamente negro.",
+		cheap_scenery_fem
+			'pared' 'paredes//p' "Las paredes absorben tanta luz que casi parece que los símbolos dorados flotan en el vacío.",
 		w_to StorageRoom,
 	has light;
 
-Object -> Table "table"
+Object -> Table "mesa"
 	with
-		name 'large' 'table' 'tablecloth',
-		description "It's a very sturdy wooden table covered with a black velvet tablecloth.",
-	has static scenery;
+		name 'mesa' 'redonda',
+		description "Es una mesa de madera muy robusta cubierta con un mantel de terciopelo negro.",
+	has static scenery female;
 
-Object -> EvilBook "red book"
+Object -> EvilBook "libro rojo"
 	with
 		number 0,
 		parse_name [ _w _i;
 			while(true) {
 				_w = NextWordStopped();
-				if(_w == 'immense' or 'thick' or 'heavy' or 'red' or 'leather' or 'book' or 'books//p' ||
-					(_w == 'open' && self has open) || (_w == 'closed' && self hasnt open)) _i++;
+				if(_w == 'inmenso' or 'grueso' or 'pesado' or 'rojo' or 'piel' or 'libro' or 'libros//p' ||
+					(_w == 'abierto' && self has open) || (_w == 'cerrado' && self hasnt open)) _i++;
 				else
 					break;
 			}
@@ -680,35 +823,35 @@ Object -> EvilBook "red book"
 		describe [; rtrue; ],
 		description [;
 			if(FlagIsSet(F_STARTED_FIRE))
-				"The book is on fire! Is it your imagination or do you think you hear a whine
-					coming from it beyond the crackling of the paper?";
-			print "You take an uneasy glance at the thick, heavy book bound in red leather. You have
-				the feeling that there is something profoundly evil in it. ";
+				"¡El libro está ardiendo! ¿Es tu imaginación o te parece oír un quejido
+					más allá del crepitar del papel?";
+			print "Echas un vistazo con inquietud al grueso y pesado libro encuadernado en cuero rojo. Tienes
+				la sensación de que hay algo profundamente maligno en él. ";
 			if(self has open)
-				"It is now open, revealing pages richly written in meticulous calligraphy. A few
-					words seem to stand out from the rest.";
+				"Ahora está abierto, revelando páginas ricamente escritas con una meticulosa caligrafía. Unas pocas
+					palabras parecen sobresalir del resto.";
 			else
-				"In a profusely ornamented typography, you can read on its closed cover the words ~Summone daemoniorum~.";
+				"En una tipografía profusamente ornamentada, se pueden leer en su cubierta cerrada las palabras ~Summone daemoniorum~.";
 		],
 		before [;
 			Take:
-				"You try to lift it off the table, but you're surprised at how incredibly heavy
-					it is. You feel unable to move it an inch.";
+				"Intentas levantarlo de la mesa, pero te sorprende lo increíblemente pesado
+					que es. Te sientes incapaz de moverlo ni un centímetro.";
 			Burn:
 				if(second==Candles or 0) {
 					if(FlagIsSet(F_STARTED_FIRE)) {
-						"But it's already burning! You need to get out of the building immediately.";
+						"¡Pero ya está ardiendo! Tienes que salir del edificio inmediatamente.";
 					} else {
 						SetFlag(F_STARTED_FIRE);
 						Achieved(TASK_BURN_BOOK);
 						StartDaemon(self);
 						remove Manager;
 						scope_modified = true;
-						"Without a moment's hesitation, you tear out one of the pages and burn it in a
-							candle. With the page burning, you set fire to the rest of the book.
-							^^The fire spreads from the book to the room at full speed! Before you can
-							believe it, the black walls burn with a fire that can't be natural. What
-							kind of evil magic is this?";
+						"Sin dudarlo un instante, arrancas una de las páginas y la quemas en una
+							vela. Con la página ardiendo, prendes fuego al resto del libro.
+							^^¡El fuego se extiende del libro a la habitación a toda velocidad! Antes de que puedas
+							creerlo, las paredes negras arden con un fuego que no puede ser natural. ¿Qué
+							clase de magia maligna es esta?";
 					}
 				}
 		],
@@ -716,27 +859,27 @@ Object -> EvilBook "red book"
 			switch(++self.number) {
 				2:
 					if(location==DarkChamber)
-						"^As the flames rise higher, the wooden ceiling catches fire too.";
+						"^A medida que las llamas suben, el techo de madera también se incendia.";
 					else
-						"^The sound of the fire in the dark chamber suddenly gets more intense.";
+						"^El sonido del fuego en la cámara oscura se intensifica de repente.";
 				6:
 					if(location==Library or TopOfStairs)
-						"^Flames emerge from the floor in one corner and quickly start to spread along the walls.";
+						"^Las llamas surgen del suelo en una esquina y rápidamente comienzan a extenderse por las paredes.";
 					else
-						"It is now getting unbearably hot down here.";
+						"Ahora hace un calor insoportable aquí abajo.";
 				8:
 					if(location==Library or TopOfStairs)
-						"^Flames are all around you now. You should still be able to reach the exit though.";
+						"^Las llamas te rodean ahora. Sin embargo, deberías poder llegar a la salida.";
 				11:
 					deadflag=4;
-					"The flames cover all the exits! The fire hovers around you with unnatural ferocity. When
-						you're short of breath and the heat makes you lose consciousness, the last thing you
-						hear is a laugh in the distance...";
+					"¡Las llamas cubren todas las salidas! El fuego se cierne a tu alrededor con una ferocidad antinatural. Cuando
+						te falta el aliento y el calor te hace perder el conocimiento, lo último que
+						oyes es una risa a lo lejos...";
 			}
 			if(self.number > 7 && location ~= Library or TopOfStairs) {
 				deadflag = 4;
-				"The heat is too much for you, and you collapse on the floor. When you're short of breath and
-					the heat makes you lose consciousness, the last thing you hear is a laugh in the distance...";
+				"El calor es demasiado para ti y te desplomas en el suelo. Cuando te falta el aire y
+					el calor te hace perder el conocimiento, lo último que oyes es una risa a lo lejos...";
 			}
 		],
 		add_to_scope [;
@@ -745,35 +888,36 @@ Object -> EvilBook "red book"
 		],
 	has openable transparent static;
 
-Object -> Candles "candles"
+Object -> Candles "velas"
 	with
-		description "Two red candles, burning on both sides of the book.",
+		description "Dos velas rojas, ardiendo a ambos lados del libro.",
 		describe [; rtrue; ],
-		article "a pair of",
-		name 'candle' 'candles',
+		article "un par de",
+		name 'vela' 'velas',
 		before [;
 			Take:
-				"The candles won't budge.";
+				"Las velas no se mueven.";
 			Burn:
-				"The candles are already burning.";
+				"Las velas ya están encendidas.";
 		],
-	has pluralname static;
+	has pluralname static female;
 
-Object Words "words"
+Object Words "palabras"
 	with
-		name 'creepy' 'letters' 'word' 'words',
+		name 'tetricas' 'letras' 'palabra' 'palabras',
 		before [;
 			Examine:
 				deadflag = 3;
-				"After a few seconds of struggling with the ancient calligraphy, you can make out the
-					words and read them out loud: ~KLAATU BARADA NIKTO~^^
-					Suddenly, a tremor starts to be felt from the ground, spreading through the walls.
-					You feel a chill on your back and turn around. You can't believe what you see...^^
-					The floor of the room has been transformed into an infinitely deep sinkhole with
-					black stone walls. Scaling the walls, you can see dozens... No, hundreds!
-					of bluish-skinned, red-eyed creatures, staring at you with predatory hunger.^^
-					They're going to come out. And you have set them free.";
-		];
+				"Después de unos segundos intentando descifrar la antigua caligrafía, logras distinguir las
+					palabras y leerlas en voz alta: ~KLAATU BARADA NIKTO~^^
+					De repente, un temblor comienza a sentirse desde el suelo, extendiéndose por las paredes.
+					Sientes un escalofrío en la espalda y te das la vuelta. No puedes creer lo que ves...^^
+					El suelo de la habitación se ha transformado en un sumidero infinitamente profundo con
+					paredes de piedra negra. Escalando las paredes, puedes ver docenas... No, ¡cientos!
+					de criaturas de piel azulada y ojos rojos, mirándote con hambre depredadora.^^
+					Van a salir. Y tú las has liberado.";
+		],
+	has female pluralname;
 
 ! ====================================
 ! Finally, the Initialise routine.
@@ -781,9 +925,9 @@ Object Words "words"
 
 [Initialise;
 	lookmode = 2; ! Verbose by default
-	"^^The search for a job can be arduous for a young person like you, with no experience or contacts and
-		a newcomer to the city. That's why when you had that newspaper in your hands yesterday and read
-		the ad (~young, inexperienced bookstore assistant needed~) you didn't hesitate for a second.
-		^^However, now that you are walking down the gloomy streets of the neighbourhood where your future
-		job resides, you wonder if you were not too quick to accept...^";
+	"^^La búsqueda de empleo puede ser ardua para una persona joven como tú, sin experiencia ni contactos y
+		recién llegada a la ciudad. Por eso, cuando ayer tuviste el periódico en tus manos y leíste
+		el anuncio (~se necesita una persona joven e inexperta para ayudar en una biblioteca~) no lo dudaste ni un segundo.
+		^^Sin embargo, ahora que caminas por las lúgubres calles del barrio donde reside tu futuro
+		trabajo, te preguntas si no te precipitaste al aceptar...^";
 ];

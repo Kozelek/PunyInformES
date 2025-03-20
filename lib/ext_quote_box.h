@@ -49,9 +49,14 @@ Constant RTE_MINIMUM = 0;
 Constant RTE_NORMAL = 1;
 Constant RTE_VERBOSE = 2;
 #EndIf;
+#Iftrue RUNTIME_ERRORS > RTE_MINIMUM;
+Constant QB_ERR = "^[Quote_box error #";
+#Endif;
+
 
 Constant QUOTE_MAX_LENGTH = 80;
 
+#IfV3;
 Default QUOTE_V3_SCREEN_WIDTH = 2;
 
 #Iftrue	QUOTE_V3_SCREEN_WIDTH == 6;
@@ -75,21 +80,26 @@ Constant QUOTE_INDENT_STRING = " ";
 #Iftrue	QUOTE_V3_SCREEN_WIDTH == 0;
 Constant QUOTE_INDENT_STRING = "";
 #EndIf;
+#EndIf;
 
 Array quote_buffer -> QUOTE_MAX_LENGTH + 3;
 
+#Ifv3;
 [ QuoteBox p_quote_data p_dont_pause _quote_lines _quote_width _screen_width _i _j _k _last_index;
+#Ifnot;
+[ QuoteBox p_quote_data p_dont_pause _quote_lines _quote_width _screen_width _i _k _last_index;
+#Endif;
 	_quote_lines = p_quote_data --> 0;
 	_quote_width = p_quote_data --> 1;
 #IfV5;
 #IfTrue RUNTIME_ERRORS > RTE_MINIMUM;
 #IfTrue RUNTIME_ERRORS == RTE_VERBOSE;
 	if(_quote_width > QUOTE_MAX_LENGTH) {
-		"ERROR: quote_box: Tried to print quote wider than ", QUOTE_MAX_LENGTH, " characters!^";
+		print_ret (string) QB_ERR,"1: Tried to print quote wider than ", QUOTE_MAX_LENGTH, " characters]";
 	}
 #IfNot;
 	if(_quote_width > QUOTE_MAX_LENGTH) {
-		"ERROR: quote_box #1!^";
+		print_ret (string) QB_ERR,"1]";
 	}
 #EndIf;
 #EndIf;
@@ -111,7 +121,7 @@ Array quote_buffer -> QUOTE_MAX_LENGTH + 3;
 #IfDef QUOTE_INDENT_STRING;
 		print (string) QUOTE_INDENT_STRING;
 #IfNot;
-		for(_j = (_screen_width - _quote_width - 2) / 2 : _j > 0: _j--) @print_char ' ';
+		FastSpaces((_screen_width - _quote_width - 2) / 2);
 #EndIf;
 		_k =  p_quote_data-->_i;
 		if(_i == 1 or _last_index) {
@@ -129,7 +139,7 @@ Array quote_buffer -> QUOTE_MAX_LENGTH + 3;
 		@output_stream 3 quote_buffer;
 		print (string) _k;
 		@output_stream -3;
-		for(_j = quote_buffer->1: _j < _quote_width + 1 : _j++) @print_char ' ';
+		FastSpaces(_quote_width + 1 - quote_buffer->1);
 		style roman;
 #EndIf;
 		@new_line;

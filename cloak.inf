@@ -1,110 +1,108 @@
+!% -Cu
 !% -~S
 !% $OMIT_UNUSED_ROUTINES=1
+!% $ZCODE_LESS_DICT_DATA=1
+
+! The very first lines of the main source code file for a game can
+! contain compiler options, like the lines above. -~S disables
+! strict error checking. This is otherwise used in z5 and z8 games by
+! default. While useful for debugging, it adds ~10 KB to the story file
+! size and it makes the game slower.
+! $OMIT_UNUSED_ROUTINES=1 makes the compiler remove all routines which
+! aren't used. This can save some space.
 
 ! ============================================================================ !
 !   Cloak of Darkness - a simple demonstration of Interactive Fiction
 !	   This version for INFORM written by Roger Firth on 17Sep99
 ! ============================================================================ !
 
-#Iftrue (#version_number == 8);
-Constant USEINFORM;
-Constant MANUAL_PRONOUNS;
-#Endif;
 
-Constant Story	  "Cloak of Darkness";
-Constant Headline   "^A basic IF demonstration.^";
+Constant Story	  "La capa de oscuridad";
+Constant Headline   "^Una demostración básica de FI.^";
 Constant MAX_SCORE  2;
 
-Release 2;
-Serial "210920";
+Release 3;
+Serial "221116";
 
 Constant STATUSLINE_SCORE; Statusline score;
+Constant INITIAL_LOCATION_VALUE = foyer;
 
-[ DeathMessage; print "You have lost"; ];
+[ DeathMessage; print "Has perdido"; ];
 
 
-#Ifndef USEINFORM;
 Include "globals.h";
 Include "puny.h";
-#Endif;
-#Ifdef USEINFORM;
-Include "Parser";
-Include "VerbLib";
-#Endif;
 
 ! ============================================================================ !
 
-Object  foyer "Foyer of the Opera House"
+Object  foyer "Vestíbulo de la Ópera"
   with  description
-		   "You are standing in a spacious hall, splendidly decorated in red
-			and gold, with glittering chandeliers overhead. The entrance from
-			the street is to the north, and there are doorways south and west.",
+		   "Te encuentras en un amplio vestíbulo, espléndidamente decorado en rojo
+			y dorado, con brillantes lámparas de araña. La entrada desde
+			la calle está al norte, y hay puertas al sur y al oeste.",
 		s_to  bar,
 		w_to  cloakroom,
 		n_to
-		   "You've only just arrived, and besides, the weather outside
-			seems to be getting worse.",
+		   "Acabas de llegar, y además, el tiempo fuera
+			parece estar empeorando.",
   has   light;
 
-Object  cloakroom "Cloakroom"
+Object  cloakroom "Guardarropa"
   with  description
-		   "The walls of this small room were clearly once lined with hooks,
-			though now only one remains. The exit is a door to the east.",
+		   "Las paredes de esta pequeña habitación parecen haber estado alguna vez
+		    cubiertas de ganchos, aunque ahora sólo queda uno. La salida es una
+			puerta al este.",
 		e_to  foyer,
   has   light;
 
-Object  hook "small brass hook" cloakroom
-  with  name 'small' 'brass' 'hook' 'peg',
+Object  hook "gancho pequeño de latón" cloakroom
+  with  name 'gancho' 'pequeno' 'laton',
 		description [;
-			print "It's just a small brass hook, ";
-			if (self == parent(cloak)) "with a cloak hanging on it.";
-			"screwed to the wall.";
+			print "Es sólo un pequeño gancho de latón, ";
+			if (self == parent(cloak)) "con una capa colgando de él.";
+			"atornillado a la pared.";
 		],
   has   scenery supporter;
 
-Object  bar "Foyer bar"
+Object  bar "Bar del vestíbulo"
   with  description
-		   "The bar, much rougher than you'd have guessed after the opulence
-			of the foyer to the north, is completely empty. There seems to
-			be some sort of message scrawled in the sawdust on the floor.",
+		   "El bar, mucho más tosco de lo que habría imaginado tras la opulencia
+			del vestíbulo al norte, está completamente vacío. Parece haber
+			algún tipo de mensaje garabateado en el serrín del suelo.",
 		n_to  foyer,
 		before [ _test;
 			Look, Inv, Going:
 				rfalse;
 			Go:
-#ifdef USEINFORM;
-				_test = self hasnt light && noun ~= n_obj;
-#IfNot;
 				_test = self hasnt light && selected_direction ~= n_to;
-#EndIf;
 				if (_test) {
 					message.number = message.number + 2;
-					"Blundering around in the dark isn't a good idea!";
+					"Andar dando tumbos en la oscuridad no es una buena idea.";
 				}
 			default:
 				if (self hasnt light) {
 					message.number = message.number + 1;
-					"In the dark? You could easily disturb something!";
+					"¿En la oscuridad? ¡Podrías tirar algo fácilmente!";
 				}
 		],
   has   ~light;
 
-Object  cloak "velvet cloak"
+Object  cloak "capa de terciopelo"
   with
 		parse_name [ _words;
-			while(NextWord() == 'handsome' or 'dark' or 'black' or 'velvet' or 'satin' or 'cloak') _words++;
+			while(NextWord() == 'capa' or 'de' or 'hermosa' or 'oscura' or 'negra' or 'tercipelo') _words++;
 			return _words;
 		],
 !		name 'handsome' 'dark' 'black' 'velvet' 'satin' 'cloak',
 		description
-		   "A handsome cloak, of velvet trimmed with satin, and slightly
-			spattered with raindrops. Its blackness is so deep that it
-			almost seems to suck light from the room.",
+		   "Una hermosa capa, de terciopelo ribeteada de raso, y ligeramente
+			salpicada de gotas de lluvia. Su negrura es tan profunda que
+			casi parece absorber la luz de la habitación.",
 		before [;
 			Drop, PutOn:
 				if (location ~= cloakroom)
-				   "This isn't the best place to leave a smart cloak
-					lying around.";
+				   "Este no es el mejor lugar para dejar una capa elegante
+					tirada por ahí.";
 		],
 		after [;
 			Take: give bar ~light;
@@ -117,42 +115,38 @@ Object  cloak "velvet cloak"
 						}
 					}
 		],
-  has   clothing general;
+  has   clothing general female;
 
-Object  message "scrawled message" bar
-  with  name 'message' 'sawdust' 'floor',
+Object  message "mensaje garabateado" bar
+  with  name 'mensaje' 'serrin' 'suelo' 'garabato',
 		description [;
 			if (self.number < 2) {
 				score++;
 				deadflag = 2;
-				print "The message, neatly marked in the sawdust, reads...";
+				print "El mensaje, claramente marcado en el serrín, dice...";
 				}
 			else {
 				deadflag = 3;
-				print "The message has been carelessly trampled, making it
-				  difficult to read. You can just distinguish the words...";
+				print "El mensaje ha sido pisoteado por descuido, dificultando su lectura.
+				  Sólo se distinguen las palabras...";
 				}
 		],
 		number  0,
   has   scenery;
 
 [ Initialise;
-	location = foyer;
 	move cloak to player;
 	give cloak worn;
-   "^^Hurrying through the rainswept November night, you're glad to see the
-	bright lights of the Opera House. It's surprising that there aren't more
-	people about but, hey, what do you expect in a cheap demo game...?^^";
+   "^^A través de la lluviosa noche de noviembre, te alegras de ver las
+	luces brillantes de la Ópera. Es sorprendente que no haya más gente
+	pero, oye, ¿qué esperas en un juego de demostración de bajo
+	presupuesto...?^^";
 ];
 
 
 ! ============================================================================ !
 
 
-#Ifdef USEINFORM;
-Include "Grammar";
-#Endif;
-
-Verb 'hang'	 * held 'on' noun	-> PutOn;
+Verb 'cuelga' 'colgar' * held 'en' / 'de' noun	-> PutOn;
 
 ! ============================================================================ !

@@ -31,7 +31,7 @@ Global menu_nesting;
 [ DoMenu menu_choices EntryR ChoiceR lines main_title i j;
 	menu_choices = 0; ! Avoid warning
 	menu_nesting++;
-.LKRD;
+._v3_redisplay_menu;
 	menu_item = 0;
 	lines = indirect(EntryR);
 	main_title = item_name;
@@ -41,29 +41,34 @@ Global menu_nesting;
 	!if (menu_choices ofclass Routine) menu_choices.call();
 	!else                              print (string) menu_choices;
 
-	print "There is information provided on the following:^^";
+	print "Hay información sobre lo siguiente:^^";
 	for(i = 1: i <= lines: i++) {
 		menu_item = i;
 		indirect(EntryR);
 		print i, ": ", (string) item_name, "^";
 	}
 	if(menu_nesting == 1) {
-		print "q: Resume the game^";
+		print "q: Volver al juego^";
 	} else {
-		print "q: Previous menu^";
+		print "q: Menú anterior^";
 	}
 
 	for (::) {
-		print "^Select 1 to ", lines, " or ENTER to show the options again.^";
+		print "^Elige de 1 a ", lines, " o ENTER para mostrar las opciones de nuevo.^";
 		print "> ";
 
-       _ReadPlayerInput(true);
+		_ReadPlayerInput(true);
 		j = parse->1; ! number of words
-		if (j == 0) jump LKRD;
+		parse->1=0;
+		if (j == 0) jump _v3_redisplay_menu;
 		i = parse-->1;
 		if(i == 'q//') {
 			menu_nesting--; if (menu_nesting > 0) rfalse;
+#ifdef M_NO_LOOK;
+			if (deadflag == 0) rtrue;
+#Ifnot;
 			if (deadflag == 0) <<Look>>;
+#Endif;
 			rfalse;
 		}
 		i = TryNumber(1);
@@ -72,35 +77,35 @@ Global menu_nesting;
 		j = indirect(EntryR);
 		print "^--- "; print (string) item_name; print " ---^^";
 		j = indirect(ChoiceR);
-		if (j == 2) jump LKRD;
+		if (j == 2) jump _v3_redisplay_menu;
 		if (j == 3) rfalse;
 	}
 ];
 #IfNot;
 ! v5+
 
-Constant NKEY__TX       = "N = next subject";
-Constant PKEY__TX       = "P = previous";
-Constant QKEY1__TX      = "  Q = resume game";
-Constant QKEY2__TX      = "Q = previous menu";
-Constant RKEY__TX       = "RETURN = read subject";
+Constant NKEY__TX	   = "S = siguiente tema";
+Constant PKEY__TX       = "P = previo";
+Constant QKEY1__TX      = "  Q = regresar al juego";
+Constant QKEY2__TX      = "Q = menú anterior";
+Constant RKEY__TX       = "ENTER = leer tema";
 
-Constant NKEY1__KY      = 'N';
-Constant NKEY2__KY      = 'n';
+Constant NKEY1__KY      = 'S';
+Constant NKEY2__KY      = 's';
 Constant PKEY1__KY      = 'P';
 Constant PKEY2__KY      = 'p';
 Constant QKEY1__KY      = 'Q';
 Constant QKEY2__KY      = 'q';
 
 [ DoMenu menu_choices EntryR ChoiceR
-         lines main_title main_wid cl i j oldcl pkey ch y x;
+		 lines main_title main_wid cl i j oldcl pkey ch y x;
 	menu_nesting++;
 	menu_item = 0;
 	lines = indirect(EntryR);
 	main_title = item_name; main_wid = item_width;
 	cl = 7;
 
-.ReDisplay;
+._redisplay_menu;
 
 	oldcl = 0;
 	@erase_window $ffff;
@@ -177,11 +182,11 @@ Constant QKEY2__KY      = 'q';
 			style roman; @set_window 0; new_line;
 
 			i = ChoiceR.call();
-			if (i == 2) jump ReDisplay;
+			if (i == 2) jump _redisplay_menu;
 			if (i == 3) break;
 
-			print "^[Please press SPACE.]";
-			@read_char 1 -> pkey; jump ReDisplay;
+			print "^[Pulsa ESPACIO, por favor.]";
+			@read_char 1 -> pkey; jump _redisplay_menu;
 		}
 	}
 	menu_nesting--; if (menu_nesting > 0) rfalse;
@@ -193,7 +198,11 @@ Constant QKEY2__KY      = 'q';
 	gg_statuswin_cursize = 0;
 #EndIf;
 	new_line; new_line; new_line;
+#ifdef M_NO_LOOK;
+	if (deadflag == 0) rtrue;
+#Ifnot;
 	if (deadflag == 0) <<Look>>;
+#Endif;
 ];
 
 #EndIf;
