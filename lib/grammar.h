@@ -1335,7 +1335,7 @@ Verb meta 'quit' 'q//' 'fin'
 	for (_i = 18:_i < 24: _i++) print (char) 0->_i;
 	print " / Inform v";
 	inversion;
-	print " PunyInform v", PUNYINFORM_MAJOR_VERSION, (char) '.', PUNYINFORM_MINOR_VERSION;
+	print " PunyInformES v", PUNYINFORM_MAJOR_VERSION, (char) '.', PUNYINFORM_MINOR_VERSION;
 	if(PUNYINFORM_PATCH_VERSION)
 		print ".", PUNYINFORM_PATCH_VERSION;
 #Ifdef PUNYINFORM_VERSION_SUFFIX;
