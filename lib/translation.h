@@ -1,6 +1,15 @@
 ! ==============================================================================
 ! Pablo Martínez 2025
-! Version 0.1
+! ==============================================================================
+! Este fichero se encarga de modificar el comando del jugador para que algunos
+! elementos del idioma sean entendidos por el analizador sintáctico.
+! En este momento se limita a procesar los sufijos le,la,lo,les,las,los y te
+! (como en "toma la caja y abrela") separándolos con un guión y un espacio
+! (convierte "abrela" en "abre -la") para que sea una palabra distinta que el
+! analizador pueda detectar.
+! En este momento, solo puede funcionar para la versión V5 de la máquina Inform
+! puesto que en V3 no puede analizar el comando del jugador una segunda vez
+! después de leído. Eso significa que NO existen sufijos en V3.
 ! ==============================================================================
 ! Source encoding UTF-8 No Mark
 System_file;

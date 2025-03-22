@@ -149,6 +149,29 @@
 !              CS_THEM 'curtain' 'curtains' "The curtains are lovely."
 !             1 'ceiling' "The ceiling is quite high up.",
 !     has light;
+! ==============================================================================
+! Cambios realizados para la versión en español de la librería:
+!   A fin de que puedan existir "escenarios baratos" (cheap sceneries) con
+!   artículos femeninos (la calle, las cajas), he necesitado crear un segundo
+!   objeto CheapSceneryFem para albergar estos artículos. La forma de definirlos
+!   en el juego es sencilla: utilizando un atributo adicional cheap_scenery_fem.
+!   Ejemplo:
+!     Object GloomyStreet "Calle Sombría"
+!  	     with
+!  		  description
+!  			  "Las casas de esta zona parecen abandonadas precipitadamente, como si una misteriosa tragedia hubiera sembrado
+!  				pánico entre sus antiguos habitantes. Todo lo que ves son ventanas destrozadas y puertas arrancadas.
+!  				Frente a ti, al sur, está el extrañamente bien conservado y hermoso
+!  				edificio de la biblioteca donde tienes que trabajar.",
+!  		  cheap_scenery
+!  			  1 'edificio' "Es un edificio precioso. Parece arquitectura Art Nouveau del siglo XIX.",
+!  		  cheap_scenery_fem
+!  			  CS_THEM 'ventanas' 'puertas' "¡Restos de una tragedia lejana y misteriosa!"
+!  			  'casas//p' 'calle' "Casas sombrías y abandonadas."
+!  			  1 'biblioteca' "Es un edificio precioso. Parece arquitectura Art Nouveau del siglo XIX.",
+!  		  s_to Library,
+!  		  cant_go "Tu trabajo está al sur, aunque estás tentado de volver a casa y olvidarte de todo.",
+!  	  has light;
 
 System_file;
 
