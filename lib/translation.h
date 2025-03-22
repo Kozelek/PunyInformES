@@ -28,28 +28,30 @@ System_file;
     if (b->1 < b->0) (b->1)++;
 ];
 
-[ Translation w x length prefix;
+[ Translation w x length change;
 	for (w=parse->1:w>=1:w--) {
 		length = parse->(4*w);
 		if (parse-->(w*2-1) == 0 && length >= 3) {
 			x = parse->(4*w + 1) + length - 1; 
-			if (buffer->x == 's' && length >= 4 && (buffer->(x-1) == 'o' || buffer->(x-1) == 'e' || buffer->(x-1) == 'a') && buffer->(x-2) == 'l') { ! prefijos -las -los -les
-				prefix = 2;
-				LTI_Insert(x-prefix, '-');
-				LTI_Insert(x-prefix, ' ');
-			} else if ((buffer->x == 'a' || buffer->x == 'o' || buffer->x == 'e') && buffer->(x-1) == 'l') { ! prefijos -la -lo -le
-				prefix = 1;
-				LTI_Insert(x-prefix, '-');
-				LTI_Insert(x-prefix, ' ');
-			} else if (buffer->x == 'e' && buffer->(x-1) == 't') { ! prefijo -te
-				prefix = 1;
-				LTI_Insert(x-prefix, '-');
-				LTI_Insert(x-prefix, ' ');
+			if (buffer->x == 's' && length >= 4 && (buffer->(x-1) == 'o' || buffer->(x-1) == 'e' || buffer->(x-1) == 'a') && buffer->(x-2) == 'l') { ! sufijos -las -los -les
+				change = 1;
+				Insert_Suffix(x, 2);
+			} else if ((buffer->x == 'a' || buffer->x == 'o' || buffer->x == 'e') && buffer->(x-1) == 'l') { ! sufijos -la -lo -le
+				change = 1;
+				Insert_Suffix(x, 1);
+			} else if (buffer->x == 'e' && buffer->(x-1) == 't') { ! sufijos -te
+				change = 1;
+				Insert_Suffix(x, 1);
 			}
 		}
 	}
-	if (prefix > 0) {
+	if (change > 0) { ! ha habido un cambio
 		Tokenise__(buffer, parse);
 	}
 	rtrue;
+];
+
+[ Insert_Suffix pos len;
+	LTI_Insert(pos-len, '-');
+	LTI_Insert(pos-len, ' ');
 ];
