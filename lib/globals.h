@@ -296,7 +296,6 @@ Array LanguageNumbers static table
 
 #Ifdef OPTIONAL_LANGUAGE_NUMBER;
 #Ifdef OPTIONAL_ALLOW_WRITTEN_NUMBERS;
-#IfV3;
 Array LanguageNumberStrings static -->
 	"trece"
 	"catorce"
@@ -304,8 +303,8 @@ Array LanguageNumberStrings static -->
 	"dieciseis"
 	"diecisiete"
 	"dieciocho"
-	"diecinueve";
-#Endif;
+	"diecinueve"
+	"veinte";
 #Ifnot; ! Not OPTIONAL_ALLOW_WRITTEN_NUMBERS
 Array LanguageNumberStrings static -->
 	"un"
@@ -326,11 +325,12 @@ Array LanguageNumberStrings static -->
 	"dieciseis"
 	"diecisiete"
 	"dieciocho"
-	"diecinueve";
+	"diecinueve"
+	"veinte";
 #Endif; ! Not OPTIONAL_ALLOW_WRITTEN_NUMBERS
 
 Array LanguageNumberTensStrings static -->
-	"veinte"
+	"veinti"
 	"treinta"
 	"cuarenta"
 	"cincuenta"
@@ -730,11 +730,11 @@ Object Directions
 
 #Ifdef OPTIONAL_SHIP_DIRECTIONS;
 			if(normal_directions_enabled || ship_directions_enabled) {
-				@je _w 'out' ?_matched_out;
-				@je _w 'in' ?_matched_in;
-				@je _w 'd//' 'down' ?_matched_d;
-				@je _w 'floor' 'ground' ?_matched_d;
-				@je _w 'u//' 'up' ?_matched_u;
+				@je _w 'fuera' 'afuera' ?_matched_out;
+				@je _w 'dentro' 'adentro' ?_matched_in;
+				@je _w 'ab//' 'abajo' ?_matched_d;
+				@je _w 'suelo' 'tierra' ?_matched_d;
+				@je _w 'ar//' 'arriba' ?_matched_u;
 			}
 
 			if(ship_directions_enabled) {

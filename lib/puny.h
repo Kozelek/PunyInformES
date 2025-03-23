@@ -447,44 +447,54 @@ Constant ONE_SPACE_STRING = " ";
 
 #Ifdef OPTIONAL_LANGUAGE_NUMBER;
 
-[ LanguageNumber n f;
+[ LanguageNumber n;
 	if (n == 0)	{ print "cero"; rfalse; }
 	if (n < 0)	 { print "menos "; n = -n; }
-	if (n >= 1000) { print (LanguageNumber) n/1000, " mil"; n = n%1000; f = 1; }
+	if (n >= 1000) {
+		if (n/1000 > 1) print (LanguageNumber) n/1000, " mil";
+		else print "mil";
+		n = n%1000;
+		if (n > 0) print " ";
+	}
 	if (n >= 100)  {
-		if (f == 1) print ", ";
-		print (LanguageNumber) n/100, " cientos"; n = n%100; f = 1;
+		if (n/100 > 1) {
+			switch (n/100) {
+			5: print "quinientos";
+			7: print "setecientos";
+			9: print "novecientos";
+			default: print (LanguageNumber) n/100, "cientos";
+			}
+			n = n%100;
+			if (n > 0) print " ";
+		} else {
+			n = n%100;
+			if (n > 0) {
+				print "ciento ";
+			} else print "cien";
+		}
 	}
 	if (n == 0) rfalse;
-	#Ifdef DIALECT_US;
-	if (f == 1) print " ";
-	#Ifnot;
-	if (f == 1) print " y ";
-	#Endif;
 #Ifdef OPTIONAL_ALLOW_WRITTEN_NUMBERS;
-#IfV3;
-	if(n < 13 || n == 20)
+	if(n < 13)
 		print (address) LanguageNumbers-->(2 * n - 1);
-	else if(n < 20)
+	else if(n <= 20)
 		print (string) LanguageNumberStrings-->(n - 13);
 	else {
 		print (string) LanguageNumberTensStrings-->(n / 10 - 2);
-		if (n%10 ~= 0) print "-", (LanguageNumber) n%10;
+		if (n%10 ~= 0) {
+			if (n <= 29) print (LanguageNumber) n%10;
+			else print " y ", (LanguageNumber) n%10;
+		}
 	}
 #Ifnot;
-	if(n < 21)
-		print (address) LanguageNumbers-->(2 * n - 1);
-	else {
-		print (string) LanguageNumberTensStrings-->(n / 10 - 2);
-		if (n%10 ~= 0) print "-", (LanguageNumber) n%10;
-	}
-#Endif;
-#Ifnot;
-	if(n < 20)
+	if(n <= 20)
 		print (string) LanguageNumberStrings-->(n - 1);
 	else {
 		print (string) LanguageNumberTensStrings-->(n / 10 - 2);
-		if (n%10 ~= 0) print "-", (LanguageNumber) n%10;
+		if (n%10 ~= 0) {
+			if (n <= 29) print (LanguageNumber) n%10;
+			else print " y ", (LanguageNumber) n%10;
+		}
 	}
 #Endif;
 ];
