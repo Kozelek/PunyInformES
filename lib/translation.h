@@ -38,26 +38,51 @@ System_file;
 ];
 
 [ Translation w x length change;
+	ProcessChars();
 	for (w=parse->1:w>=1:w--) {
 		length = parse->(4*w);
 		if (parse-->(w*2-1) == 0 && length >= 3) {
 			x = parse->(4*w + 1) + length - 1; 
 			if (buffer->x == 's' && length >= 4 && (buffer->(x-1) == 'o' || buffer->(x-1) == 'e' || buffer->(x-1) == 'a') && buffer->(x-2) == 'l') { ! sufijos -las -los -les
-				change = 1;
+				change = true;
 				Insert_Suffix(x, 2);
 			} else if ((buffer->x == 'a' || buffer->x == 'o' || buffer->x == 'e') && buffer->(x-1) == 'l') { ! sufijos -la -lo -le
-				change = 1;
+				change = true;
 				Insert_Suffix(x, 1);
 			} else if (buffer->x == 'e' && buffer->(x-1) == 't') { ! sufijos -te
-				change = 1;
+				change = true;
 				Insert_Suffix(x, 1);
 			}
 		}
 	}
-	if (change > 0) { ! ha habido un cambio
+	if (change) { ! ha habido un cambio
 		Tokenise__(buffer, parse);
 	}
-	rtrue;
+];
+
+[ ProcessChars change i b new;
+	! Procesa todos los caracteres españoles en el input,
+	! quitando acentos, cambiando ñ por n y ç por c.
+	b = buffer;
+	for(i=0 : i < b -> 0 : i++) {
+		new = 0;
+		switch (b -> i) {
+			'á': new = 'a';
+			'é': new = 'e';
+			'í': new = 'i';
+			'ó': new = 'o';
+			'ú': new = 'u';
+			'ñ': new = 'n';
+			'ç': new = 'c';
+		}
+		if(new > 0) {
+			b -> i = new;
+			change = true;
+		}
+	}
+	if (change) { ! ha habido un cambio
+		Tokenise__(buffer, parse);
+	}
 ];
 
 [ Insert_Suffix pos len;
