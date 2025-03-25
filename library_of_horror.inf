@@ -421,8 +421,7 @@ Object GloomyStreet "Calle Sombría"
 		cheap_scenery
 			1 'edificio' "Es un edificio precioso. Parece arquitectura Art Nouveau del siglo XIX."
 			CS_FEM_THEM 'ventanas' 'puertas' "¡Restos de una tragedia lejana y misteriosa!"
-			CS_FEM_THEM 1 'casas' "Casas sombrías y abandonadas."
-			CS_FEM 1 'calle' "Casas sombrías y abandonadas."
+			CS_FEM 'casas//p' 'calle' "Casas sombrías y abandonadas."
 			CS_FEM 1 'biblioteca' "Es un edificio precioso. Parece arquitectura Art Nouveau del siglo XIX.",
 		s_to Library,
 		cant_go "Tu trabajo está al sur, aunque estás tentado de volver a casa y olvidarte de todo.",
@@ -541,11 +540,9 @@ Object TopOfStairs "Escaleras descendentes"
 		cheap_scenery
 			1 'haz' "El haz de luz destaca claramente en la oscuridad de la habitación."
 			CS_FEM 1 'luz' "El haz de luz destaca claramente en la oscuridad de la habitación."
-			CS_FEM 1 'caja' "Las cajas están llenas de libros esperando a ser colocados en sus estanterías. Aquí no hay
+			CS_FEM 'caja' 'cajas\\p' "Las cajas están llenas de libros esperando a ser colocados en sus estanterías. Aquí no hay
 							nada que te interese."
-			CS_FEM_THEM 1 'cajas' "Las cajas están llenas de libros esperando a ser colocados en sus estanterías. Aquí no hay
-							nada que te interese."
-			CS_FEM 1 'escalera' "La escalera conduce a la oscuridad del sótano.",
+			CS_FEM 'escalera' 'escaleras\\p' "La escalera conduce a la oscuridad del sótano.",
 		before [;
 			Go:
 				if(selected_direction==d_to) {
@@ -576,7 +573,7 @@ Object BottomOfStairs "Sótano, junto a escalera"
 				tus alrededores. Hay más luz hacia el este.";
 		],
 		cheap_scenery
-			CS_FEM 1 'escalera' "La escalera conduce a la oscuridad del sótano.",
+			CS_FEM 'escalera' 'escaleras\\p' "La escalera conduce a la oscuridad del sótano.",
 		u_to TopOfStairs,
 		e_to Hallway,
 	has light;
@@ -715,8 +712,7 @@ Object Hallway "Pasillo"
 				algunas puertas polvorientas a lo largo de las paredes, pero todas han sido cerradas con clavos hace mucho tiempo.";
 		],
 		cheap_scenery
-			CS_FEM 1 'puerta' "Puertas normales, pero viejas y desgastadas, con algunas telarañas."
-			CS_FEM_THEM 1 'puertas' "Puertas normales, pero viejas y desgastadas, con algunas telarañas.",
+			CS_FEM 'puerta' 'puertas\\p' "Puertas normales, pero viejas y desgastadas, con algunas telarañas.",
 		w_to BottomOfStairs,
 		s_to StorageRoom,
 	has light;

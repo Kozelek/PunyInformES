@@ -153,11 +153,8 @@
 ! Cambios realizados para la versión en español de la librería:
 !   A fin de que puedan existir "escenarios baratos" (cheap sceneries) con
 !   artículos femeninos (la calle, las cajas), se han creado las constantes:
-!       * CS_FEM: Para escenarios femeninos singulares ("la casa")
+!       * CS_FEM: Para escenarios femeninos singulares ("la calle")
 !       * CS_FEM_THEM: Para escenarios femeninos plurales ("las cajas")
-!   Se recomienda no usar el indicador de plural "//p" (ejemplo: "plumas//p")
-!   porque por defecto indica que el objeto es masculino del plural, incluso si
-!   está detrás de una constante CS_FEM.
 !
 !   Ejemplo:
 !
@@ -171,8 +168,7 @@
 !		  cheap_scenery
 !			  1 'edificio' "Es un edificio precioso. Parece arquitectura Art Nouveau del siglo XIX."
 !			  CS_FEM_THEM 'ventanas' 'puertas' "¡Restos de una tragedia lejana y misteriosa!"
-!			  CS_FEM_THEM 1 'casas' "Casas sombrías y abandonadas."
-!			  CS_FEM 1 'calle' "Casas sombrías y abandonadas."
+!			  CS_FEM 'casas//p' 'calle' "Casas sombrías y abandonadas."
 !			  CS_FEM 1 'biblioteca' "Es un edificio precioso. Parece arquitectura Art Nouveau del siglo XIX.",
 !		  s_to Library,
 !  		  cant_go "Tu trabajo está al sur, aunque estás tentado de volver a casa y olvidarte de todo.",
@@ -251,7 +247,12 @@ Property individual cheap_scenery;
 		_base = _matched;
 		if(_CSFindInArr(_w, p_arr, p_count)) {
 			_matched++;
-			if((_w-> #dict_par1) & 4) CSDATA-->CSDATA_PRONOUN_TEMP = CS_THEM;
+			if((_w-> #dict_par1) & 4) {
+				if(CSDATA-->CSDATA_PRONOUN_TEMP == CS_FEM)
+					CSDATA-->CSDATA_PRONOUN_TEMP = CS_FEM_THEM;
+				else
+					CSDATA-->CSDATA_PRONOUN_TEMP = CS_THEM;
+			}
 			_w = NextWord();
 		} else
 			return _matched;
@@ -443,8 +444,12 @@ Property individual cheap_scenery;
 			_ret = _sw2();
 			self = _self_bak;
 			if(_ret > _longest) {
-				if(parser_action == ##PluralFound)
-					CSDATA-->CSDATA_PRONOUN_TEMP = CS_THEM;
+				if(parser_action == ##PluralFound) {
+					if(CSDATA-->CSDATA_PRONOUN_TEMP == CS_FEM)
+						CSDATA-->CSDATA_PRONOUN_TEMP = CS_FEM_THEM;
+					else
+						CSDATA-->CSDATA_PRONOUN_TEMP = CS_THEM;
+				}
 				jump _cs_found_a_match;
 			}
 		} else if(_sw1 > 0 && _sw1 < 100) {
