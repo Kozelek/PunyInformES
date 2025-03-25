@@ -320,9 +320,8 @@ Property individual cheap_scenery;
 	rfalse;
 ];
 
-[ CSPerformAction p_action p_id p_second _ret ismale;
+[ CSPerformAction p_action p_id p_second _ret;
 	_ret = _CSFindID(location, cheap_scenery, p_id);
-	ismale = _ret;
 	if(_ret == 0) {
 #Iftrue RUNTIME_ERRORS > RTE_MINIMUM;
 #Iftrue RUNTIME_ERRORS == RTE_VERBOSE;
@@ -345,11 +344,9 @@ Property individual cheap_scenery;
 	CSData-->CSDATA_POINTER = _ret;
 	cs_match_id = p_id;
 	if(p_second < 0)
-		if (ismale == 0) PerformAction(p_action, -p_second, CheapSceneryFem);
-		else PerformAction(p_action, -p_second, CheapScenery);
+		PerformAction(p_action, -p_second, CheapScenery);
 	else
-		if (ismale == 0) PerformAction(p_action, -p_second, CheapSceneryFem);
-		else PerformAction(p_action, -p_second, CheapScenery);
+		PerformAction(p_action, -p_second, CheapScenery);
 	@pull cs_match_id;
 	@storew CSDATA CSDATA_POINTER sp;
 	rtrue;
