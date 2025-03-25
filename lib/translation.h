@@ -72,7 +72,7 @@ System_file;
 			'é': new = 'e';
 			'í': new = 'i';
 			'ó': new = 'o';
-			'ú': new = 'u';
+			'ú', 'ü': new = 'u';
 			'ñ': new = 'n';
 			'ç': new = 'c';
 		}
