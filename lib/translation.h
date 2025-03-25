@@ -37,19 +37,20 @@ System_file;
     if (b->1 < b->0) (b->1)++;
 ];
 
-[ Translation w x length change;
+[ Translation w x length change cx cx1;
 	ProcessChars();
 	for (w=parse->1:w>=1:w--) {
 		length = parse->(4*w);
 		if (parse-->(w*2-1) == 0 && length >= 3) {
 			x = parse->(4*w + 1) + length - 1; 
-			if (buffer->x == 's' && length >= 4 && (buffer->(x-1) == 'o' || buffer->(x-1) == 'e' || buffer->(x-1) == 'a') && buffer->(x-2) == 'l') { ! sufijos -las -los -les
+			cx = buffer->x; cx1=buffer->(x-1);
+			if (cx == 's' && length >= 4 && (cx1 == 'o' or 'e' or 'a') && buffer->(x-2) == 'l') { ! sufijos -las -los -les
 				change = true;
 				Insert_Suffix(x, 2);
-			} else if ((buffer->x == 'a' || buffer->x == 'o' || buffer->x == 'e') && buffer->(x-1) == 'l') { ! sufijos -la -lo -le
+			} else if ((cx == 'a' or 'o' or 'e') && cx1 == 'l') { ! sufijos -la -lo -le
 				change = true;
 				Insert_Suffix(x, 1);
-			} else if (buffer->x == 'e' && buffer->(x-1) == 't') { ! sufijos -te
+			} else if (cx == 'e' && cx1 == 't') { ! sufijos -te
 				change = true;
 				Insert_Suffix(x, 1);
 			}
