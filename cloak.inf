@@ -90,7 +90,7 @@ Object  bar "Bar del vestíbulo"
 Object  cloak "capa de terciopelo"
   with
 		parse_name [ _words;
-			while(NextWord() == 'capa' or 'de' or 'hermosa' or 'oscura' or 'negra' or 'tercipelo') _words++;
+			while(NextWord() == 'capa' or 'de' or 'hermosa' or 'oscura' or 'negra' or 'terciopelo') _words++;
 			return _words;
 		],
 !		name 'handsome' 'dark' 'black' 'velvet' 'satin' 'cloak',
