@@ -419,11 +419,11 @@ Object GloomyStreet "Calle Sombría"
 				Frente a ti, al sur, está el extrañamente bien conservado y hermoso
 				edificio de la biblioteca donde tienes que trabajar.",
 		cheap_scenery
-			1 'edificio' "Es un edificio precioso. Parece arquitectura Art Nouveau del siglo XIX.",
-		cheap_scenery_fem
-			CS_THEM 'ventanas' 'puertas' "¡Restos de una tragedia lejana y misteriosa!"
-			'casas//p' 'calle' "Casas sombrías y abandonadas."
-			1 'biblioteca' "Es un edificio precioso. Parece arquitectura Art Nouveau del siglo XIX.",
+			1 'edificio' "Es un edificio precioso. Parece arquitectura Art Nouveau del siglo XIX."
+			CS_FEM_THEM 'ventanas' 'puertas' "¡Restos de una tragedia lejana y misteriosa!"
+			CS_FEM_THEM 1 'casas' "Casas sombrías y abandonadas."
+			CS_FEM 1 'calle' "Casas sombrías y abandonadas."
+			CS_FEM 1 'biblioteca' "Es un edificio precioso. Parece arquitectura Art Nouveau del siglo XIX.",
 		s_to Library,
 		cant_go "Tu trabajo está al sur, aunque estás tentado de volver a casa y olvidarte de todo.",
 		after [;
@@ -465,10 +465,9 @@ Object Library "La biblioteca"
 			^^ Al este, es posible adentrarse en el edificio. Al norte está la salida al exterior.";
 		],
 		cheap_scenery
-			CS_THEM 'volumenes' 'libros' "Uno podría pasarse toda la vida leyendo sólo una parte de los libros de esta sala.",
-		cheap_scenery_fem
-			CS_THEM 1 'estanterias' "Llenas de todos los libros imaginables de este mundo."
-			1 'biblioteca' "Es una hermosa biblioteca antigua.",
+			CS_THEM 'volumenes' 'libros' "Uno podría pasarse toda la vida leyendo sólo una parte de los libros de esta sala."
+			CS_FEM_THEM 1 'estanterias' "Llenas de todos los libros imaginables de este mundo."
+			CS_FEM 1 'biblioteca' "Es una hermosa biblioteca antigua.",
 		n_to GloomyStreet,
 		e_to TopOfStairs,
 		cant_go "Te encantaría explorar la biblioteca, pero ahora tienes otras cosas en la cabeza.",
@@ -540,12 +539,13 @@ Object TopOfStairs "Escaleras descendentes"
 			sótano oscuro. Un haz de luz viene del oeste y conduce a la sala principal de la biblioteca.";
 		],
 		cheap_scenery
-			1 'haz' "El haz de luz destaca claramente en la oscuridad de la habitación.",
-		cheap_scenery_fem
-			1 'luz' "El haz de luz destaca claramente en la oscuridad de la habitación."
-			'caja' 'cajas//p' "Las cajas están llenas de libros esperando a ser colocados en sus estanterías. Aquí no hay
+			1 'haz' "El haz de luz destaca claramente en la oscuridad de la habitación."
+			CS_FEM 1 'luz' "El haz de luz destaca claramente en la oscuridad de la habitación."
+			CS_FEM 1 'caja' "Las cajas están llenas de libros esperando a ser colocados en sus estanterías. Aquí no hay
 							nada que te interese."
-			'escalera' 'escaleras' "La escalera conduce a la oscuridad del sótano.",
+			CS_FEM_THEM 1 'cajas' "Las cajas están llenas de libros esperando a ser colocados en sus estanterías. Aquí no hay
+							nada que te interese."
+			CS_FEM 1 'escalera' "La escalera conduce a la oscuridad del sótano.",
 		before [;
 			Go:
 				if(selected_direction==d_to) {
@@ -575,8 +575,8 @@ Object BottomOfStairs "Sótano, junto a escalera"
 				Sin embargo, hay suficiente luz proveniente de la escalera para distinguir
 				tus alrededores. Hay más luz hacia el este.";
 		],
-		cheap_scenery_fem
-			'escalera' 'escaleras'  "La escalera asciende hacia la biblioteca.",
+		cheap_scenery
+			CS_FEM 1 'escalera' "La escalera conduce a la oscuridad del sótano.",
 		u_to TopOfStairs,
 		e_to Hallway,
 	has light;
@@ -714,7 +714,9 @@ Object Hallway "Pasillo"
 			"Un amplio pasillo conduce desde las escaleras al oeste hasta otra habitación al sur. Hay
 				algunas puertas polvorientas a lo largo de las paredes, pero todas han sido cerradas con clavos hace mucho tiempo.";
 		],
-		cheap_scenery_fem 'puerta' 'puertas//p' "Puertas normales, pero viejas y desgastadas, con algunas telarañas.",
+		cheap_scenery
+			CS_FEM 1 'puerta' "Puertas normales, pero viejas y desgastadas, con algunas telarañas."
+			CS_FEM_THEM 1 'puertas' "Puertas normales, pero viejas y desgastadas, con algunas telarañas.",
 		w_to BottomOfStairs,
 		s_to StorageRoom,
 	has light;
@@ -737,9 +739,8 @@ Object StorageRoom "Trastero"
 		],
 		cheap_scenery
 			1 'polvo' "No parece que esta parte del sótano se limpie nunca."
-			'letrero' 'amarillo' "~¡Zona peligrosa! ¡No se acerquen!~",
-		cheap_scenery_fem
-			1 'telaranas//p' "No parece que esta parte del sótano se limpie nunca.",
+			'letrero' 'amarillo' "~¡Zona peligrosa! ¡No se acerquen!~"
+			CS_FEM_THEM 1 'telaranas' "No parece que esta parte del sótano se limpie nunca.",
 		n_to Hallway,
 		w_to RepairShop,
 		e_to DarkChamber,
@@ -754,9 +755,8 @@ Object RepairShop "Taller de reparaciones"
 				está bastante limpia. Hay una salida al este.";
 		],
 		cheap_scenery
-			'banco' 'trabajo' "Es un banco de trabajo viejo y desgastado.",
-		cheap_scenery_fem
-			CS_THEM 'herramientas' 'especializadas' "Las herramientas son para reparar libros, eso se nota (pero no mucho más que eso).",
+			'banco' 'trabajo' "Es un banco de trabajo viejo y desgastado."
+			CS_FEM_THEM 'herramientas' 'especializadas' "Las herramientas son para reparar libros, eso se nota (pero no mucho más que eso).",
 		e_to StorageRoom,
 	has light;
 
@@ -795,9 +795,8 @@ Object DarkChamber "Cámara oscura"
 		],
 		cheap_scenery
 			CS_THEM 'simbolo' 'simbolos' "Estos símbolos podrían ser letras de alguna escritura antigua. No lo sabes."
-			'mantel' 'terciopelo' "Es pesado y completamente negro.",
-		cheap_scenery_fem
-			'pared' 'paredes//p' "Las paredes absorben tanta luz que casi parece que los símbolos dorados flotan en el vacío.",
+			'mantel' 'terciopelo' "Es pesado y completamente negro."
+			CS_FEM 'pared' 'paredes//p' "Las paredes absorben tanta luz que casi parece que los símbolos dorados flotan en el vacío.",
 		w_to StorageRoom,
 	has light;
 

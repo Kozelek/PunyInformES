@@ -152,26 +152,31 @@
 ! ==============================================================================
 ! Cambios realizados para la versión en español de la librería:
 !   A fin de que puedan existir "escenarios baratos" (cheap sceneries) con
-!   artículos femeninos (la calle, las cajas), he necesitado crear un segundo
-!   objeto CheapSceneryFem para albergar estos artículos. La forma de definirlos
-!   en el juego es sencilla: utilizando un atributo adicional cheap_scenery_fem.
+!   artículos femeninos (la calle, las cajas), se han creado las constantes:
+!       * CS_FEM: Para escenarios femeninos singulares ("la casa")
+!       * CS_FEM_THEM: Para escenarios femeninos plurales ("las cajas")
+!   Se recomienda no usar el indicador de plural "//p" (ejemplo: "plumas//p")
+!   porque por defecto indica que el objeto es masculino del plural, incluso si
+!   está detrás de una constante CS_FEM.
+!
 !   Ejemplo:
+!
 !     Object GloomyStreet "Calle Sombría"
-!  	     with
-!  		  description
-!  			  "Las casas de esta zona parecen abandonadas precipitadamente, como si una misteriosa tragedia hubiera sembrado
-!  				pánico entre sus antiguos habitantes. Todo lo que ves son ventanas destrozadas y puertas arrancadas.
-!  				Frente a ti, al sur, está el extrañamente bien conservado y hermoso
-!  				edificio de la biblioteca donde tienes que trabajar.",
-!  		  cheap_scenery
-!  			  1 'edificio' "Es un edificio precioso. Parece arquitectura Art Nouveau del siglo XIX.",
-!  		  cheap_scenery_fem
-!  			  CS_THEM 'ventanas' 'puertas' "¡Restos de una tragedia lejana y misteriosa!"
-!  			  'casas//p' 'calle' "Casas sombrías y abandonadas."
-!  			  1 'biblioteca' "Es un edificio precioso. Parece arquitectura Art Nouveau del siglo XIX.",
-!  		  s_to Library,
+! 	    with
+!		  description
+!			  "Las casas de esta zona parecen abandonadas precipitadamente, como si una misteriosa tragedia hubiera sembrado
+!				  pánico entre sus antiguos habitantes. Todo lo que ves son ventanas destrozadas y puertas arrancadas.
+!				  Frente a ti, al sur, está el extrañamente bien conservado y hermoso
+!				  edificio de la biblioteca donde tienes que trabajar.",
+!		  cheap_scenery
+!			  1 'edificio' "Es un edificio precioso. Parece arquitectura Art Nouveau del siglo XIX."
+!			  CS_FEM_THEM 'ventanas' 'puertas' "¡Restos de una tragedia lejana y misteriosa!"
+!			  CS_FEM_THEM 1 'casas' "Casas sombrías y abandonadas."
+!			  CS_FEM 1 'calle' "Casas sombrías y abandonadas."
+!			  CS_FEM 1 'biblioteca' "Es un edificio precioso. Parece arquitectura Art Nouveau del siglo XIX.",
+!		  s_to Library,
 !  		  cant_go "Tu trabajo está al sur, aunque estás tentado de volver a casa y olvidarte de todo.",
-!  	  has light;
+!  	    has light;
 
 System_file;
 
@@ -204,6 +209,8 @@ Constant CS_MAYBE_ADD_LIST = 503;
 
 Constant CS_IT = 504;
 Constant CS_THEM = 505;
+Constant CS_FEM = 506;
+Constant CS_FEM_THEM = 507;
 
 Array CSData --> 5;
 Constant CSDATA_POINTER = 0;
@@ -222,10 +229,6 @@ Global cs_match_id;
 
 #Ifndef cheap_scenery;
 Property individual cheap_scenery;
-#Endif;
-
-#Ifndef cheap_scenery_fem;
-Property individual cheap_scenery_fem;
 #Endif;
 
 [ _CSFindInArr p_value p_array p_count _i;
@@ -291,13 +294,13 @@ Property individual cheap_scenery_fem;
 		if(_val >= CS_FIRST_ID && _val <= CS_LAST_ID) {
 			if(_val == p_id) {
 				_val = _arr-->++_i;
-				if(_val == CS_THEM)
+				if(_val == CS_THEM or CS_FEM or CS_FEM_THEM)
 					_i++;
 				return _arr + 2 * _i;
 			}
 			_val = _arr-->++_i;
 		}
-		if(_val == CS_THEM)
+		if(_val == CS_THEM or CS_FEM or CS_FEM_THEM)
 			_val = _arr-->++_i;
 
 		if(_val == CS_ADD_LIST or CS_MAYBE_ADD_LIST) {
@@ -319,7 +322,6 @@ Property individual cheap_scenery_fem;
 [ CSPerformAction p_action p_id p_second _ret ismale;
 	_ret = _CSFindID(location, cheap_scenery, p_id);
 	ismale = _ret;
-	if(_ret == 0) _ret = _CSFindID(location, cheap_scenery_fem, p_id);
 	if(_ret == 0) {
 #Iftrue RUNTIME_ERRORS > RTE_MINIMUM;
 #Iftrue RUNTIME_ERRORS == RTE_VERBOSE;
@@ -370,8 +372,8 @@ Property individual cheap_scenery_fem;
 			_i++;
 			_sw1 = _arr-->_i;
 		}
-		if(_sw1 == CS_THEM) {
-			CSDATA-->CSDATA_PRONOUN_TEMP = CS_THEM;
+		if(_sw1 == CS_THEM or CS_FEM or CS_FEM_THEM) {
+			CSDATA-->CSDATA_PRONOUN_TEMP = _sw1;
 			_i++;
 			_sw1 = _arr-->_i;
 		}
@@ -508,21 +510,30 @@ Property individual cheap_scenery_fem;
 	return _longest;
 ];
 
-Class CheapSceneryClass
+Object CheapScenery
 	with
-		parse_name [ _ret;
+		article ARTICLE_UN,
+		found_in [;
+			if(location provides cheap_scenery) rtrue;
+		],
+		parse_name [ _ret _pronoun;
 			cs_match_id = 0;
 			CSData-->CSDATA_MATCH_LENGTH = 0;
-			if (self has female) _ret = _ParseCheapScenery(location, cheap_scenery_fem, wn);
-			else _ret = _ParseCheapScenery(location, cheap_scenery, wn);
-			if(CSDATA-->CSDATA_PRONOUN == CS_THEM) {
-				give self pluralname;
-				if(itobj == self) itobj = 0;
-			} else {
-				give self ~pluralname;
-#ifdef PUNYINFORM_MAJOR_VERSION;
-				if(themobj == self) themobj = 0;
-#Endif;
+			_ret = _ParseCheapScenery(location, cheap_scenery, wn);
+			_pronoun = CSDATA-->CSDATA_PRONOUN;
+			if(el_obj == self && _pronoun ~= CS_IT) el_obj = 0;
+			if(la_obj == self && _pronoun ~= CS_FEM) la_obj = 0;
+			if(los_obj == self && _pronoun ~= CS_THEM) los_obj = 0;
+			if(las_obj == self && _pronoun ~= CS_FEM_THEM) las_obj = 0;
+			switch(_pronoun) {
+			CS_THEM:
+				give self pluralname ~female;
+			CS_FEM_THEM:
+				give self pluralname female;
+			CS_FEM:
+				give self ~pluralname female;
+			CS_IT:
+				give self ~pluralname ~female;
 			}
 			return _ret;
 		],
@@ -582,27 +593,8 @@ Class CheapSceneryClass
 #ifdef PUNYINFORM_MAJOR_VERSION;
 				if(themobj == self) themobj = 0;
 #Endif;
-		];
-
-CheapSceneryClass CheapScenery "objeto"
-	with
-		article ARTICLE_UN,
-		found_in [;
-			if(location provides cheap_scenery) rtrue;
-		],
+		]
 	has concealed scenery
-#Ifdef OPTIONAL_REACTIVE_PARSE_NAME;
-		reactive
-#Endif;
-;
-
-CheapSceneryClass CheapSceneryFem "cosa"
-	with
-		article ARTICLE_UNA,
-		found_in [;
-			if(location provides cheap_scenery_fem) rtrue;
-		],
-	has concealed scenery female
 #Ifdef OPTIONAL_REACTIVE_PARSE_NAME;
 		reactive
 #Endif;
@@ -611,9 +603,6 @@ CheapSceneryClass CheapSceneryFem "cosa"
 
 
 #Ifdef DEBUG;
-
-!			if(CSDebugIsWord(_val
-!			(UnsignedCompare(_i, dict_start) < 0 ||
 
 [CSDebugIsDictWord p_val;
 	if (UnsignedCompare(p_val, dict_start) >= 0 &&
@@ -645,11 +634,11 @@ CheapSceneryClass CheapSceneryFem "cosa"
 					") can't be CS_ADD_LIST or CS_MAYBE_ADD_LIST.";
 			}
 		}
-		if(_val == CS_THEM) {
+		if(_val == CS_THEM or CS_FEM or CS_FEM_THEM) {
 			_val = _arr-->++_i;
 			if(_val == CS_ADD_LIST or CS_MAYBE_ADD_LIST) {
 				CSDebugPrintObjRef(p_obj, p_prop, _i);
-				"Element following CS_THEM can't be CS_ADD_LIST or CS_MAYBE_ADD_LIST.";
+				"Element following CS_THEM/CS_FEM/CS_FEM_THEM can't be CS_ADD_LIST or CS_MAYBE_ADD_LIST.";
 			}
 		}
 		if(_val == CS_MAYBE_ADD_LIST) {
@@ -732,13 +721,6 @@ CheapSceneryClass CheapSceneryFem "cosa"
 			continue;
 		}
 		CSDebugHelper(_obj, (cheap_scenery));
-	}
-	objectloop(_obj provides cheap_scenery_fem) {
-		if(parent(_obj)) {
-			print (The) _obj, "(", _obj, ") provides cheap_scenery_fem, but doesn't appear to be a location.^";
-			continue;
-		}
-		CSDebugHelper(_obj, (cheap_scenery_fem));
 	}
 	"^Cheap scenery test complete.";
 ];
