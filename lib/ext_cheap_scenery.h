@@ -346,7 +346,7 @@ Property individual cheap_scenery;
 	if(p_second < 0)
 		PerformAction(p_action, -p_second, CheapScenery);
 	else
-		PerformAction(p_action, -p_second, CheapScenery);
+		PerformAction(p_action, CheapScenery, p_second);
 	@pull cs_match_id;
 	@storew CSDATA CSDATA_POINTER sp;
 	rtrue;
@@ -442,7 +442,7 @@ Property individual cheap_scenery;
 			self = _self_bak;
 			if(_ret > _longest) {
 				if(parser_action == ##PluralFound) {
-					if(CSDATA-->CSDATA_PRONOUN_TEMP == CS_FEM)
+					if(CSDATA-->CSDATA_PRONOUN_TEMP == CS_FEM or CS_FEM_THEM)
 						CSDATA-->CSDATA_PRONOUN_TEMP = CS_FEM_THEM;
 					else
 						CSDATA-->CSDATA_PRONOUN_TEMP = CS_THEM;
