@@ -248,7 +248,7 @@ Property individual cheap_scenery;
 		if(_CSFindInArr(_w, p_arr, p_count)) {
 			_matched++;
 			if((_w-> #dict_par1) & 4) {
-				if(CSDATA-->CSDATA_PRONOUN_TEMP == CS_FEM)
+				if(CSDATA-->CSDATA_PRONOUN_TEMP == CS_FEM or CS_FEM_THEM)
 					CSDATA-->CSDATA_PRONOUN_TEMP = CS_FEM_THEM;
 				else
 					CSDATA-->CSDATA_PRONOUN_TEMP = CS_THEM;
@@ -442,7 +442,7 @@ Property individual cheap_scenery;
 			self = _self_bak;
 			if(_ret > _longest) {
 				if(parser_action == ##PluralFound) {
-					if(CSDATA-->CSDATA_PRONOUN_TEMP == CS_FEM or CS_FEM_THEM)
+					if(CSDATA-->CSDATA_PRONOUN_TEMP == CS_FEM)
 						CSDATA-->CSDATA_PRONOUN_TEMP = CS_FEM_THEM;
 					else
 						CSDATA-->CSDATA_PRONOUN_TEMP = CS_THEM;
