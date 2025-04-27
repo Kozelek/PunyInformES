@@ -338,6 +338,17 @@ Constant MSG_UNDO_DONE "Turno previo deshecho.";
 #EndIf;
 #EndIf;
 
+#Ifndef MSG_COMMENT_TRANSCRIPT;
+Constant MSG_COMMENT_TRANSCRIPT "[Comentario grabado]^";
+#EndIf;
+#Ifndef MSG_COMMENT_NO_TRANSCRIPT;
+#ifdef OPTIONAL_EXTENDED_METAVERBS;
+Constant MSG_COMMENT_NO_TRANSCRIPT "[Comentario no grabado. Para guardar un comentario, comienza una transcripción.]^";
+#IfNot;
+Constant MSG_COMMENT_NO_TRANSCRIPT "[Comentario no grabado. Este juego no soporta transcripciones.]^";
+#EndIf;
+#EndIf;
+
 
 #IfDef OPTIONAL_EXTENDED_VERBSET;
 #Ifndef MSG_BURN_DEFAULT;

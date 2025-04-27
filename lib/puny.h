@@ -2161,17 +2161,21 @@ Include "parser.h";
 		switch (n&$C0) { 0: n=1; $40: n=2; $80: n=n&$3F; }
 	}
 ! print "CA_Pr(3) obj = ", obj,", id = ", id,", a = ", a, "^";
-	for (:2*m<n:m++) {
-!   print "Considering routine at ", x+2*m,": ", x-->m, "^";
-		if (x-->m==$ffff) rfalse;
-		switch(Z__Region(x-->m)) {
+	for (:m+m<n:m++) {
+		z = x-->m;
+!   print "Considering routine at ", x+2*m,": ", z, "^";
+		if (z==$ffff) rfalse;
+		switch(Z__Region(z)) {
 		2:
 			s = sender; sender = self; self = obj; s2 = sw__var;
 !	   switch(y) {
 !	   0:
 !		 z = indirect(x-->m);
 !	   1:
-			z = indirect(x-->m, a);
+			if(a)
+				z = indirect(z, a);
+			else
+				z = indirect(z);
 !	   2:
 !		 z = indirect(x-->m, a, b);
 !	   3:
@@ -2186,9 +2190,9 @@ Include "parser.h";
 			self = sender; sender = s; sw__var = s2;
 			if (z ~= 0) return z;
 		3:
-			print_ret (string) x-->m;
+			print_ret (string) z;
 		default:
-			return x-->m;
+			return z;
 		}
 	}
 	rfalse;
@@ -2467,6 +2471,19 @@ Object thedark "Oscuridad"
 #Endif;
 		if(parse->1 == 0) {
 			_ReadPlayerInput();
+#ifv5;
+			if(buffer->1 ~= 0 && buffer->2 == 42) { ! asterisk
+#ifnot;
+			if(buffer->1 == 42) { ! asterisk
+#endif;
+#IfDef OPTIONAL_EXTENDED_METAVERBS;
+				if(transcript_mode) PrintMsg(MSG_COMMENT_TRANSCRIPT);
+				else PrintMsg(MSG_COMMENT_NO_TRANSCRIPT);
+#Ifnot;
+				PrintMsg(MSG_COMMENT_NO_TRANSCRIPT);
+#Endif;
+				jump _abort_current_input;
+			}
 			_disallow_complex_again = false;
 #Ifdef OPTIONAL_PROVIDE_UNDO_FINAL;
 			if(parse-->1 == 'undo') {
@@ -2563,10 +2580,18 @@ Object thedark "Oscuridad"
 			! the first sentence in the input  has been parsed
 			! and executed. Now remove it from parse so that
 			! the next sentence can be parsed
-			_copylength = 2 * _parsearraylength + 1;
-			for(_i = 1, _j = 2 * _sentencelength + 1: _j < _copylength: _i++, _j++)
+#Ifv5;
+			@log_shift _sentencelength 2 -> _i; ! Multiply by 4
+			_j = parse + 2;
+			_i = _i + _j;
+			_copylength = _sentencelength - _parsearraylength;
+			@log_shift _copylength 2 -> _copylength; ! Multiply by 4
+			@copy_table _i _j _copylength;
+#Ifnot;
+			_copylength = _parsearraylength + _parsearraylength;
+			for(_i = 1, _j = _sentencelength + _sentencelength + 1: _j <= _copylength: _i++, _j++)
 				parse-->_i = parse-->_j;
-
+#Endif;
 			parse->1 = _parsearraylength - _sentencelength;
 			_disallow_complex_again = true; ! cannot parse "x me.g.g.g"
 		} else {
