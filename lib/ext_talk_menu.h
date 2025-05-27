@@ -762,9 +762,15 @@ Array _TMLines --> 10;
    AfterRoutines();
 ];
 
-Verb 'habla' 'conversa' 'pregunta'
+Verb 'conversa' 'conversar'
 	* 'a'/'con' creature                        ->Talk
 	* creature                                  ->Talk;
+Extend 'habla' first
+	* 'a'/'con' creature -> Talk
+	* creature -> Talk;
+Extend 'hablar' first
+	* 'a'/'con' creature -> Talk
+	* creature -> Talk;
 
 #Ifdef DEBUG;
 #Ifdef FLAG_COUNT;

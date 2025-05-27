@@ -3,6 +3,7 @@
 !% $OMIT_UNUSED_ROUTINES=1
 !% $ZCODE_LESS_DICT_DATA=1
 !% $LONG_DICT_FLAG_BUG=0
+!% $TRANSCRIPT_FORMAT=1
 
 ! The very first lines of the main source code file for a game can
 ! contain compiler options, like the lines above. -~S disables
@@ -72,13 +73,13 @@ Include "globals.h";
 ! Uncomment to add PunyInform extensions
 !Include "ext_menu.h";
 !Include "ext_flags.h";
-!Include "ext_talk_menu.h"; ! Note: Also include ext_flags.h to allow use of flags
 !Include "ext_quote_box.h";
 !Include "ext_cheap_scenery.h";
 
 Include "puny.h";
 
 ! Uncomment to add PunyInform extensions
+!Include "ext_talk_menu.h"; ! Note: Also include ext_flags.h to allow use of flags
 !Include "ext_waittime.h";
 
 Object Libreria "La librería"

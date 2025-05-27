@@ -693,7 +693,7 @@ Constant SKIP_MSG_EXAMINE_DARK;
 #EndIf;
 #Iftrue MSG_TAKE_SCENERY < 1000;
 	MSG_TAKE_SCENERY:
-		print_ret (CTheyreorThats) noun, " difícilmente transportable", (_s) noun, ".";
+		print_ret (CTheyreorIts) noun, " difícilmente transportable", (_s) noun, ".";
 #EndIf;
 #Ifndef SKIP_MSG_PUSH_DEFAULT;
 	MSG_PUSH_DEFAULT, MSG_PULL_DEFAULT, MSG_TURN_DEFAULT:
@@ -824,7 +824,7 @@ Constant SKIP_MSG_EXAMINE_DARK;
 	MSG_ENTER_NOT_OPEN, MSG_EXIT_NOT_OPEN, MSG_INSERT_NOT_OPEN,
 	MSG_GO_DOOR_CLOSED, MSG_EMPTY_IS_CLOSED, MSG_REMOVE_CLOSED:
 	! p_arg_1 = the object which is closed, thus blocking the player's action.
-		"No puedes, dado que ", (the) p_arg_1, " ", (isorare) p_arg_1, " cerrad", (_o) noun, ".";
+		"No puedes, dado que ", (the) p_arg_1, " ", (isorare) p_arg_1, " cerrad", (_o) p_arg_1, ".";
 #Endif;
 #Ifndef SKIP_MSG_GIVE_PLAYER;
 	MSG_GIVE_PLAYER, MSG_TAKE_ALREADY_HAVE:
