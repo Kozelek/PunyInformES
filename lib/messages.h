@@ -401,7 +401,7 @@ Constant MSG_WAKE_DEFAULT "La terrible verdad es que esto no es un sueño.";
 Constant MSG_WAKEOTHER_DEFAULT "Eso parece innecesario.";
 #Endif;
 #Ifndef MSG_KISS_PLAYER;
-Constant MSG_KISS_PLAYER "Si crees que eso ayudará.";
+Constant MSG_KISS_PLAYER "Si crees que eso te va a ayudar...";
 #Endif;
 #Ifndef MSG_KISS_DEFAULT;
 Constant MSG_KISS_DEFAULT "Concéntrate en el juego.";

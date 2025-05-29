@@ -27,102 +27,102 @@
 
 ! Abbreviations created with ZAbbrevMaker 0.9 - https://github.com/heasm66/ZAbbrevMaker
 Constant CUSTOM_ABBREVIATIONS;
-Abbreviate " y el calor te hace perder el conocimiento, lo último que oyes es una risa a lo lejos...";!     2x95, saved    90 Warning: Abbreviation too long. Inform6 limits abbreviationas to max 64 characters.
-Abbreviate " Parece arquitectura Art Nouveau del siglo XIX.";!     2x54, saved    50
-Abbreviate " cubierta con un mantel de terciopelo negro.";!     2x45, saved    41
-Abbreviate "Donde viven los monstruos";     !     2x26, saved    21
-Abbreviate ". La única salida e";           !     3x24, saved    42
+Abbreviate ". La única salida es";          !     3x25, saved    42
+Abbreviate " nada inesperado.";             !     3x18, saved    30
 Abbreviate "caja de cartón";                !     4x17, saved    42
-Abbreviate "Sin embargo,";                  !     3x14, saved    21
+Abbreviate "la espalda y ";                 !     3x13, saved    18
 Abbreviate "la oscuridad";                  !     6x12, saved    48
-Abbreviate "a habitación";                  !    18x15, saved   219
 Abbreviate "os símbolos ";                  !     4x15, saved    37
-Abbreviate "a biblioteca";                  !    21x12, saved   198
-Abbreviate " dentro de ";                   !     6x11, saved    42
+Abbreviate "a habitación";                  !    18x15, saved   219
+Abbreviate "Sin embargo,";                  !     3x14, saved    21
+Abbreviate "a biblioteca";                  !    20x12, saved   188
 Abbreviate " estantería";                   !     7x14, saved    69
+Abbreviate " dentro de ";                   !     6x11, saved    42
 Abbreviate "as paredes";                    !    12x10, saved    84
-Abbreviate "No puedes ";                    !    12x11, saved    96
 Abbreviate "as llamas";                     !     8x 9, saved    47
 Abbreviate "encargado";                     !     9x 9, saved    54
 Abbreviate " ardiendo";                     !     5x 9, saved    26
-Abbreviate " escalera";                     !     9x 9, saved    54
 Abbreviate "edificio";                      !     6x 8, saved    27
-Abbreviate ", señor";                       !     8x11, saved    60
-Abbreviate "también";                       !     6x10, saved    36
+Abbreviate "escalera";                      !     9x 8, saved    45
 Abbreviate "necesit";                       !     6x 7, saved    21
+Abbreviate "también";                       !     6x10, saved    36
+Abbreviate ", señor";                       !     8x11, saved    60
+Abbreviate " parece";                       !    21x 7, saved    96
+Abbreviate " primer";                       !     6x 7, saved    21
+Abbreviate "puedes ";                       !    17x 7, saved    76
+Abbreviate "sótano";                        !     8x 9, saved    47
 Abbreviate " sobre";                        !    12x 6, saved    42
 Abbreviate " oscur";                        !     9x 6, saved    30
-Abbreviate " puede";                        !    14x 6, saved    50
-Abbreviate "trabaj";                        !     9x 6, saved    30
-Abbreviate "cerrad";                        !     9x 6, saved    30
 Abbreviate " para ";                        !    14x 6, saved    50
-Abbreviate "sótano";                        !     8x 9, saved    47
-Abbreviate "parece";                        !    22x 6, saved    82
-Abbreviate "ciones";                        !     7x 6, saved    22
-Abbreviate "pequeñ";                        !     5x 9, saved    26
+Abbreviate "cerrad";                        !     9x 6, saved    30
 Abbreviate "as de ";                        !    13x 6, saved    46
+Abbreviate "trabaj";                        !     9x 6, saved    30
+Abbreviate "ciones";                        !     7x 6, saved    22
 Abbreviate " ahora";                        !     9x 6, saved    30
-Abbreviate "ando ";                         !    26x 5, saved    72
-Abbreviate " nada";                         !    21x 5, saved    57
-Abbreviate "salir";                         !     8x 5, saved    18
-Abbreviate "rimer";                         !     8x 5, saved    18
-Abbreviate " está";                         !    39x 8, saved   225
-Abbreviate " que ";                         !    70x 5, saved   204
+Abbreviate " hacia";                        !     7x 6, saved    22
+Abbreviate "pequeñ";                        !     5x 9, saved    26
+Abbreviate " una ";                         !    30x 5, saved    84
+Abbreviate "Frank";                         !    13x 6, saved    46
 Abbreviate "mente";                         !    28x 5, saved    78
-Abbreviate " aquí";                         !    10x 8, saved    51
-Abbreviate " del ";                         !    33x 5, saved    93
+Abbreviate "direc";                         !    10x 5, saved    24
+Abbreviate " del ";                         !    34x 5, saved    96
+Abbreviate " nada";                         !    18x 5, saved    48
+Abbreviate " está";                         !    39x 8, saved   225
 Abbreviate " más ";                         !    13x 8, saved    69
 Abbreviate " por ";                         !    20x 5, saved    54
+Abbreviate "ando ";                         !    26x 5, saved    72
 Abbreviate "libro";                         !    23x 5, saved    63
-Abbreviate " de l";                         !    37x 5, saved   105
-Abbreviate " una ";                         !    27x 5, saved    75
-Abbreviate "Frank";                         !    13x 6, saved    46
+Abbreviate " aquí";                         !    10x 8, saved    51
+Abbreviate " de l";                         !    35x 5, saved    99
+Abbreviate " que ";                         !    70x 5, saved   204
+Abbreviate " un ";                          !    32x 4, saved    58
 Abbreviate " el ";                          !    58x 4, saved   110
-Abbreviate "ante";                          !    19x 4, saved    32
-Abbreviate " un ";                          !    30x 4, saved    54
-Abbreviate " en ";                          !    41x 4, saved    76
-Abbreviate " con";                          !    54x 4, saved   102
+Abbreviate "ante";                          !    21x 4, saved    36
+Abbreviate " con";                          !    57x 4, saved   108
 Abbreviate "ción";                          !    19x 7, saved    86
-Abbreviate " la ";                          !    33x 4, saved    60
-Abbreviate " de ";                          !    65x 4, saved   124
+Abbreviate " la ";                          !    32x 4, saved    58
+Abbreviate " en ";                          !    43x 4, saved    80
+Abbreviate " de ";                          !    68x 4, saved   130
 Abbreviate "_to/";                          !    12x 6, saved    42
-Abbreviate "ero ";                          !    18x 4, saved    30
-Abbreviate " no ";                          !    25x 4, saved    44
 Abbreviate " des";                          !    24x 4, saved    42
+Abbreviate " no ";                          !    25x 4, saved    44
 Abbreviate "uego";                          !    21x 4, saved    36
-Abbreviate " al";                           !    53x 3, saved    50
-Abbreviate "ent";                           !    71x 3, saved    68
-Abbreviate " y ";                           !    43x 3, saved    40
-Abbreviate "per";                           !    30x 3, saved    27
-Abbreviate "rec";                           !    26x 3, saved    23
-Abbreviate "No ";                           !    42x 4, saved    78
-Abbreviate "aña";                           !     9x 6, saved    30
-Abbreviate "as ";                           !   111x 3, saved   108
-Abbreviate " ha";                           !    37x 3, saved    34
-Abbreviate " in";                           !    34x 3, saved    31
-Abbreviate "er ";                           !    25x 3, saved    22
-Abbreviate "ter";                           !    28x 3, saved    25
-Abbreviate "es ";                           !    32x 3, saved    29
-Abbreviate "est";                           !    54x 3, saved    51
-Abbreviate "se ";                           !    32x 3, saved    29
+Abbreviate "ero ";                          !    19x 4, saved    32
 Abbreviate "ien";                           !    37x 3, saved    34
-Abbreviate " a ";                           !    42x 3, saved    39
-Abbreviate "te ";                           !    43x 3, saved    40
+Abbreviate "lo ";                           !    25x 3, saved    22
+Abbreviate "ida";                           !    20x 3, saved    17
+Abbreviate "de ";                           !    25x 3, saved    22
+Abbreviate "ent";                           !    71x 3, saved    68
+Abbreviate "aña";                           !     9x 6, saved    30
+Abbreviate "No ";                           !    52x 4, saved    98
+Abbreviate "er ";                           !    26x 3, saved    23
+Abbreviate "as ";                           !   119x 3, saved   116
+Abbreviate "sal";                           !    22x 3, saved    19
+Abbreviate "ert";                           !    21x 3, saved    18
+Abbreviate "est";                           !    52x 3, saved    49
+Abbreviate "ter";                           !    29x 3, saved    26
+Abbreviate "per";                           !    25x 3, saved    22
+Abbreviate "es ";                           !    35x 3, saved    32
 Abbreviate "El ";                           !    19x 4, saved    32
-Abbreviate "os ";                           !    35x 3, saved    32
+Abbreviate " a ";                           !    43x 3, saved    40
 Abbreviate "ado";                           !    43x 3, saved    40
-Abbreviate "o.";                            !    50x 3, saved    47
-Abbreviate ", ";                            !    78x 3, saved    75
-Abbreviate "a.";                            !    25x 3, saved    22
+Abbreviate "os ";                           !    46x 3, saved    43
+Abbreviate "se ";                           !    38x 3, saved    35
+Abbreviate "te ";                           !    48x 3, saved    45
+Abbreviate " al";                           !    53x 3, saved    50
+Abbreviate "a.";                            !    24x 3, saved    21
+Abbreviate ", ";                            !    87x 3, saved    84
+Abbreviate "o.";                            !    47x 3, saved    44
+Abbreviate "Es";                            !    31x 3, saved    28
+Abbreviate ". ";                            !   104x 3, saved   101
 Abbreviate "^^";                            !    21x 4, saved    36
-Abbreviate ". ";                            !   102x 3, saved    99
-Abbreviate "Es";                            !    32x 3, saved    29
+Abbreviate "á";                             !    46x 4, saved    86
+Abbreviate "ú";                             !    12x 4, saved    18
 Abbreviate "í";                             !    66x 4, saved   126
-Abbreviate "ó";                             !    20x 4, saved    34
-Abbreviate "é";                             !    29x 4, saved    52
 Abbreviate "¡";                             !    28x 4, saved    50
 Abbreviate "¿";                             !    13x 4, saved    20
-Abbreviate "á";                             !    46x 4, saved    86
+Abbreviate "ó";                             !    20x 4, saved    34
+Abbreviate "é";                             !    29x 4, saved    52
 
 ! Library_of_horror.inf - a sample game which uses PunyInform
 
@@ -412,6 +412,8 @@ MultiTopic -> WhatIsTopic_1 "tema"
 ! The rooms and game objects start here.
 ! ====================================
 
+Constant ArtNoveauDesc "Es un edificio precioso. Parece arquitectura Art Nouveau del siglo XIX.";
+
 Object GloomyStreet "Calle Sombría"
 	with
 		description
@@ -420,10 +422,10 @@ Object GloomyStreet "Calle Sombría"
 				Frente a ti, al sur, está el extrañamente bien conservado y hermoso
 				edificio de la biblioteca donde tienes que trabajar.",
 		cheap_scenery
-			1 'edificio' "Es un edificio precioso. Parece arquitectura Art Nouveau del siglo XIX."
+			1 'edificio' ArtNoveauDesc
 			CS_FEM_THEM 'ventanas' 'puertas' "¡Restos de una tragedia lejana y misteriosa!"
 			CS_FEM 'casas//p' 'calle' "Casas sombrías y abandonadas."
-			CS_FEM 1 'biblioteca' "Es una biblioteca preciosa. Parece arquitectura Art Nouveau del siglo XIX.",
+			CS_FEM 1 'biblioteca' ArtNoveauDesc,
 		s_to Library,
 		cant_go "Tu trabajo está al sur, aunque estás tentado de volver a casa y olvidarte de todo.",
 		after [;
@@ -803,6 +805,8 @@ Object -> Table "mesa"
 		description "Es una mesa de madera muy robusta cubierta con un mantel de terciopelo negro.",
 	has static scenery female;
 
+Constant BurntDesc "Cuando te falta el aliento y el calor te hace perder el conocimiento, lo último que oyes es una risa a lo lejos...";
+
 Object -> EvilBook "libro rojo"
 	with
 		number 0,
@@ -868,14 +872,11 @@ Object -> EvilBook "libro rojo"
 						"^Las llamas te rodean ahora. Sin embargo, deberías poder llegar a la salida.";
 				11:
 					deadflag=4;
-					"¡Las llamas cubren todas las salidas! El fuego se cierne a tu alrededor con una ferocidad antinatural. Cuando
-						te falta el aliento y el calor te hace perder el conocimiento, lo último que
-						oyes es una risa a lo lejos...";
+					"¡Las llamas cubren todas las salidas! El fuego se cierne a tu alrededor con una ferocidad antinatural. ", (string) BurntDesc;
 			}
 			if(self.number > 7 && location ~= Library or TopOfStairs) {
 				deadflag = 4;
-				"El calor es demasiado para ti y te desplomas en el suelo. Cuando te falta el aire y
-					el calor te hace perder el conocimiento, lo último que oyes es una risa a lo lejos...";
+				"El calor es demasiado para ti y te desplomas en el suelo. ", (string) BurntDesc;
 			}
 		],
 		add_to_scope [;
