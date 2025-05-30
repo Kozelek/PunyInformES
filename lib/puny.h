@@ -2204,7 +2204,7 @@ Include "parser.h";
 #EndIf;
 
 #Ifndef CUSTOM_PLAYER_OBJECT;
-Object selfobj "you"
+Object selfobj "tú"
 	with
 		name 'yo' 'mi' 'mismo',
 		short_name  "yo mismo",

@@ -237,6 +237,9 @@ Verb 'busca' 'buscar'
     * 'en' noun topic            				-> Consult
     * 'en' noun 'acerca' 'de' topic    			-> Consult;
 
+Verb 'registra' 'registrar'
+	* noun                         		        -> Search;
+
 Verb 'grita' 'gritar'
 	* topic 'a//' creature                  	-> Answer
 	* 'a//' noun                            	-> ShoutAt
