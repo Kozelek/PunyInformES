@@ -187,11 +187,11 @@ Include "globals.h";
 ];
 [ PrintTaskName task_number;
 	switch (task_number) {
-		TASK_TALK_MANAGER: 	"hablando con el encargado";
-		TASK_GIVE_BOOK: 	"dando el libro al encargado";
-		TASK_BLOCK_ROBOT: 	"obstaculizando al robot";
-		TASK_BURN_BOOK: 	"quemando el libro maléfico";
-		TASK_LEAVE: 		"saliendo de la biblioteca";
+		TASK_TALK_MANAGER: 	"por hablar con el encargado";
+		TASK_GIVE_BOOK: 	"por dar el libro al encargado";
+		TASK_BLOCK_ROBOT: 	"por obstaculizar al robot";
+		TASK_BURN_BOOK: 	"por quemar el libro maléfico";
+		TASK_LEAVE: 		"por salir de la biblioteca";
 	}
 ];
 

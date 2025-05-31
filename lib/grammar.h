@@ -1143,11 +1143,11 @@ Verb meta 'breve' 'normal'
 #Ifdef OPTIONAL_FULL_SCORE;
 Verb meta 'total'
     *                                           -> FullScore;
-Verb meta 'score'
+Verb meta 'score' 'puntos'
     *                                           -> Score
-    * 'total'                                   -> FullScore;
+    * 'totales'                                 -> FullScore;
 #Ifnot;
-Verb meta 'score'
+Verb meta 'score' 'puntos'
     *                                           -> Score;
 #Endif;
 
@@ -1171,11 +1171,15 @@ Verb meta 'restore' 'cargar'
 Verb meta 'save' 'salvar'
 	*                                           -> Save;
 
-Verb meta 'superbrief' 'short' 'corto'
+Verb meta 'superbrief' 'short'
 	*                                           -> LookModeShort;
 
-Verb meta 'verbose' 'long' 'largo'
+Verb meta 'verbose' 'long'
 	*                                           -> LookModeLong;
+
+Verb meta 'modo'
+	* 'corto'                                   -> LookModeShort
+	* 'largo'                                   -> LookModeLong;
 
 Verb meta 'version'
 	*                                           -> Version;
