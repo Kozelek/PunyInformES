@@ -3,9 +3,9 @@
 System_file;
 
 Constant PUNYINFORM_MAJOR_VERSION = 0;
-Constant PUNYINFORM_MINOR_VERSION = 4;
+Constant PUNYINFORM_MINOR_VERSION = 5;
 Constant PUNYINFORM_PATCH_VERSION = 0; ! Usually 0 (if zero, it is not printed in banner)
-Constant PUNYINFORM_VERSION_SUFFIX = "dev"; ! Comment out if none
+! Constant PUNYINFORM_VERSION_SUFFIX = "dev"; ! Comment out if none
 
 #Ifndef VN_1636;
 Message fatalerror "*** La librería PunyInformES necesita Inform v6.36 o posterior ***";

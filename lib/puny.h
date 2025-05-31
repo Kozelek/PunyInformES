@@ -575,11 +575,11 @@ Constant ONE_SPACE_STRING = " ";
 			if(_contents == 0) {
 				print (char) ' ';
 				switch(_started) {
-				0: print "(estando";
-				1: print "pero";
-				2: print "y";
+				0: print "(";
+				1: print "pero ";
+				2: print "y ";
 				}
-				print " vací", (_o) p_obj, ")";
+				print "vací", (_o) p_obj, ")";
 				if(_newline) new_line;
 			} else {
 				if(_newline == 0) {
