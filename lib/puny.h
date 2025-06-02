@@ -281,12 +281,12 @@ Constant ONE_SPACE_STRING = " ";
 	! Show score only
 			! Width is 30-, print "Score: 0"
 			if(screen_width < 55) {
-				_PrintSpacesOrMoveBack(10, SCORE__TX);
+				_PrintSpacesOrMoveBack(11, SCORE__TX);
 #Ifndef OPTIONAL_NON_FLASHING_STATUSLINE;
 				parser_one = 3;
 #Endif;
 			} else {
-				_PrintSpacesOrMoveBack(13, SCORE__TX);
+				_PrintSpacesOrMoveBack(14, SCORE__TX);
 #Ifndef OPTIONAL_NON_FLASHING_STATUSLINE;
 				parser_one = 8;
 #Endif;
@@ -302,7 +302,7 @@ Constant ONE_SPACE_STRING = " ";
 #Endif;
 			if (screen_width > 66) {
 				! Width is 67-, print "Score: 0 Moves: 0"
-				_PrintSpacesOrMoveBack(28, SCORE__TX);
+				_PrintSpacesOrMoveBack(29, SCORE__TX);
 				print status_field_1;
 #Ifdef OPTIONAL_NON_FLASHING_STATUSLINE;
 				_PrintSpacesOrMoveBack(14, MOVES__TX);
@@ -314,7 +314,7 @@ Constant ONE_SPACE_STRING = " ";
 			} else {
 				if (screen_width > 36) {
 					! Width is 37-66, print "Score: 0/0"
-					_PrintSpacesOrMoveBack(15, SCORE__TX);
+					_PrintSpacesOrMoveBack(16, SCORE__TX);
 				} else {
 					! Width is 29-35, print "0/0"
 					_PrintSpacesOrMoveBack(8, ONE_SPACE_STRING);
