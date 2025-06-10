@@ -332,7 +332,7 @@ Constant ONE_SPACE_STRING = " ";
 #Endif;
 ];
 
-[ DrawStatusLine _visibility_ceiling;
+[ DrawStatusLine p_linefeeds _visibility_ceiling;
 	! For wide screens (67+ columns):
 	! * print a space before room name, and "Score: xxx  Moves: xxxx" to the right.
 	! * Room names up to 39 characters are never truncated.
@@ -340,6 +340,10 @@ Constant ONE_SPACE_STRING = " ";
 	! * No space before room name
 	! * Print "Score: xxx/yyyy", "xxx/yyyy", "xxx" or nothing, depending on screen width
 	! * Room names up to 21 characters are never truncated. On a 40 column screen, room names up to 24 characters are never truncated.
+
+	! If called with p_linefeeds == true, print the number of linefeeds needed
+	! to make sure text at start of game doesn't get covered by statusline
+	if(p_linefeeds) { new_line; return; }
 
 	! If there is no player location, we shouldn't try to draw status window
 	if (location == nothing || parent(player) == nothing)
@@ -583,9 +587,9 @@ Constant ONE_SPACE_STRING = " ";
 				if(_newline) new_line;
 			} else {
 				if(_newline == 0) {
-					if(_started) print " t";
+					if(_started) print " y";
 					else print " (que";
-					print " contiene ";
+					print " contiene", (_n) p_obj, " ";
 				} else {
 					if(_started) print (char) ')';
 					new_line;
@@ -1039,7 +1043,7 @@ Constant ONE_SPACE_STRING = " ";
 	location = real_location;
 	MoveFloatingObjects(); ! Also sets scope_modified = true;
 #Ifndef OPTIONAL_NO_DARKNESS;
-	_UpdateDarkness();
+	_UpdateDarkness(true);
 #Endif;
 ._recheck_visibility_ceil;
 	_vc = CalculateVisibilityCeiling();
@@ -1088,16 +1092,17 @@ Constant ONE_SPACE_STRING = " ";
 ];
 
 #Ifndef OPTIONAL_NO_DARKNESS;
-[ _UpdateDarkness p_look _ceil _old_darkness _darkness;
+[ _UpdateDarkness p_silent _ceil _old_darkness _darkness;
 	if(location == thedark) _old_darkness = true;
 	_ceil = ScopeCeiling(player);
 	if(_LookForLightInObj(_ceil, _ceil) == false) _darkness = true;
 	if(_darkness ~= _old_darkness) scope_modified = true;
 	if(_darkness) {
+		if(_old_darkness == false && p_silent == false) PrintMsg(MSG_NOW_DARK);
 		location = thedark;
 	} else {
 		location = real_location;
-		if(_old_darkness == true && p_look == true)
+		if(_old_darkness && p_silent == false)
 			<Look>;
 	}
 ];
@@ -2280,7 +2285,7 @@ Object thedark "Oscuridad"
 	RunEntryPointRoutine(TimePasses);
 #Endif;
 #Ifndef OPTIONAL_NO_DARKNESS;
-	_UpdateDarkness(true);
+	_UpdateDarkness();
 #Endif;
 
 	if(update_moved || child(player) ~= last_player_child or 0) {
@@ -2433,7 +2438,7 @@ Object thedark "Oscuridad"
 #EndIf;
 
 #IfV5;
-	new_line; ! So the first line of text isn't covered by the statusline
+	DrawStatusLine(true); ! So the first line of text isn't covered by the statusline
 #Endif;
 	_InitObjects(); ! Give reactive attribute as needed + list floating objects
 

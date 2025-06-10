@@ -144,6 +144,11 @@ Constant MSG_PARSER_BE_MORE_SPECIFIC "Tienes que ser más específico.";
 #Ifndef MSG_PARSER_NO_MULTIPLES_FOR_NPC;
 Constant MSG_PARSER_NO_MULTIPLES_FOR_NPC "Sólo puedes referirte a objetos individuales cuando hables con otras personas.";
 #EndIf;
+#IfnDef OPTIONAL_NO_DARKNESS;
+#IfnDef MSG_NOW_DARK;
+Constant MSG_NOW_DARK "^Ahora está muy oscuro aquí.";
+#EndIf;
+#EndIf;
 #Ifndef MSG_SWITCH_ON_NOT_SWITCHABLE;
 Constant MSG_SWITCH_ON_NOT_SWITCHABLE "No es algo que se pueda encender.";
 #EndIf;
@@ -1221,36 +1226,36 @@ default:
 	}
 ];
 
-[ eso obj;
-	print "es", (_o) obj;
+[ eso p_obj;
+	print "es", (_o) p_obj;
 	rtrue;
 ];
 
-[ ItorThem obj;
-	if (obj == player) { print " a tí mismo"; rtrue; }
-	if (obj has animate) {
-		if (obj has pluralname) { 
-			if (obj has female) { print "a ellos"; rtrue; }
-			if (obj hasnt female) { print "a ellas"; rtrue; }
+[ ItorThem p_obj;
+	if (p_obj == player) { print " a tí mismo"; rtrue; }
+	if (p_obj has animate) {
+		if (p_obj has pluralname) { 
+			if (p_obj has female) { print "a ellos"; rtrue; }
+			if (p_obj hasnt female) { print "a ellas"; rtrue; }
 		} else {
-			if (obj has female) { print "a él"; rtrue; }
-			if (obj hasnt female) { print "a ella"; rtrue; }
+			if (p_obj has female) { print "a él"; rtrue; }
+			if (p_obj hasnt female) { print "a ella"; rtrue; }
 		}
 	}
-	print (eso) obj;
+	print (eso) p_obj;
 ];
 
 [ CObjIs p_obj;
 	print (The) p_obj, " ", (isorare) p_obj;
 ];
 
-[ IsorAre obj;
-	print "está", (_n) obj;
+[ IsorAre p_obj;
+	print "está", (_n) p_obj;
 ];
 
-[ CTheyreorThats obj;
-	if (obj == player)			 { print "Estás"; return; }
-	if (obj has pluralname)		{ print "Están"; return; }
+[ CTheyreorThats p_obj;
+	if (p_obj == player)			 { print "Estás"; return; }
+	if (p_obj has pluralname)		{ print "Están"; return; }
 	print "Está";
 ];
 
@@ -1260,33 +1265,33 @@ default:
 	print "Es";
 ];
 
-[OnOff obj;
-	if(obj has on) print "encendid", (_o) obj;
-	else print "apagad", (_o) obj;
+[OnOff p_obj;
+	if(p_obj has on) print "encendid", (_o) p_obj;
+	else print "apagad", (_o) p_obj;
 	return;
 ];
 
-[_o obj;
-	if (obj has female) print "a";
+[_o p_obj;
+	if (p_obj has female) print "a";
 	else print "o";
-	if (obj has pluralname) print "s";
+	if (p_obj has pluralname) print "s";
 	return;
 ];
 
-[_s obj;
-	if (obj has pluralname) print "s";
+[_s p_obj;
+	if (p_obj has pluralname) print "s";
 	return;
 ];
 
-[_n obj;
-	if (obj has pluralname) print "n";
+[_n p_obj;
+	if (p_obj has pluralname) print "n";
 	return;
 ];
 
-[_lo obj;
-	if (obj has female) print "la";
-	if (obj hasnt female) print "lo";
-	if (obj has pluralname) print "s";
+[_lo p_obj;
+	if (p_obj has female) print "la";
+	if (p_obj hasnt female) print "lo";
+	if (p_obj has pluralname) print "s";
 	return;
 ];
 
