@@ -1,0 +1,173 @@
+!% -Cu
+!% -~S
+!% $OMIT_UNUSED_ROUTINES=1
+!% $ZCODE_LESS_DICT_DATA=1
+!% $TRANSCRIPT_FORMAT=1
+
+Constant Story      "Lista juntos";
+Constant Headline   "^Un juego de muestra que usa PunyInformES.^";
+
+Constant STATUSLINE_SCORE; Statusline score;
+
+Constant NO_SCORE = 0;
+
+! Descomentar para añadir características opcionales a PunyInform
+!Constant DEBUG;
+!Constant RUNTIME_ERRORS = 0; ! 0,1 ó 2. 0 = archivo más pequeño, 2 = más información
+
+! Declara list_together como individual si prefieres que sea individual (más lento)
+!Property individual list_together; 
+
+Constant OPTIONAL_LIST_TOGETHER;
+Constant OPTIONAL_LANGUAGE_NUMBER; ! Usa esto para que list_together imprima números usando palabras
+!Constant OPTIONAL_ALLOW_WRITTEN_NUMBERS; ! Más barato de añadir cuando se define OPTIONAL_LANGUAGE_NUMBER
+
+Constant OPTIONAL_EXTENDED_METAVERBS;
+Constant OPTIONAL_EXTENDED_VERBSET;
+Constant OPTIONAL_FLEXIBLE_INVENTORY;
+
+Constant INITIAL_LOCATION_VALUE = Biblioteca;
+
+Include "globals.h";
+
+Include "puny.h";
+
+Class Piedra
+	with
+		name 'piedras//p' 'piedraz//p',
+		dummyprop 1,
+		list_together [ _obj;
+			if(inventory_stage == 1) {
+				print "un montón de piedras (";
+				for(_obj=parser_one: _obj ~= 0: _obj = NextEntry(_obj, parser_two)) {
+					if(_obj ~= parser_one) print ", ";
+					print (address) (_obj.&name-->1);
+				}
+				print ")";
+				if(c_style & NEWLINE_BIT)
+					new_line;
+				rtrue;
+			}
+		];
+
+Class Herramienta
+	with
+		name 'herramientas//p' 'herramientaz//p',
+		newl false,
+		list_together [ ;
+			if(inventory_stage == 1) {
+				print "unas herramientas (";
+				if(c_style & NEWLINE_BIT) {
+					self.newl = true;
+					c_style = c_style - NEWLINE_BIT;
+				} else
+					self.newl = false;
+			} else if(inventory_stage == 2) {
+				print ")";
+				if(self.newl)
+					new_line;
+			}
+		],
+		short_name [;
+			if(listing_together) {
+				if(self provides cool_name) {
+					print (string) self.cool_name;
+					rtrue;
+				}
+			}
+		];
+
+Class Libro
+	with
+		name 'libros//p',
+		list_together "libros";
+
+Class Especia
+	with
+		name 'especias//p',
+		list_together 7
+	has proper;
+
+Object Biblioteca "La biblioteca"
+	with
+		description "Estás en una biblioteca."
+	has light;
+
+Piedra -> PiedraNegra "piedra negra"
+	with
+		name 'piedra' 'negra'
+	has female;
+
+Libro -> LibroRosa "libro rosa"
+	with
+		name 'rosa';
+
+Especia -> Salt "sal"
+	with
+		name 'sal'
+	has female;
+
+Piedra -> PurpleStone "piedra violeta"
+	with
+		name 'piedra' 'violeta'
+	has female;
+
+Piedra -> PiedraRoja "piedra roja"
+	with
+		name 'piedra' 'roja'
+	has female;
+
+Object -> Box "caja"
+	with
+		name 'caja',
+		inside_description "Se siente tan bien, de pie en la caja.",
+	has container open openable enterable female;
+
+Especia -> -> Canela "canela"
+	with
+		name 'canela'
+	has female;
+
+Herramienta -> -> Destornillador "destornillador"
+	with
+		name 'lindo' 'destornillador',
+		cool_name "lindo destornillador";
+
+Object -> -> Flor "flor"
+	with
+		name 'flor'
+	has female;
+
+Herramienta -> -> Martillo "martillo"
+	with
+		name 'adorable' 'martillo',
+		cool_name "adorable martillo";
+
+Piedra -> PiedraVerde "piedra verde"
+	with
+		name 'piedra' 'verde'
+	has female;
+
+Libro -> LibroBlanco "libro blanco"
+	with
+		name 'blanco';
+
+Especia -> Pimienta "pimienta"
+	with
+		name 'pimienta'
+	has female;
+
+Piedra -> PiedraAzul "piedra azul"
+	with
+		name 'piedra' 'azul';
+
+Object -> Sombrero "sombrero"
+	with
+		name 'sombrero';
+
+[Initialise; ! i;
+	PiedraNegra.dummyprop++;
+	print "^^Los artículos similares aparecen juntos en esta demostración. 
+			Prueba tanto INVENTARIO LARGO como INVENTARIO ANCHO después de recoger cosas.
+			Por supuesto, usa COGE PIEDRAS para coger todas las piedras, etc.^^";
+];

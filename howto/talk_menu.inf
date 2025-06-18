@@ -1,0 +1,213 @@
+!% -Cu
+!% -~S
+!% $OMIT_UNUSED_ROUTINES=1
+!% $ZCODE_LESS_DICT_DATA=1
+!% $TRANSCRIPT_FORMAT=1
+
+! Compilar como z8 para utilizar Inform stdlib en lugar de puny (para depuración), como
+! inform6 -v8 +inform6lib,lib talk_menu.inf
+
+#Iftrue (#version_number == 8);
+Constant USEINFORM;
+#Endif;
+
+Constant Story      "Menú de conversación";
+Constant Headline   "^Una muestra de la extensión ext_talk_menu.^";
+
+! Descomente UNA de las dos líneas siguientes, para mostrar el tiempo o la puntuación/vueltas
+! Dejando las dos comentadas, la librería ocupará más.
+!Constant STATUSLINE_TIME; Statusline time;
+Constant STATUSLINE_SCORE; Statusline score; #Ifdef STATUSLINE_SCORE; #Endif;
+
+! Comenta para llevar la cuenta de la puntuación
+! El valor es lo que se mostrará como puntuación en la línea de status en z3
+Constant NO_SCORE = 0;
+
+! Personalizar la línea de estado en z5+ (no tendrá efecto en z3)
+!Constant OPTIONAL_SL_NO_SCORE;
+!Constant OPTIONAL_SL_NO_MOVES;
+
+! Descomentar para añadir características opcionales a PunyInform
+!Constant DEBUG;
+
+#Ifdef USEINFORM;
+Include "Parser";
+Include "Verblib";
+Include "Grammar";
+#Ifnot;
+
+Constant OPTIONAL_NO_DARKNESS;
+!Constant RUNTIME_ERRORS = 0; ! 0, 1 ó 2. 0 = archivo más pequeño, 2 = más información
+
+! Define aquí las constantes de biblioteca que necesites, como MAX_SCORE, AMUSING_PROVIDED,
+! MAX_CARRIED, SACK_OBJECT,  etc.
+
+Constant INITIAL_LOCATION_VALUE = Biblioteca;
+Include "globals.h";
+#Endif;
+Property talk_array;
+
+Constant FLAG_COUNT 50;
+Include "ext_flags.h";
+
+Constant TM_FIRST_ID 300;
+
+! Podemos personalizar los mensajes impresos por talk_menu, utilizando cadenas o rutinas.
+Constant TM_MSG_NO_TOPICS "¿Ahora? No tienes ni idea de qué hablar.";
+Constant TM_MSG_TALK_ABOUT_WHAT "¿De qué te gustaría hablar?";
+Constant TM_MSG_TOPICS_DEPLETED "Con eso, la conversación llega a su fin natural.";
+
+! La rutina para TM_MSG_EXIT utiliza una global definida por ext_talk_menu, por lo que
+! tiene que ser definida *después* de incluir la extensión, pero necesitamos definir la
+! constante *antes* de incluir la extensión. Así es como lo hacemos.
+Constant TM_MSG_EXIT = TM_MSG_EXIT_Routine;
+
+Constant TM_MSG_EXIT_OPTION "[ENTER] Adiós por ahora";
+#Ifv5;
+Constant TM_MSG_PAGE_OPTION "[N] Más opciones";
+#Endif;
+[TMPrintLine p_actor p_array p_line;
+	! Rutina para imprimir una línea, por el jugador o un PNJ. Define tu propia versión según sea necesario.
+	if(p_array-->p_line == TM_NO_LINE)
+		rfalse;
+	if(p_actor == player)
+		_TMPrintMsg(TM_MSG_YOU, true);
+	else
+		print (The) p_actor;
+	print ": ";
+	_TMCallOrPrint(p_array, p_line); ! Puede llamarse como _TMCallOrPrint(p_array, p_line, true); si no deseas que imprima la nueva línea, u omite el tercer parámetro para imprimir una nueva línea
+];
+
+#Ifndef USEINFORM;
+Include "puny.h";
+#Endif;
+
+Include "ext_talk_menu.h"; ! Requiere ext_flags.h *SI* se establecen banderas
+
+[ TM_MSG_EXIT_Routine;
+	if(current_talker == Linda)
+		"~Discúlpame Linda, realmente necesito irme. ¡Espero ponerme al día contigo más tarde!~";
+	"Con una breve inclinación de cabeza, das las gracias a ", (the) current_talker, " por la conversación.";
+];
+
+! Ten en cuenta que las banderas utilizadas en talk_array deben tener id 32-299
+Constant F_LINDA_HABLA_SOBRE_PARIS 32;
+Constant F_LINDA_HABLA_WARHAMMER 33;
+
+[ RespuestaDivertida;
+	talk_menu_talking = false;
+	"¡NOOO!";
+];
+[ReActivaParis;
+	ReActivateTopic(Linda, 303);
+];
+
+[ HablaLindaDeWarhammer; return FlagIsSet(F_LINDA_HABLA_WARHAMMER); ];
+
+Array linda_charla_warhammer -->
+	30 "Warhammer 40K" "¿Josh mencionó que te gusta Warhammer 40K?" "¡Sí, me encanta!" 1 2
+	0 "Unidades de Warhammer" "¿Cuáles son tus unidades favoritas de Warhammer?" "¡Deben ser los elfos del bosque, con sus arcos largos!"
+	0 "Warhammer como hobby" "¿Cuánto tiempo llevas jugando a Warhammer 40K?" "Me metí en esto en el instituto."
+	TM_END;
+
+Array linda_charla_paris -->
+	30 "El Sena" "¿Te gusta el Sena?" "Es como mi río favorito, ¡desde siempre!"
+	30 "Torre Eiffel" "¿Ha visitado la Torre Eiffel?" "Bueno, lo he visto. No he subido. Me dan miedo las alturas" "Linda se estremece."
+	TM_END;
+
+Array array_charla_linda -->
+	30 "Monos" TM_ADD_BEFORE_AND_AFTER "En voz alta, te aclaras la garganta..." "¿Qué sabes de los monos?" 
+			"La miras intensamente, atento a cualquier señal de que haya registrado la pregunta." TM_NO_LINE "Se queda mirándote, atónita."
+	30 "Elefantes" TM_ADD_AFTER TM_NO_LINE "Abres la boca, pero Linda sabe lo que vas a preguntar y te interrumpe." "A todo el mundo le gustan los elefantes, ¿verdad?"
+	30 "Perros" TM_ADD_BEFORE "Sacas tu cartera y le enseñas a Linda una foto de tu cachorro." "¿Qué opinas de los perros?" "¡Son grandes compañeros!" "Linda ríe para sus adentros."
+	TM_MAYBE_ADD_LIST HablaLindaDeWarhammer linda_charla_warhammer
+	0 300 "La muerte de Bob" "¿Qué sabes de la muerte de Bob?" "No mucho. Fue asesinado, creo." 301
+	0 301 "Asesinato" "Cuéntame más sobre el asesinato" "Lo siento, te he dicho todo lo que sé."
+	30 303 "París" "¿Qué te parece París?" "Me encanta. ¡Especialmente el Louvre! Pero es triste que Bob muriera allí." 1 2 3 300
+	0 "París" "Me gusta París. ¡Cuéntame más sobre París!" "Dicen que es la capital del amor." 2 F_LINDA_HABLA_SOBRE_PARIS
+	0 "El Louvre" "¿Y el Louvre?" "Me encanta el ambiente artístico de París, ya sabes."
+	0 "Curiosidades de París" "¿Sabes acaso que París es la capital de Francia?" "¡Por supuesto que lo sé!" ReActivaParis
+	0 350 "Platos" "¿Qué sabes de platos?" "Suelen ser planos, supongo."
+	TM_MAYBE_ADD_LIST F_LINDA_HABLA_SOBRE_PARIS linda_charla_paris
+	TM_END;
+	
+Array array_charla_josh -->
+	30 "Linda" "¿De qué conoces a Linda?" "¡Deberías preguntarle sobre Warhammer 40K!" 1 F_LINDA_HABLA_WARHAMMER
+	0 "Él mismo" "¿Eres un tipo divertido?" RespuestaDivertida
+	30 "Nada" RespuestaDivertida "¡Sí!"
+	30 "Gorilas" "¿Qué sabes de los gorilas?" "Creo que viven en lugares brumosos."
+	30 "Premios Darwin" "¡Háblame de los premios Darwin!" "Puedes conseguir un premio por morir, creo."
+	30 "Matranet" "¿Has oído hablar de Matranet?" "Una pequeña gran editorial, o eso me han dicho."
+	30 "Manzanas" "¿Qué puede decirme sobre las manzanas?" "Son frutas."
+	30 "Plátanos" "¿Qué puede decirme sobre los plátanos?" "Son frutas. No, espera, ¡son bayas!"
+	30 "Commodore" "¿Qué es Commodore?" "Una vieja y buena empresa que fabricaba ordenadores en los años 80." 1 2
+	0 "C64" "¿Qué sabes sobre C64?" "¡Una máquina preciosa, sin duda!"
+	0 "Plus/4" "¿Y sobre el Plus/4?" "Oh, fue malinterpretada. Una máquina ingeniosa en realidad."
+	30 "Spectrum" "¿Has tenido un ZX Spectrum?" "No, yo era más de Commodore." 400
+	30 "PC" "¿Qué sabes de los PC IBM?" "Aburridos, son sólo para el trabajo." 50
+	30 "Ordenadores BBC" "¡Háblame de los ordenadores BBC!" "Británicos, ¿no? Y creo que el nombre de la empresa era en realidad Acorn."
+	30 "Asesinato" "¿Dónde estabas cuando Bob fue asesinado?" "Estaba en casa, viendo la tele. No creerás que tuve algo que ver con su muerte, ¿verdad?"
+	TM_END;
+
+
+
+! Utiliza la clase SalaCharla para todas las salas en las que algunos temas de conversación deban
+! estar activos en función de la ubicación. Usarlo para todas las salas está bien pero es más lento.
+
+Class SalaCharla
+	with after [;
+		Go:
+			move Linda to self;
+			print "^Linda sigue tus pasos.^^";
+			Linda.activate_topics(self);
+			rfalse;
+		Going:
+			Linda.inactivate_topics(self);
+			rfalse;
+	];
+
+SalaCharla Cocina "Cocina"
+	with
+		description "Una cocina moderna. La biblioteca se encuentra al norte de aquí.",
+		n_to Biblioteca;
+
+
+SalaCharla Biblioteca "La biblioteca"
+	with
+		description "Estás en una biblioteca. La cocina está al sur.",
+		s_to Cocina;
+
+Object -> Linda "Linda"
+	with
+		name 'linda',
+		description [;
+			if(FlagIsSet(F_LINDA_HABLA_SOBRE_PARIS))
+				print "~Ya te he dicho que París es la capital del Amor~, dice.";
+			else
+				print "Parece que Linda tiene algo que decir.";
+			print " El status es ", GetTopicStatus(self, 303), ".";
+			"";
+		],
+		talk_array array_charla_linda,
+		activate_topics [ p_room;
+			if(p_room == Cocina) ActivateTopic(self, 350);
+		],
+		inactivate_topics [ p_room;
+			if(p_room == Cocina) InactivateTopic(self, 350);
+		],
+	has proper animate female;
+
+Object -> Josh "Josh"
+	with
+		name 'josh',
+		talk_array array_charla_josh,
+	has proper animate;
+
+[Initialise;
+#Ifdef light;
+	give player light;
+#Endif;
+	location = Biblioteca;
+	print "^^Intenta HABLAR CON (ALGUIEN). Linda tiene un tema extra del que hablar
+		cuando está en la cocina.^^";
+];

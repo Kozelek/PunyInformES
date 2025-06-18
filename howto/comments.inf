@@ -1,0 +1,171 @@
+!% -Cu
+!% -~S
+!% $OMIT_UNUSED_ROUTINES=1
+!% $ZCODE_LESS_DICT_DATA=1
+!% $TRANSCRIPT_FORMAT=1
+
+Constant Story "Comentarios para Atmósfera";
+Constant Headline "^Muestra una forma de añadir comentarios a un juego.^";
+Statusline score; Constant STATUSLINE_SCORE;
+
+Constant OPTIONAL_NO_DARKNESS;
+Constant OPTIONAL_FULL_DIRECTIONS;
+Constant OPTIONAL_EXTENDED_VERBSET;
+Constant INITIAL_LOCATION_VALUE = GranCocina;
+
+Include "globals";
+
+! ####################################
+! Comentarios
+! ####################################
+
+
+Constant COMMENT_MAX_WAIT 4; ! Tiempo máximo entre comentarios
+Constant LOCAL_COMMENT_PROB 2; ! Cómo de probable es que intentemos utilizar un comentario local cuando esté disponible. 1 = sólo utilizamos comentarios locales, 10 = rara vez los utilizamos.
+Constant TRACK_RECENT_COMMENTS = 3; ! Cuántos comentarios recientes hay que recordar
+Constant COMMENT_STRING_PREFIX "Burt "; ! Imprime esto antes de todas las cadenas de comentarios
+Constant COMMENT_STRING_SUFFIX "."; ! Imprime esto después de todas las cadenas de comentarios
+
+Array recent_comments --> TRACK_RECENT_COMMENTS;
+Global comment_prob = COMMENT_MAX_WAIT; ! Posibilidad inicial de decir algo
+Global recent_comments_pointer = 0; ! Siguiente lugar para almacenar un ID de mensaje impreso en la tabla recent_comments
+
+[CommentMulti x y;
+	x = 1 + random(8); y = 1 + random(8);
+	"^De repente Burt te pregunta cuánto es ", x, " multiplicado por ", y, ".
+		~Ah, no importa, es ", x * y, " ¿verdad?~";
+];
+
+Array global_comments static table
+	CommentMulti ! Inform no permite definir una rutina en un array global, así que la definimos primero y añadimos una referencia aquí
+	"hace algunos movimientos de baile"
+	"aúlla un poco"
+	"canta una canción de cuna"
+	"bosteza"
+	"da vueltas y parece sorprendido de verte";
+
+[MaybeMakeComment i m tries local_comments loc newloc ret;
+
+	! Tarea: Imprimir un comentario y devolver true o no imprimirlo y devolver false
+
+	if(random(comment_prob) > 1) {
+		if(comment_prob > 1) comment_prob--; ! Aumenta las posibilidades de imprimir la próxima vez
+		rfalse; ! No imprimimos nada
+	}
+
+	! Hemos decidido intentar decir algo
+
+	! Compruebe si hay comentarios específicos sobre la ubicación.
+	loc = location;
+	while(true) {
+		if(loc provides comments) {
+			local_comments = loc.#comments / 2;
+			newloc = loc.&comments-->0;
+			if(newloc > 0 && newloc <= top_object) {
+				loc = newloc;
+				local_comments = 0;
+			} else
+				break;
+		} else
+			break;
+	}
+
+	do {
+		if(local_comments && random(LOCAL_COMMENT_PROB) == 1) {
+			! Elige un comentario local
+			m = loc.&comments-->(random(local_comments) - 1);
+		} else ! Elige un comentario global
+			m = global_comments-->random(global_comments-->0);
+		for(i=0 : i<TRACK_RECENT_COMMENTS : i++)
+			if(recent_comments-->i == m) {
+				m = 0; ! Olvídate de este mensaje. Debo encontrar uno nuevo.
+				break;
+			}
+		if(m == 0 && ++tries > 5) rfalse; ! Abandona
+	} until(m ~= 0);
+
+	! Hemos encontrado un comentario (String o rutina m) que imprimiremos/llamaremos.
+
+	recent_comments-->(recent_comments_pointer++) = m;
+	if(recent_comments_pointer >= TRACK_RECENT_COMMENTS)
+		recent_comments_pointer = 0;
+	comment_prob = COMMENT_MAX_WAIT; ! Posibilidad de decir algo la próxima vez
+	if(metaclass(m) == Routine) {
+		ret = m();
+		if(ret == 0)
+			comment_prob = 1; ! No se imprimió ningún comentario, así que imprime algo la próxima vez
+		return ret;
+	} else {
+		new_line;
+		print_ret (string) COMMENT_STRING_PREFIX, (string) m,  (string) COMMENT_STRING_SUFFIX; ! Devuelve true ya que dijimos algo
+	}
+];
+
+! Utiliza el punto de entrada LookRoutine() para hacer comentarios justo después de la descripción de cada localidad
+[ LookRoutine;
+	if(Burt in location)
+		MaybeMakeComment();
+];
+
+Include "puny";
+
+Object GranCocina "Gran cocina"
+	with
+		description "Una cocina moderna y totalmente equipada. Una puerta conduce al sur,
+		a la cocina más pequeña. La sala de estar se encuentra al este.",
+		s_to PequenaCocina,
+		e_to SalaEstar,
+		comments
+			"sube a la batidora, golpea el cristal desde dentro y vuelve a salir"
+			"mira su imagen reflejada en el fregadero de acero pulido"
+			[;
+				"^Siempre intentando ser útil, Burt saca algunos ",
+					(string) random("tenedores", "cuchillos", "vasos", "platos"),
+					", los limpia y los vuelve a guardar.";
+			];
+
+
+Object PequenaCocina "Pequeña cocina"
+	with
+		description "Una cocina pequeña y acogedora. Una puerta conduce al norte,
+		a la gran cocina.",
+		n_to GranCocina,
+		comments GranCocina;
+
+Object SalaEstar "Sala de estar"
+	with
+		description "Una gran sala de estar. La gran cocina se encuentra al oeste.",
+		w_to GranCocina;
+
+Object -> Burt "Burt"
+	with
+		name 'burt',
+		description "Es tu fiel compañero Burt. Se parece un poco a un panda,
+		aunque más triste.",
+		found_in [; rtrue; ],
+	has animate proper;
+
+[ Initialise;
+	"^^En esta demostración, obtendrás un comentario después de la descripción de la sala
+	con intervalos aleatorios, pero al menos cada cuatro veces. La rutina de comentarios
+	lleva la cuenta de los tres últimos comentarios y se asegura de no repetirlos.^^
+
+		Todos los comentarios son sobre tu compañero Burt, y si no está presente,
+	no se imprimen comentarios (pero siempre está presente).^^
+
+		Hay una serie de comentarios globales, que se supone que funcionan en cualquier lugar.
+	En la sala de estar, estos son los únicos comentarios disponibles.^^
+
+		La gran cocina tiene un conjunto de comentarios locales, que sólo se pueden imprimir
+	cuando estás allí. Estos se definen en la propiedad comments de la
+	cocina grande. Sin embargo, la cocina pequeña también utiliza el mismo conjunto
+	de comentarios haciendo referencia a la cocina grande en su propiedad comments.^^
+
+		Una localización no puede proporcionar un conjunto de comentarios locales propios y
+	referirse a otra localización, ni puede referirse a múltiples localizaciones.^^
+
+		Un comentario puede ser una cadena o una rutina. Si es una rutina y puede ser
+	utilizada en varias localizaciones diferentes, puede comprobar el valor de
+	localización para ver dónde se encuentra el jugador en ese momento. Si una rutina decide no
+	imprimir nada, debe devolver false.^^^";
+];

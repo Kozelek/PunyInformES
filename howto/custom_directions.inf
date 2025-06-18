@@ -1,0 +1,93 @@
+!% -Cu
+!% -~S
+!% $OMIT_UNUSED_ROUTINES=1
+!% $ZCODE_LESS_DICT_DATA=1
+!% $TRANSCRIPT_FORMAT=1
+
+Constant Story      "Direcciones personalizadas";
+Constant Headline   "^Un juego de muestra que usa PunyInformES.^";
+
+Constant STATUSLINE_SCORE; Statusline score;
+Constant NO_SCORE = 0;
+
+! Descomentar para añadir características opcionales a PunyInform
+!Constant DEBUG;
+Constant OPTIONAL_NO_DARKNESS;
+!Constant OPTIONAL_FULL_DIRECTIONS;
+!Constant OPTIONAL_SHIP_DIRECTIONS;
+!Constant RUNTIME_ERRORS = 0; ! 0,1 ó 2. 0 = archivo más pequeño, 2 = más información
+
+Constant INITIAL_LOCATION_VALUE = Campo;
+
+Include "globals.h";
+
+Include "puny.h";
+
+Object Campo "Campo"
+	with
+		n_to Calle,
+		u_to Colina,
+		description "Estás en un campo, rodeado de colinas. Un camino empinado
+			conduce hacia arriba. Hacia el centro hay una calle.";
+
+Object Colina "Colina"
+	with
+		d_to Campo,
+		description "Estás en las nubes. No puedes ver el suelo.
+			Un camino empinado conduce hacia abajo.";
+
+Object Calle "Calle"
+	with
+		w_to CalleHoraria,
+		e_to CalleAntihoraria,
+		s_to Campo,
+		description "Te encuentras en una calle que se extiende desde aquí en
+			sentido horario. Hacia el borde hay un campo.";
+
+Object CalleHoraria "Calle Horaria"
+	with e_to Calle,
+	description "Se trata de una rotonda. La calle continúa en sentido antihorario.";
+
+Object CalleAntihoraria "Calle Antihoraria"
+	with w_to Calle,
+	description "La calle termina aquí en un muro de ladrillos. Puedes volver
+		en sentido horario.";
+
+Array custom_dir_name_array static --> "dirección" "centro" "borde"
+	"antihorario" "horario" "subir" "bajar" "entrar" "salir";
+
+[ DirShortName;
+	print (string) custom_dir_name_array-->selected_direction_index;
+	rtrue;
+];
+
+[ DirParseName _i _w;
+	_w = WordValue(wn);
+	switch(_w) {
+		'centro', 'cn//': _i = 1;
+		'borde', 'br//': _i = 2;
+		'antihorario', 'ah//': _i = 3;
+		'horario', 'h//': _i = 4;
+		'ar//', 'arriba': _i = 5;
+		'ab//', 'abajo', 'suelo', 'tierra': _i = 6;
+		'dentro', 'adentro': _i = 7;
+		'fuera', 'afuera': _i = 8;
+	}
+	if(_i == 0) return 0; ! No direction was matched
+
+	! A match was found
+	selected_direction_index = _i;
+	selected_direction = direction_properties_array -> selected_direction_index;
+	return 1;
+];
+
+[Initialise;
+	lookmode = 2; ! Verbose room descriptions every time
+	Directions.short_name = DirShortName;
+	Directions.parse_name = DirParseName;
+	print "^^En este juego, las direcciones N, S, E, O han sido sustituidas con
+			CENTRO, BORDE, ANTIHORARIO, HORARIO, pero mantiene
+			ARRIBA, ABAJO, DENTRO y FUERA.^^
+			Por supuesto, podríamos haber disminuido o aumentado el número de direcciones
+			utilizando nuevas propiedades para las direcciones adicionales.^^";
+];

@@ -1,0 +1,78 @@
+!% -Cu
+!% -~S
+!% $OMIT_UNUSED_ROUTINES=1
+!% $ZCODE_LESS_DICT_DATA=1
+!% $TRANSCRIPT_FORMAT=1
+
+Constant Story      "PushDir demo";
+Constant Headline   "^Un juego de muestra que usa PunyInformES.^";
+
+Constant STATUSLINE_SCORE; Statusline score;
+
+! Descomentar para añadir características opcionales a PunyInform
+Constant DEBUG;
+Constant OPTIONAL_NO_DARKNESS;
+
+Constant INITIAL_LOCATION_VALUE = Calle;
+
+Include "globals.h";
+
+Include "puny.h";
+
+Verb 'arranca' 'arrancar'
+	* noun -> SwitchOn;
+
+Object Calle "Calle"
+	with
+		description "Estás en la calle, fuera de tu casa. El césped está al sur. El taller está al este.",
+		s_to Cesped,
+		e_to Taller;
+
+Object -> Gokart "go-kart"
+	with
+		name 'gokart' 'go-kart' 'kart',
+		invent [;
+			if(inventory_stage == 2)
+				print " (roto)";
+		],
+!		describe [; rtrue; ],
+		before [ dirobj;
+		Take, Remove:
+			"No puedes hablar en serio.";
+		SwitchOn:
+			"No arranca.";
+		Push, Pull, Turn:
+			"Puedes mover el kart con ~EMPUJAR KART ESTE~";
+		PushDir:
+			! Asegúrate de que el jugador no está en/sobre nada
+			if(player notin location)
+				"Tendrías que valerte por ti mismo para hacerlo.";
+
+			! Primero define dónde no se puede empujar este elemento
+			if(location == Calle && selected_direction == s_to)
+				"¡Sólo estropearía la hierba!";
+
+			! Ahora intenta caminar en esta dirección, y mueve el objeto
+			! allí también. Está bien que no seamos capaces de ir allí.
+			dirobj = DirPropToFakeObj(selected_direction);
+			<Go dirobj>;
+			move self to real_location;
+			rtrue;
+		],
+	has container open enterable switchable;
+
+Object Cesped "Césped"
+	with
+		description "Estás en tu césped bien cuidado. No te gustaría tener
+			un kart en este césped. La calle está al norte.",
+		n_to Calle;
+
+Object Taller "Taller"
+	with
+		description "Estás en el taller. La calle está al oeste.",
+		w_to Calle;
+
+[Initialise;
+	print "^^Necesitas quitar tu go-kart del camino. ¿Qué tal si lo empujas
+		hacia el este, al taller?^^";
+];

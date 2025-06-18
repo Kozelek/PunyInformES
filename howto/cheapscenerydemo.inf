@@ -1,0 +1,128 @@
+!% -Cu
+!% -~S
+!% $OMIT_UNUSED_ROUTINES=1
+!% $ZCODE_LESS_DICT_DATA=1
+!% $TRANSCRIPT_FORMAT=1
+
+Constant Story      "Cheap Scenery Demo";
+Constant Headline   "^Un juego de muestra que usa PunyInformES.^";
+
+Constant STATUSLINE_SCORE; Statusline score;
+Constant NO_SCORE = 0;
+
+!Constant DEBUG;
+Constant OPTIONAL_NO_DARKNESS;
+Constant OPTIONAL_EXTENDED_METAVERBS;
+!Constant RUNTIME_ERRORS = 0; ! 0, 1 or 2. 0 = fichero más pequeño, 2 = más información
+
+Constant INITIAL_LOCATION_VALUE = Biblioteca;
+
+Include "globals.h";
+
+! Constantes de nombre de parseo para Cheap Scenery. Utiliza los valores 100-500.
+Constant CSP_BIBLIOTECA 100;
+
+[ SceneryReply word1 word2 id_or_routine;
+	! Podemos comprobar la ubicación, si queremos respuestas diferentes en habitaciones diferentes.
+	! También podemos comprobar la acción, e incluso hay un interruptor implícito en la acción,
+	! por lo que podemos hacer cosas como: Take: "Estás loco";
+	switch(id_or_routine) {
+	PARSE_NAME_AIR:
+		! No usamos word2 para nada en esta rutina. Le damos aquí un valor, para evitar
+		! un aviso cuando no se usa
+		word2 = 1;
+		"Necesitas el aire para respirar, eso es todo.";
+	CSP_BIBLIOTECA:
+		"La biblioteca es superimportante. Mejor no meterse con ella.";
+	}
+	if(CSHasNoun('libro'))
+		"Deja los libros a la gente que se preocupa por ellos.";
+	if(location == Biblioteca && word1 == 'estante')
+		"Se supone que no debes tocar los estantes.";
+	"Recuerda que estás en una biblioteca. No hay necesidad de tocarlo todo.";
+];
+
+Include "ext_cheap_scenery.h";
+Include "puny.h";
+
+[ PARSE_NAME_AIR;
+	! No hay necesidad real de una rutina parse_name aquí. Es sólo para fines de demostración
+	if(NextWord() == 'aire') return 1;
+	rfalse;
+];
+
+[ WALL_DESC;
+	Examine:
+		"Las paredes ",
+			(string) random("son todas blancas", "provocan claustrofobia", "son aterradoras",
+				"brillan"), " aquí.";
+	default:
+		rfalse;
+];
+
+Constant BOOKDESC "No te interesa leer.";
+
+[SCN_ATMOSPHERE;
+	Examine:
+		"El ambiente es muy agradable.";
+	default:
+		! Como se trata de una rutina con nombre, devolverá true por defecto.
+		! Así que tenemos que devolver false para todas las acciones que no nos importan
+		rfalse;
+];
+
+
+Object Biblioteca "Biblioteca"
+	with
+		description "Estás en una gran biblioteca encantadora. Puedes examinar o intentar
+		coger los libros, los estantes, la biblioteca, el aire, la atmósfera,
+		las paredes y el techo. La sala de lectura se encuentra al este.",
+		e_to SalaLectura,
+		cheap_scenery
+			'libro' 'libros//p' BOOKDESC
+			'volumen' 'volumenes//p' BOOKDESC
+			'estante' 'estantes//p' "Están llenos de libros."
+			CSP_BIBLIOTECA CS_PARSE_NAME [ _i _w;
+				_w = NextWord();
+				if(_w == 'gran') { _i++; _w = NextWord();}
+				if(_w == 'encantadora') { _i++; _w = NextWord();}
+				if(_w == 'biblioteca') { _i++; return _i;}
+				return 0;
+			] "Es verdaderamente gloriosa."
+			CS_ADD_LIST Biblioteca (inside_scenery),
+		inside_scenery
+			CS_PARSE_NAME PARSE_NAME_AIR "El aire es tan delgado aquí."
+			CS_FEM 1 'atmosfera' SCN_ATMOSPHERE
+			CS_FEM 'pared' 'paredes//p' WALL_DESC
+			1 'techo' [;
+				Examine: "El techo es bastante alto.";
+				default: "¡No hay forma de que puedas alcanzarlo!";
+			];
+
+Object -> Caja "caja"
+	with
+		name 'caja',
+		description "Es una buena caja.",
+	has container open openable female;
+
+Object SalaLectura "Sala de lectura"
+	with
+		description "Esta es la sala de lectura. El aire se siente diferente aquí.
+			Hay un solo libro en una de las mesas.
+			Puedes examinar o intentar coger las mesas, la sala de lectura,
+			el aire, la atmósfera, las paredes y el techo. La biblioteca está al oeste.",
+		w_to Biblioteca,
+		cheap_scenery
+			CS_PARSE_NAME PARSE_NAME_AIR "El aire es más denso aquí que en la biblioteca."
+			'solo' 'libro' "Es el clásico ~Lo que el viento se llevó~ de Margaret Mitchell."
+			CS_FEM 'mesa' 'mesas//p' [;
+				Examine: "Bastante resistente.";
+				Take, Remove, Turn, Pull, Push: "Decides que es mejor dejar las mesas donde están.";
+			]
+			'sala' 'lectura' "Es un lugar muy tranquilo."
+			CS_ADD_LIST Biblioteca (inside_scenery);
+
+[Initialise;
+	print "^^Hagamos esto...^^";
+	lookmode = 2;
+];

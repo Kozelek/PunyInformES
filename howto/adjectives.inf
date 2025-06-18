@@ -1,0 +1,123 @@
+!% -Cu
+!% -~S
+!% $OMIT_UNUSED_ROUTINES=1
+!% $ZCODE_LESS_DICT_DATA=1
+!% $TRANSCRIPT_FORMAT=1
+
+Constant Story      "Adjetivos";
+Constant Headline   "^Un juego de muestra que usa PunyInformES.^";
+
+Constant STATUSLINE_SCORE; Statusline score;
+
+! Descomenta para añadir características opcionales a PunyInform
+!Constant DEBUG;
+Constant OPTIONAL_NO_DARKNESS;
+!Constant RUNTIME_ERRORS = 0; ! 0, 1 or 2. 0 = fichero más pequeño, 2 = más información
+
+Constant INITIAL_LOCATION_VALUE = Biblioteca;
+
+Include "globals.h";
+
+Include "puny.h";
+
+! -------------------- Copia el siguiente código a tu propio juego
+
+#Ifv5;
+Property adj_name;
+Property noun_name;
+#Ifnot;
+Property individual adj_name;
+Property individual noun_name;
+#Endif;
+
+#Ifv5;
+[MatchNameList p_obj p_prop _w _matched _an _count _i;
+	_an = p_obj.&p_prop;
+	if(_an == 0) { wn++; return 0; }
+	_count = p_obj.#p_prop;
+	@log_shift _count (-1) -> _count; ! Divide por 2
+	while(true) {
+		_w = NextWord();
+		@scan_table _w _an _count -> _i ?_MNL_match;
+		return _matched;
+._MNL_match;
+		_matched++;
+	}
+];
+#Ifnot;
+[MatchNameList p_obj p_prop _w _matched _base _an _count _i;
+	_an = p_obj.&p_prop;
+	if(_an == 0) { wn++; return 0; }
+	_count = p_obj.#p_prop / 2;
+	while(true) {
+		_w = NextWord();
+		_base = _matched;
+		for(_i = 0 : _i < _count : _i++)
+			if(_w == _an-->_i) { _matched++; break; }
+		if(_matched == _base) return _matched;
+	}
+];
+#Endif;
+
+Class AdjObject
+	with
+		parse_name [ _adj _noun;
+			_noun = MatchNameList(self, noun_name);
+			wn--;
+			_adj = MatchNameList(self, adj_name);
+			if(_noun) return _noun + _adj;
+		];
+
+! -------------------- Fin de código a copiar
+
+
+Object Biblioteca "La biblioteca"
+	with
+		description "Estoy en una biblioteca.";
+
+Object -> Caja "caja"
+	with
+		name 'caja',
+		inside_description "Se está muy bien, de pie en la caja.",
+	has female container open openable enterable;
+
+Object -> ReproductorCinta "reproductor de cinta marrón"
+	class AdjObject
+	with
+		adj_name 'de' 'cinta' 'marron',
+		noun_name 'reproductor',
+		description "Un hermoso reproductor de cinta, hecho casi todo de madera.",
+		before [;
+			Insert: if (noun == Cinta) <<Play noun self>>;
+		],
+	has static;
+
+Object -> Cinta "cinta"
+	with
+		name 'cinta',
+		description "Dark Side of the Moon, por Pink Floyd.",
+	has female;
+
+Verb 'reproduce' 'reproducir'
+	* held 'en' noun -> Play;
+
+[PlaySub;
+	if(noun notin player) "Ni siquiera estás sosteniendo ", (the) noun, ".";
+	if(noun ~= Cinta)
+		"Eso no es algo que puedas reproducir.";
+	if(second ~= ReproductorCinta)
+		"¡No puedes reproducirlo en eso!";
+	"¡Suena fantástico!";
+];
+	
+[Initialise;
+	print "^^La clase AdjObject te permite definir hasta 32 adjetivos y 32 nombres
+		para un objeto, en cualquier versión de Z-código. Esto puede usarse para
+		añadir montones de sinónimos como nombres, y/o definir algunas palabras como
+		adjetivos. Los adjetivos son palabras que pueden usarse para referirse al
+		objeto pero solo si van seguidos de uno o más nombres.^^
+		En este ejemplo, CINTA se refiere a la cinta, mientras que REPRODUCTOR DE
+		CINTA se refiere al reproductor de cinta, y no hay ambigüedad. También puedes
+		referirte al reproductor de cinta como REPRODUCTOR MARRON o REPRODUCTOR DE
+		CINTA MARRON o simplemente REPRODUCTOR.^^";
+];

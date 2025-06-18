@@ -1,0 +1,65 @@
+!% -Cu
+!% -~S
+!% $OMIT_UNUSED_ROUTINES=1
+!% $ZCODE_LESS_DICT_DATA=1
+!% $TRANSCRIPT_FORMAT=1
+
+Constant Story      "Muestra contenidos";
+Constant Headline   "^Un juego de muestra que usa PunyInformES.^";
+
+Constant STATUSLINE_SCORE; Statusline score;
+
+Constant INITIAL_LOCATION_VALUE = SalaBlanca;
+
+Include "globals.h";
+
+Include "puny.h";
+
+Object SalaBlanca "Sala blanca"
+	with
+		description "Estás en una gran sala blanca.",
+	has light;
+
+Object -> Mesa "mesa"
+	with
+		name 'mesa',
+		description [;
+			print "Es una mesa bonita y robusta.";
+			self.show_contents();
+			@new_line;
+		],
+		initial [;
+			print "Hay una hermosa mesa en el centro de la sala.";
+			! Si el jugador está en la mesa, PunyInform mostrará el contenido
+			! automáticamente. Si no, ¡lo hacemos nosotros!
+			if(~~IndirectlyContains(self, player)) self.show_contents();
+			@new_line;
+		],
+		! show_contents es una propiedad individual - podría haberse llamado
+		! cualquier cosa. Acabamos de elegir un nombre descriptivo.
+		show_contents [;
+			! PrintContents devuelve true si imprimió algo, false si no.
+			if(PrintContents(" En la mesa puedes ver ", self)) print ".";
+		],
+	has static supporter enterable female;
+
+
+Object -> -> plato "plato"
+	with
+		name 'plato'
+	has supporter;
+
+Object -> -> cuchillo "cuchillo"
+	with
+		name 'cuchillo';
+
+[Initialise;
+	print "^^Un soporte o contenedor en PunyInform está normalmente incluido en la descripción de la sala,
+		y si hay algo dentro/sobre él, esto también se imprime.
+		Sin embargo, si le das a tu soporte o contenedor un párrafo propio
+		usando cualquiera de las propiedades initial, when_open, when_closed
+		o describe, el contenido del objeto no se imprimirá. Este juego
+		muestra cómo hacer que el objeto imprima su contenido en la descripción de la sala.
+		También muestra cómo hacer que el objeto imprima su contenido cuando el jugador de
+		examina el objeto.^^";
+];

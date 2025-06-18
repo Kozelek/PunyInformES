@@ -1,0 +1,232 @@
+!% -Cu
+!% -~S
+!% $OMIT_UNUSED_ROUTINES=1
+!% $ZCODE_LESS_DICT_DATA=1
+!% $TRANSCRIPT_FORMAT=1
+
+Constant Story      "Indistinguible";
+Constant Headline   "^Un juego de muestra que usa PunyInformES.^";
+
+Constant STATUSLINE_SCORE; Statusline score;
+
+Constant NO_SCORE = 0;
+
+!Constant DEBUG; ! Proporciona verbos de depuración para Inform y PunyInform
+!Constant DEBUG_PARSEANDPERFORM;
+!Constant DEBUG_PARSEPATTERN;
+!Constant DEBUG_PARSETOKEN;
+!Constant DEBUG_GETNEXTNOUN;
+!Constant DEBUG_PARSENOUNPHRASE;
+
+! Descomentar para añadir características opcionales a PunyInform
+Constant RUNTIME_ERRORS = 2; ! 0, 1 ó 2. 0 = archivo más pequeño, 2 = más información
+
+Constant OPTIONAL_LIST_TOGETHER;
+Constant OPTIONAL_LANGUAGE_NUMBER; ! Usa esto para que list_together imprima números usando palabras
+Constant OPTIONAL_ALLOW_WRITTEN_NUMBERS; ! Más barato de añadir cuando se define OPTIONAL_LANGUAGE_NUMBER
+
+Constant OPTIONAL_EXTENDED_METAVERBS;
+Constant OPTIONAL_EXTENDED_VERBSET;
+Constant OPTIONAL_FLEXIBLE_INVENTORY;
+
+Constant INITIAL_LOCATION_VALUE = Pub;
+
+Include "globals.h";
+
+[ ObjDepth p_obj _i;
+	while(p_obj) { p_obj = parent(p_obj); _i++; }
+	return _i;
+];
+
+[ ChooseObjectsFinal p_arr p_len _i _j _o _o2 _sg _d _d2 _other_group_present;
+#Ifdef DEBUG;
+    print "*** ChooseObjectsFinal, la acción es ",(DebugAction) action,", la cuenta de objetos es ", p_len, ": ^";
+!	rfalse;
+#Endif;
+	for(_i = 0: _i < p_len: _i++) {
+		_o = p_arr-->_i;
+		if(_o provides same_group) {
+			_sg = _o.same_group;
+			_d = ObjDepth(_o);
+			for(_j = p_len - 1: _j > _i: _j--) {
+				_o2 = p_arr-->_j;
+				if(_o2 provides same_group) {
+					if(_o2.same_group == _sg) {
+						_d2 = ObjDepth(_o2);
+						if( _d2 < _d) {
+							! Prefiere un objeto más superficial, así que intercambia el objeto principal y este
+							_o = _o2;
+							p_arr-->_j = p_arr-->_i;
+							p_arr-->_i = _o;
+							_d = _d2;
+						}
+						ChooseObjectsFinal_Discard(_j);
+						p_len--;
+					} else
+						_other_group_present = true;
+				}
+			}
+			if(_other_group_present == false)
+				return; ! El grupo de objetos indistinguibles que acabamos de manejar era el último
+			_other_group_present = false; ! Esperemos que el próximo sea el último
+		}
+	}	
+];
+
+Include "puny.h";
+
+Class Dardo
+	with
+		same_group 1,
+		short_name "dardo",
+		parse_name [ _w;
+			_w = NextWord();
+			if(_w == 'dardo')
+				return 1;
+			if(_w == 'dardos//p') {
+				parser_action = ##PluralFound;
+				return 1;
+			}
+		],
+		description "Los dardos son todos iguales.",
+		before [;
+		Search: "Los dardos son sólidos, sin compartimentos ocultos.";
+		],
+		list_together [ _obj _n; ! Cada clase debe tener su propia rutina list_together, o se listan todas como una sola clase
+			if(inventory_stage == 1) {
+				for(_obj=parser_one: _obj ~= 0: _obj = NextEntry(_obj, parser_two)) _n++;
+				print (LanguageNumber) _n, " dardos";
+				if(c_style & NEWLINE_BIT)
+					new_line;
+				rtrue;
+			}
+		];
+
+Class Moneda
+	with
+		parse_name [ _w _n;
+			_w = NextWord();
+			if(_w == 'moneda') {
+				_w = NextWord();
+				_n++;
+			}
+			else if(_w == 'monedas//p') {
+				parser_action = ##PluralFound;
+				_w = NextWord();
+				_n++;
+			}
+			if(_w == 'de') {
+				_w = NextWord();
+				_n++;
+			}
+			if(_w == self.&name-->0) { ! Concuerda con 'plata' u 'oro'
+				_n++;
+			}
+			return _n;
+		],
+		;
+
+Class MonedaPlata
+	class Moneda,
+	with
+		same_group 2,
+		name 'plata',
+		short_name "moneda de plata",
+		description "Las monedas de plata son todas iguales.",
+		list_together [ _obj _n;
+			if(inventory_stage == 1) {
+				for(_obj=parser_one: _obj ~= 0: _obj = NextEntry(_obj, parser_two)) _n++;
+				print (LanguageNumber) _n, " monedas de plata";
+				if(c_style & NEWLINE_BIT)
+					new_line;
+				rtrue;
+			}
+		]
+	has female;
+
+Class MonedaOro
+	class Moneda
+	with
+		same_group 3,
+		name 'oro',
+		short_name "moneda de oro",
+		description "Las monedas de oro son todas iguales.",
+		list_together [ _obj _n;
+			if(inventory_stage == 1) {
+				for(_obj=parser_one: _obj ~= 0: _obj = NextEntry(_obj, parser_two)) _n++;
+				print (LanguageNumber) _n, " monedas de oro";
+				if(c_style & NEWLINE_BIT)
+					new_line;
+				rtrue;
+			}
+		]
+	has female;
+
+
+Object Pub "El Pub"
+	with
+		description "Estás en un pub."
+	has light;
+
+Object -> Diana "diana"
+	with
+		describe [ _i;
+			print "^En la pared cuelga una diana muy chula";
+			_i = children(self);
+			if(_i) {
+				print ", con ";
+				if(_i == 1) print "un dardo";
+				else print (LanguageNumber) _i, " dardos";
+				print " saliendo de él";
+			}
+			".";
+		],
+		name 'diana',
+		before [;
+			Receive:
+				if(noun ofclass Dardo) <<ThrowAt noun self>>;
+				"¡La diana sólo está hecha para lanzar dardos!";
+			ThrownAt: 
+				if(noun ofclass Dardo) {
+					move noun to self;
+					"¡Alcanzaste la diana, bravo!";
+				}
+		],
+	has static supporter female;
+
+Dardo -> Dardo1;
+Dardo -> Dardo2;
+
+MonedaPlata -> MonedaPlata1;
+
+Object -> Mesa "mesa"
+	with
+		name 'mesa',
+	has supporter open openable enterable female;
+
+MonedaPlata -> -> MonedaPlata2;
+MonedaPlata -> -> MonedaPlata3;
+MonedaOro -> -> MonedaOro1;
+Dardo -> -> Dardo3;
+
+MonedaOro -> MonedaOro2;
+MonedaOro -> MonedaOro3;
+MonedaOro -> MonedaOro4;
+
+Object -> Caja "caja"
+	with
+		name 'caja',
+		inside_description "Se siente tan bien, de pie en la caja.",
+	has container open openable enterable female;
+
+MonedaOro -> -> MonedaOro5;
+
+
+[Initialise; ! i;
+	print "^^Los objetos indistinguibles aparecen juntos en esta demo. Cosas que probar:^ 
+			INVENTARIO LARGO^
+			INVENTARIO ANCHO^
+			COGE MONEDA^
+			EXAMINA DARDOS^
+			^^";
+];

@@ -1,0 +1,206 @@
+!% -Cu
+!% -~S
+!% $OMIT_UNUSED_ROUTINES=1
+!% $ZCODE_LESS_DICT_DATA=1
+!% $TRANSCRIPT_FORMAT=1
+
+Constant Story      "Semioscuridad";
+Constant Headline   "^Un juego de muestra que usa PunyInformES.^";
+
+Constant STATUSLINE_SCORE; Statusline score;
+
+! Descomentar para añadir características opcionales a PunyLib
+Constant DEBUG;
+!Constant RUNTIME_ERRORS = 0;
+
+! Define aquí las constantes de biblioteca que necesites, como MAX_SCORE, AMUSING_PROVIDED,
+! MAX_CARRIED, SACK_OBJECT,  etc.
+
+Constant INITIAL_LOCATION_VALUE = Pasillo;
+
+Include "globals.h";
+
+! Define aquí tus propias variables globales, si las hay
+
+Attribute semidark;
+
+! Define aquí las rutinas de punto de entrada que necesites, como Amusing, DarkToDark, etc.
+
+[InScope x;
+	! Cuando te encuentres en un lugar semioscuro, añade todos los objetos semioscuros
+	! y su contenido al scope.
+	if(location == thedark && real_location has semidark)
+		objectloop(x in real_location) {
+			if(x has semidark) {
+				PlaceInScope(x);
+				ScopeWithin(x);
+			}
+		}
+	rfalse;
+];
+
+[GamePreRoutine;
+	! Examinar normalmente no funciona en lugares oscuros. Sin embargo, queremos que funcione
+	! en lugares semioscuros.
+	if(location == thedark && action == ##Examine &&
+			real_location has semidark) {
+		if(noun provides description) {
+			PrintOrRun(noun, description);
+			rtrue;
+		} else {
+			PrintMsg(MSG_EXAMINE_NOTHING_SPECIAL);
+			rtrue;
+		}
+	}
+	rfalse;
+];
+
+[LookRoutine x;
+	! Cuando en un lugar semioscuro, lista los objetos semioscuros.
+	if(location == thedark && real_location has semidark) {
+		objectloop(x in real_location) {
+			give x ~workflag;
+			if(x has semidark && x hasnt scenery or concealed)
+				give x workflag;
+		}
+		if(PrintContents("^Apenas se puede distinguir aquí ", real_location, true)) ".";
+	}
+];
+
+Include "puny.h";
+
+Object Pasillo "Pasillo"
+	with
+		name 'grandes' 'ventanales',
+		description "La luz entra por los grandes ventanales.
+			Al sur hay una oscura biblioteca.",
+		s_to Biblioteca,
+	has light;
+
+Object -> Interruptor
+	with
+		short_name "interruptor",
+		describe [;
+			print "^Hay un interruptor en la pared, que controla la luz en
+				la biblioteca y el armario. Actualmente está ";
+			if(self has on) "encendido.";
+			"apagado.";
+		],
+		name 'interruptor',
+		before [;
+			Push:
+				if(self has on)
+					<<SwitchOff self>>;
+				else
+					<<SwitchOn self>>;
+		],
+		after[;
+			SwitchOn:
+				give Biblioteca light;
+				give ArmarioOscuro light;
+			SwitchOff:
+				give Biblioteca ~light;
+				give ArmarioOscuro ~light;
+		],
+	has switchable static;
+
+Object -> EstatuaNaranja "estatua naranja"
+	with
+		name 'estatua' 'naranja',
+		description "Es increíblemente hermosa.",
+	has semidark female;
+
+Object -> JerseyNegro "jersey negro"
+	with
+		name 'jersey' 'negro',
+		description "Es francamente feo."
+	has clothing;
+
+Object Biblioteca "La biblioteca"
+	with
+		description "Te encuentras en una biblioteca. El pasillo se encuentra al norte,
+			mientras que al sur hay un oscuro pasadizo amenazador.",
+		semidark_description "Te encuentras en una biblioteca. Está muy oscuro.
+			El pasillo se encuentra al norte, mientras que hay un lugar aún más oscuro
+			al sur.",
+		n_to Pasillo,
+		s_to ArmarioOscuro
+	has semidark;
+
+Object -> Caja "caja"
+	with
+		name 'caja',
+		description "Es una caja grande y bonita.",
+		inside_description "Se siente tan bien, de pie en la caja.",
+	has container open openable enterable semidark female;
+
+Object -> Felpudo "felpudo"
+	with
+		name 'felpudo',
+		inside_description "Es un bonito felpudo de colores oscuros.",
+	has supporter;
+
+Object ArmarioOscuro "Armario oscuro"
+	with
+		description "Este es un armario muy oscuro. Gracias a Dios hay una lámpara en
+			el techo por lo menos. La biblioteca está al norte.",
+		n_to Biblioteca;
+
+Object -> Mesa "mesa"
+	with
+		name 'mesa',
+		description "Es una bonita y robusta mesa de roble.",
+	has static supporter female;
+
+Object -> -> Cuchara "cuchara"
+	with
+		name 'cuchara',
+	has female;
+
+[TheDarkDescription;
+	if(real_location has semidark) {
+		if(real_location provides semidark_description) {
+			PrintOrRun(real_location, semidark_description);
+			rtrue;
+		} else {
+			PrintOrRun(real_location, description);
+			rtrue;
+		}
+	}
+	"Está demasiado oscuro para ver aquí.";
+];
+
+[TheDarkShortName;
+	if(real_location has semidark) {
+		print (name) real_location;
+		rtrue;
+	}
+	rfalse;
+];
+
+[Initialise;
+	thedark.description = TheDarkDescription;
+	thedark.short_name = TheDarkShortName;
+
+	print "^^Esta es una demostración de salas ~semioscuras~ - salas en las que está
+		casi a oscuras, y sólo se pueden ver ciertos objetos grandes y quizás
+		objetos de colores brillantes.
+		^^La biblioteca es un lugar semioscuro, en el que deberías poder ver
+		sólo la caja. Si enciendes la luz, deberías poder ver también el felpudo.
+		Si dejas caer la estatua naranja allí, podrás volver a recogerla,
+		pero si dejas caer el jersey negro, no volverás a encontrarlo, a menos que
+		tengas la luz encendida.
+		^^Al sur de la biblioteca está el armario, que es un lugar oscuro normal -
+		no se ve nada ahí dentro.
+		^^Para utilizar este sistema, se da el atributo de semioscuridad a una habitación para decir
+		que si está oscuro en esa habitación, es sólo semioscuridad. Y das ese mismo atributo
+		a los objetos que deben ser visibles en las habitaciones semioscuras.
+		^^Rarezas:
+		^1: La línea de estado dirá Oscuridad cuando estés en una habitación semioscura,
+		en juegos z3.
+		^2: Si un objeto se coloca en un contenedor o en un soporte que tiene el atributo
+		semidark, ese objeto también será visible en semioscuridad.
+		^^Nota: Como es habitual en el modo DEBUG, puedes escribir TREE para ver todos los elementos en
+		tu ubicación actual, y SCOPE para ver lo que está actualmente en scope
+		^^";
+];
