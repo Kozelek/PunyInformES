@@ -3,17 +3,17 @@
 !% $OMIT_UNUSED_ROUTINES=1
 !% $ZCODE_LESS_DICT_DATA=1
 
-! The very first lines of the main source code file for a game can
-! contain compiler options, like the lines above. -~S disables
-! strict error checking. This is otherwise used in z5 and z8 games by
-! default. While useful for debugging, it adds ~10 KB to the story file
-! size and it makes the game slower.
-! $OMIT_UNUSED_ROUTINES=1 makes the compiler remove all routines which
-! aren't used. This can save some space.
+! Las primeras líneas del archivo de código fuente principal de un juego pueden
+! contener opciones de compilador, como las líneas anteriores. -Cu permite que
+! se usen caracteres acentuados. -~S desactiva la comprobación estricta de errores.
+! Esto se utiliza en los juegos z5 y z8 por defecto. Aunque es útil para la depuración,
+! añade ~10 KB al tamaño del archivo de la historia y hace que el juego sea más lento.
+! $OMIT_UNUSED_ROUTINES=1 hace que el compilador elimine todas las rutinas que
+! no se usan. Esto puede ahorrar algo de espacio.
 
 ! ============================================================================ !
-!   Cloak of Darkness - a simple demonstration of Interactive Fiction
-!	   This version for INFORM written by Roger Firth on 17Sep99
+!   La capa de oscuridad - una simple demostración de Ficción Interactiva
+!	     Esta versión para INFORM escrita por Roger Firth el 17Sep99
 ! ============================================================================ !
 
 

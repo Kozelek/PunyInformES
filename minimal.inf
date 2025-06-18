@@ -5,34 +5,35 @@
 !% $LONG_DICT_FLAG_BUG=0
 !% $TRANSCRIPT_FORMAT=1
 
-! The very first lines of the main source code file for a game can
-! contain compiler options, like the lines above. -~S disables
-! strict error checking. This is otherwise used in z5 and z8 games by
-! default. While useful for debugging, it adds ~10 KB to the story file
-! size and it makes the game slower.
-! $OMIT_UNUSED_ROUTINES=1 makes the compiler remove all routines which
-! aren't used. This can save some space.
-! $ZCODE_LESS_DICT_DATA=1 removes an empty data byte for every dictionary word.
-! $LONG_DICT_FLAG_BUG=0 enables a bug fix in Inform v6.42+, so plural flags
-! on long words are heeded, e.g. 'transmogrifiers//p'.
+! Las primeras líneas del archivo de código fuente principal de un juego pueden
+! contener opciones de compilador, como las líneas anteriores.
+! -Cu permite que se usen caracteres acentuados.
+! -~S desactiva la comprobación estricta de errores. Esto se utiliza en los juegos z5 y z8
+! por defecto. Aunque es útil para la depuración, añade ~10 KB al tamaño del archivo de la
+! historia y hace que el juego sea más lento.
+! $OMIT_UNUSED_ROUTINES=1 hace que el compilador elimine todas las rutinas que
+! no se usan. Esto puede ahorrar algo de espacio.
+! $ZCODE_LESS_DICT_DATA=1 elimina un byte de datos vacío por cada palabra del diccionario
+! $LONG_DICT_FLAG_BUG=0 activa una corrección de errores en Inform v6.42+, para que se tengan
+! en cuenta las banderas de plural en palabras largas, por ejemplo 'transmogrifiers//p'.
 
 Constant Story      "Mínima";
 Constant Headline   "^Un juego de ejemplo que usa PunyInform.^";
 
-! Uncomment ONE of the two following lines, to show either time or score/turns
-! Leaving both commented out makes the library bigger.
+! Descomenta UNA de las dos líneas siguientes, para mostrar el tiempo o la puntuación/turnos
+! Si no se comentan ambas, la biblioteca será más grande.
 !Constant STATUSLINE_TIME; Statusline time;
 Constant STATUSLINE_SCORE; Statusline score;
 
-! Comment out to keep track of score
-! The value is what will be shown as the score on statusline in z3
+! Comenta para llevar la cuenta de la puntuación
+! El valor es lo que se mostrará como la puntuación en la línea de estado en z3
 Constant NO_SCORE = 0;
 
-! Customize the statusline in z5+ (has no effect in z3)
+! Personalizar la línea de estado en z5+ (no tiene efecto en z3)
 !Constant OPTIONAL_SL_NO_SCORE;
 !Constant OPTIONAL_SL_NO_MOVES;
 
-! Uncomment to add optional features to PunyInform
+! Descomentar para añadir características opcionales a PunyInform
 !Constant DEBUG;
 !Constant CUSTOM_ABBREVIATIONS;
 !Constant CUSTOM_PLAYER_OBJECT = myPlayerObj;
@@ -49,7 +50,7 @@ Constant OPTIONAL_NO_DARKNESS;
 !Constant OPTIONAL_LIST_TOGETHER;
 !Constant OPTIONAL_PRINT_SCENERY_CONTENTS;
 !Constant OPTIONAL_SCORED;
-!Constant OPTIONAL_FULL_SCORE; ! Comment out NO_SCORE when uncommenting this
+!Constant OPTIONAL_FULL_SCORE; ! Comenta NO_SCORE cuando descomentes esto
 !Constant OPTIONAL_SIMPLE_DOORS;
 !Constant OPTIONAL_MANUAL_SCOPE;
 !Constant OPTIONAL_MANUAL_SCOPE_BOOST;
@@ -57,20 +58,20 @@ Constant OPTIONAL_NO_DARKNESS;
 !Constant OPTIONAL_ORDERED_TIMERS;
 !Constant OPTIONAL_PROVIDE_UNDO;
 !Constant OPTIONAL_REACTIVE_PARSE_NAME;
-!Constant RUNTIME_ERRORS = 0; ! 0, 1 or 2. 0 = smallest file, 2 = most info
+!Constant RUNTIME_ERRORS = 0; ! 0, 1 ó 2. 0 = archivo más pequeño, 2 = más información
 
-! Define any library constants you need here, like MAX_SCORE, AMUSING_PROVIDED,
+! Define aquí las constantes de biblioteca que necesites, como MAX_SCORE, AMUSING_PROVIDED,
 ! MAX_CARRIED, SACK_OBJECT,  etc.
 
 Constant INITIAL_LOCATION_VALUE = Libreria;
 
 Include "globals.h";
 
-! Define your attributes, common properties and global variables here, if any
+! Define aquí tus atributos, propiedades comunes y variables globales, si las hay
 
-! Define the entry point routines you need here, like Amusing, DarkToDark etc.
+! Define aquí las rutinas de punto de entrada que necesites, como Amusing, DarkToDark, etc.
 
-! Uncomment to add PunyInform extensions
+! Descomenta para añadir extensiones PunyInform
 !Include "ext_menu.h";
 !Include "ext_flags.h";
 !Include "ext_quote_box.h";
@@ -78,8 +79,8 @@ Include "globals.h";
 
 Include "puny.h";
 
-! Uncomment to add PunyInform extensions
-!Include "ext_talk_menu.h"; ! Note: Also include ext_flags.h to allow use of flags
+! Descomenta para añadir extensiones PunyInform
+!Include "ext_talk_menu.h"; ! Nota: Incluye también ext_flags.h para permitir el uso de flags
 !Include "ext_waittime.h";
 
 Object Libreria "La librería"

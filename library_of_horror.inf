@@ -4,28 +4,29 @@
 !% $ZCODE_LESS_DICT_DATA=1
 !% $MAX_ABBREVS=96
 !% $TRANSCRIPT_FORMAT=1
-!!% $ZCODE_MAX_INLINE_STRING=9999    ! Requires Inform 6.42
-!!% $OMIT_SYMBOL_TABLE=1             ! Requires Inform 6.42, and can not be used with DEBUG
+!!% $ZCODE_MAX_INLINE_STRING=9999    ! Requiere Inform 6.42
+!!% $OMIT_SYMBOL_TABLE=1             ! Requiere Inform 6.42, y no puede usarse con DEBUG
 
-! The very first lines of the main source code file for a game can
-! contain compiler options, like the lines above. -~S disables
-! strict error checking. This is otherwise used in z5 and z8 games by
-! default. While useful for debugging, it adds ~10 KB to the story file
-! size and it makes the game slower.
-! $OMIT_UNUSED_ROUTINES=1 makes the compiler remove all routines which
-! aren't used. This can save some space.
-! ZCODE_LESS_DICT_DATA=1 removes one empty data byte for each dictionary word
-! $MAX_ABBREVS=96 increases the maximum number of abreviations from 64 to 96,
-! by removing the option to use 32 dynamic strings
-! @ZCODE_MAX_INLINE_STRING=9999 makes the compiler place all strings used in
-! code inline with the code, rather than placing longer strings in the high
-! memory string area. This saves some bytes. 
+! Las primeras líneas del archivo de código fuente principal de un juego pueden
+! contener opciones de compilador, como las líneas anteriores.
+! -Cu permite que se usen caracteres acentuados.
+! -~S desactiva la comprobación estricta de errores. Esto se utiliza en los juegos z5 y z8
+! por defecto. Aunque es útil para la depuración, añade ~10 KB al tamaño del archivo de la
+! historia y hace que el juego sea más lento.
+! $OMIT_UNUSED_ROUTINES=1 hace que el compilador elimine todas las rutinas que
+! no se usan. Esto puede ahorrar algo de espacio.
+! $ZCODE_LESS_DICT_DATA=1 elimina un byte de datos vacío por cada palabra del diccionario
+! $MAX_ABBREVS=96 aumenta el número máximo de abreviaturas de 64 a 96, eliminando la opción
+! de usar 32 cadenas dinámicas.
+! @ZCODE_MAX_INLINE_STRING=9999 hace que el compilador coloque todas las cadenas usadas en
+! código en línea con el código, en lugar de colocar las cadenas más largas en el área de
+! cadenas de memoria alta. Esto ahorra algunos bytes. 
 
-! Unless compiling in DEBUG mode, one can also define $OMIT_SYMBOL_TABLE=1 to
-! tell the compiler not to include names of properties, attributes and more,
-! thus saving some space.
+! A menos que se compile en modo DEBUG, también se puede definir $OMIT_SYMBOL_TABLE=1 para
+! decirle al compilador que no incluya nombres de propiedades, atributos y demás,
+! ahorrando así algo de espacio.
 
-! Abbreviations created with ZAbbrevMaker 0.9 - https://github.com/heasm66/ZAbbrevMaker
+! Abbreviaciones creadas con ZAbbrevMaker 0.11 - https://github.com/heasm66/ZAbbrevMaker
 Constant CUSTOM_ABBREVIATIONS;
 Abbreviate ". La única salida es";          !     3x25, saved    42
 Abbreviate " nada inesperado.";             !     3x18, saved    30
@@ -124,14 +125,14 @@ Abbreviate "¿";                             !    13x 4, saved    20
 Abbreviate "ó";                             !    20x 4, saved    34
 Abbreviate "é";                             !    29x 4, saved    52
 
-! Library_of_horror.inf - a sample game which uses PunyInform
+! Library_of_horror.inf - un juego de ejemplo que usa PunyInform
 
 
 ! ====================================
-! Setup constants to customize PunyInform
+! Configurar constantes para personalizar PunyInform
 ! ====================================
 
-! Uncomment to add optional features to PunyInform
+! Descomentar para añadir características opcionales a PunyInform
 !Constant DEBUG;
 !Constant OPTIONAL_EXTENDED_METAVERBS;
 !Constant OPTIONAL_EXTENDED_VERBSET;
@@ -140,7 +141,7 @@ Constant OPTIONAL_FULL_SCORE;
 Constant OPTIONAL_MANUAL_SCOPE;
 Constant OPTIONAL_MANUAL_SCOPE_BOOST;
 Constant OPTIONAL_REACTIVE_PARSE_NAME;
-! 0 = Minimal error checking, 1 = Numeric error codes, 2: Error messages
+! 0 = Comprobación mínima de errores, 1 = Códigos de error numéricos, 2: Mensajes de error
 Constant RUNTIME_ERRORS = 0;
 
 Constant INITIAL_LOCATION_VALUE = GloomyStreet;
@@ -152,7 +153,7 @@ Constant Headline   "^Un juego de demostración de PunyInform, por Pablo Martín
 Release 10;
 Serial "231010";
 
-! Get your own unique IFID for your game at https://www.tads.org/ifidgen/ifidgen
+! Obtén tu propio IFID para tu juego en https://www.tads.org/ifidgen/ifidgen
 Array UUID_ARRAY string "UUID://24F3E924-37A0-4771-A9DF-376476D69ACE//"; #Ifdef UUID_ARRAY; #Endif;
 
 Constant MAX_SCORE = 100;
@@ -169,12 +170,12 @@ Constant MAX_SCOPE = 10;
 Constant MAX_TIMERS = 2;
 
 ! ====================================
-! Include globals.h
+! Incluye globals.h
 ! ====================================
 Include "globals.h";
 
 ! ====================================
-! Define library entry routines
+! Define las rutinas de entrada a la biblioteca
 ! ====================================
 [ PrintRank;
 	print ", otorgándote el rango de ";
@@ -204,8 +205,8 @@ Include "globals.h";
 ];
 
 #IfV3;
-! The dictionary only holds six characters in z3 games, so we need to
-! help print verbs longer than this.
+! El diccionario sólo admite seis caracteres en los juegos z3, por lo que necesitamos
+! para ayudar a imprimir verbos más largos.
 [PrintVerb p_verb;
 	switch(p_verb) {
 		'vendar': print "vendar los ojos"; rtrue;
@@ -215,7 +216,7 @@ Include "globals.h";
 #EndIf;
 
 ! ====================================
-! Setup flags
+! Configura banderas
 ! ====================================
 Constant FLAG_COUNT = 5;
 Constant F_TALKED_TO_MANAGER = 1;
@@ -226,17 +227,17 @@ Constant F_FRANK_HAS_SEEN_BOOK = 5;
 Include "ext_flags.h";
 
 ! ====================================
-! Setup cheap scenery
+! Configura cheap scenery
 ! ====================================
 [SceneryReply p_word1 p_word2 p_id_or_routine;
 	default:
-		p_word1 = p_word2 + p_id_or_routine; ! Avoid compiler warnings for unused vars
+		p_word1 = p_word2 + p_id_or_routine; ! Evita advertencias del compilador por variables no utilizadas
 		"Mejor déjalo estar y sigue con la tarea.";
 ];
 Include "ext_cheap_scenery.h";
 
 ! ====================================
-! Setup quote box
+! Configura quote box
 ! ====================================
 #Ifv3;
 Constant QUOTE_V3_SCREEN_WIDTH 40;
@@ -262,21 +263,21 @@ Array quote_darkchamber static --> 6 35
 
 
 ! ====================================
-! Include puny.h
+! Incluye puny.h
 ! ====================================
 Include "puny.h";
 
 ! ====================================
-! Classes, verbs etc for game
+! Clases, verbos etc para el juego
 ! ====================================
 
 ! -- testing scope grammar token
 ! See: https://www.inform-fiction.org/manual/html/s32.html
 
-! Burn is available in the extended verb set, but we'll define it here
-! instead of adding the weight of all those new verbs. Also, we want it
-! to work a little differently from the way it works in the library -
-! the player shouldn't have to carry the candles to burn the book.
+! Quemar está disponible en el conjunto de verbos ampliado, pero lo definiremos aquí
+! en lugar de añadir el peso de todos esos nuevos verbos. Además, queremos que
+! funcione de forma un poco diferente a como funciona en la biblioteca -
+! el jugador no debería tener que llevar las velas para quemar el libro.
 
 [ BurnSub;
 	"Eso parece peligroso e inútil.";
@@ -325,9 +326,9 @@ Extend 'hablar' first
 
 
 ! ====================================
-! The following code, heavily inspired by the cheap_scenery extension,
-! allows the player to ask questions like "WHAT IS A LIBRARY" without
-! using an object for each question.
+! El siguiente código, fuertemente inspirado en la extensión cheap_scenery,
+! permite al jugador hacer preguntas como "¿QUÉ ES UNA BIBLIOTECA?" sin
+! usar un objeto para cada pregunta.
 ! ====================================
 
 [ QueryTopic;
@@ -386,8 +387,8 @@ Class MultiTopic
 				}
 				_i = _i + 3;
 			}
-			! It would make sense to return 0 here, but property
-			! routines return 0 by default anyway.
+			! Tendría sentido devolver 0 aquí, pero las rutinas de la propiedad
+			! devuelven 0 por defecto de todos modos.
 		],
 		description [ _k;
 			_k = self.&topics-->(self.number + 2);
@@ -409,7 +410,7 @@ MultiTopic -> WhatIsTopic_1 "tema"
 			1 'encargado' "Los encargados de las bibliotecas supervisan las actividades y funciones diarias de una biblioteca.";
 
 ! ====================================
-! The rooms and game objects start here.
+! Las habitaciones y los objetos del juego empiezan aquí.
 ! ====================================
 
 Constant ArtNoveauDesc "Es un edificio precioso. Parece arquitectura Art Nouveau del siglo XIX.";
@@ -581,7 +582,7 @@ Object BottomOfStairs "Sótano, junto a escalera"
 		e_to Hallway,
 	has light;
 
-! Data that Frank needs to print where he came from.
+! Datos que Frank necesita para imprimir de dónde viene.
 #IfDef OPTIONAL_FULL_DIRECTIONS;
 Array opposite_directions static table "el sur" "el norte" "el oeste" "el este" "el sureste" "el suroeste" "el noroeste" "el noreste"
 	"abajo" "arriba" "el exterior" "el interior";
@@ -593,7 +594,7 @@ Object -> Frank "Frank el robot"
 	with
 		number 0,
 		name 'frank' 'el' 'robot',
-		when_off [; ! The first time the player spots Frank, he turns on automatically and his daemon is started.
+		when_off [; ! La primera vez que el jugador ve a Frank, se enciende automáticamente y se inicia su demonio.
 			give self on;
 			give self moved;
 			StartDaemon(self);
@@ -619,7 +620,7 @@ Object -> Frank "Frank el robot"
 					move Box to self;
 					scope_modified = true;
 					Achieved(TASK_BLOCK_ROBOT);
-					self.number = 3; ! Make the box stay in place this many moves minus one.
+					self.number = 3; ! Haz que la caja permanezca en su sitio estos movimientos menos uno.
 					"Aprovechas un momento en que Frank no mira en tu dirección
 						y colocas rápidamente la caja sobre él. El robot pierde la calma y empieza
 						a girar, mientras su voz suena apagada desde el interior. ~¡Señor, parece que
@@ -643,7 +644,7 @@ Object -> Frank "Frank el robot"
 				}
 		],
 		daemon [ _my_loc _i _dir_prop _dir_count;
-			! Frank may want to say something about the box
+			! Frank puede querer decir algo sobre la caja
 			if(FlagIsSet(F_FRANK_BLOCKED_BY_BOX)) {
 				if(Frank in location)
 					print "^Frank da vueltas como loco tratando de liberarse en vano.^";
@@ -662,11 +663,11 @@ Object -> Frank "Frank el robot"
 							al suelo, y a continuación algo que suena como una rápida ráfaga de fuego.";
 				}
 			}
-			! Frank wants to follow the player around, but can't go up/down/in/out
+			! Frank quiere seguir al jugador, pero no puede subir/bajar/entrar/salir
 			if(FlagIsClear(F_FRANK_BLOCKED_BY_BOX)) {
 				_my_loc = parent(self);
 				if(location ~= _my_loc){
-					_dir_count = DIRECTION_COUNT - 4; ! Skip the last 4 directions (u_to, d_to, in_to, out_to)
+					_dir_count = DIRECTION_COUNT - 4; ! Saltar las 4 últimas direcciones (u_to, d_to, in_to, out_to)
 					for(_i=1 : _i <= _dir_count : _i++) {
 						_dir_prop = direction_properties_array->_i;
 						if(_my_loc provides _dir_prop && _my_loc._dir_prop == location) {
@@ -917,11 +918,11 @@ Object Words "palabras"
 	has female pluralname;
 
 ! ====================================
-! Finally, the Initialise routine.
+! Por último, la rutina Initialise.
 ! ====================================
 
 [Initialise;
-	lookmode = 2; ! Verbose by default
+	lookmode = 2; ! Modo largo por defecto
 	"^^La búsqueda de empleo puede ser ardua para una persona joven como tú, sin experiencia ni contactos y
 		recién llegada a la ciudad. Por eso, cuando ayer tuviste el periódico en tus manos y leíste
 		el anuncio (~se necesita una persona joven e inexperta para ayudar en una biblioteca~) no lo dudaste ni un segundo.
