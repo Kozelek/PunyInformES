@@ -1,0 +1,4 @@
+Próxima publicación:
+
+=======
+1.0: primera versión pública de la librería punyInformES, traducción al español de punyInform (1 Julio 2025)
