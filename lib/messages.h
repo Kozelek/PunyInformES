@@ -894,17 +894,17 @@ Constant SKIP_MSG_EXAMINE_DARK;
 #Iftrue MSG_AUTO_TAKE < 1000;
 	MSG_AUTO_TAKE:
 	! p_arg_1 = the object the player automatically picks up
-	print "(tomando ", (the) p_arg_1, " primero)^";
+	"(tomando ", (the) p_arg_1, " primero)";
 #Endif;
 #Iftrue MSG_AUTO_DISROBE < 1000;
 	MSG_AUTO_DISROBE:
 	! p_arg_1 = the object the player automatically takes off.
-		print "(quitándote ", (the) p_arg_1, " primero)^";
+		"(quitándote ", (the) p_arg_1, " primero)";
 #Endif;
 #Iftrue MSG_AUTO_DISROBE_WORN < 1000;
 	MSG_AUTO_DISROBE_WORN:
 	! p_arg_1 = the object the player would need to take off.
-		print "Pero necesitarías quitarte ", (the) p_arg_1, " primero.^";
+		"Pero necesitarías quitarte ", (the) p_arg_1, " primero.";
 #Endif;
 #IfTrue MSG_PARSER_NOTHING_TO_VERB < 1000;
 	MSG_PARSER_NOTHING_TO_VERB:
@@ -922,7 +922,7 @@ Constant SKIP_MSG_EXAMINE_DARK;
 	MSG_PARSER_NOT_HOLDING, MSG_AUTO_TAKE_NOT_HELD, MSG_WAVE_NOTHOLDING:
 	! p_arg_1 = the object which the player must be holding to perform the
 	! action but isn't.
-		print_ret "Pero si no estás sujetando ", (the) p_arg_1, ".";
+		"Pero si no estás sujetando ", (the) p_arg_1, ".";
 #Endif;
 #IfTrue MSG_PARSER_PARTIAL_MATCH < 1000;
 	MSG_PARSER_PARTIAL_MATCH:
@@ -934,19 +934,19 @@ Constant SKIP_MSG_EXAMINE_DARK;
 #IfTrue MSG_PARSER_CANT_TALK < 1000;
 	MSG_PARSER_CANT_TALK:
 	! p_arg_1 = the object which can't be talked to.
-		print_ret "No puedes hablar con ", (the) p_arg_1, ".";
+		"No puedes hablar con ", (the) p_arg_1, ".";
 #EndIf;
 #IfTrue MSG_PARSER_NO_NEED_REFER_TO < 1000;
 	MSG_PARSER_NO_NEED_REFER_TO:
 		print "No necesitas referirte a ~";
 		_PrintUnknownWord();
-		print_ret "~ en este juego.";
+		"~ en este juego.";
 #EndIf;
 #IfTrue MSG_PARSER_DONT_UNDERSTAND_WORD < 1000;
 	MSG_PARSER_DONT_UNDERSTAND_WORD:
 			print "Perdón, no entiendo lo que ~";
 			_PrintUnknownWord();
-			print_ret "~ significa.";
+			"~ significa.";
 #EndIf;
 #IfTrue MSG_PARSER_BAD_PATTERN_PREFIX < 1000;
 	MSG_PARSER_BAD_PATTERN_PREFIX:
@@ -1163,10 +1163,12 @@ MSG_RUB_DEFAULT, MSG_SQUEEZE_DEFAULT:
 #IfTrue MSG_YES_OR_NO < 1000;
 	MSG_YES_OR_NO:
 		print "Por favor, contesta sí o no: ";
+		rtrue;
 #EndIf;
 #IfTrue MSG_RESTART_CONFIRM < 1000;
 	MSG_RESTART_CONFIRM:
 		print "¿Quieres reiniciar seguro? ";
+		rtrue;
 #Endif;
 
 #Ifndef NO_SCORE;
@@ -1189,7 +1191,7 @@ MSG_RUB_DEFAULT, MSG_SQUEEZE_DEFAULT:
 		}
 		print "do ", p_arg_2, " punto";
 		if(p_arg_2 > 1) print "s";
-		print ".]^";
+		".]";
 #Endif;
 #Endif;
 
