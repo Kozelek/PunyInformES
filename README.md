@@ -20,7 +20,7 @@ PunyInformES, por el momento es imprescindible dirigirse al repositorio de
 * Para programar con esta versión de PunyInformES, será necesario disponer de la
 versión v6.43 o posterior del compilador de Inform.
 
-* El parser intenta adivinar el imperativo automáticamente solo en la versión V5.
+* El parser intenta adivinar el infinitivo automáticamente solo en la versión V5.
 Para ello, elimina la última "r" de un verbo y comprueba si el imperativo resultante
 existe en el vocabulario. Esto solo servirá con verbos regulares, como "mira/mirar". 
 En V3, sin embargo, será necesario definir el infinitivo en todo caso. Si se
