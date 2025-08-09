@@ -17,14 +17,45 @@ PunyInformES, por el momento es imprescindible dirigirse al repositorio de
 
 ## Comentarios relativos a la traducción de PunyInformES:
 
-* A diferencia de Inform 6 o InformATE, el parser no intenta adivinar el imperativo
-automáticamente, ni existe una forma de definir imperativos irregulares. Esto es
-así para mantener la mayor compatibilidad posible entre la versión V5 y V3 de la
-Máquina Z. En la práctica, esto se traduce en la necesidad de introducir los
-infinitivos como palabras adicionales en el vocabulario (es necesario especificar
-tanto "lee" como "leer" si queremos que se puedan usar las dos formas verbales).
+* Para programar con esta versión de PunyInformES, será necesario disponer de la
+versión v6.43 o posterior del compilador de Inform.
 
-* Pese a lo anterior, hay dos instancias en las cuales el parser para V5 es ligera-
+* El parser intenta adivinar el imperativo automáticamente solo en la versión V5.
+Para ello, elimina la última "r" de un verbo y comprueba si el imperativo resultante
+existe en el vocabulario. Esto solo servirá con verbos regulares, como "mira/mirar". 
+En V3, sin embargo, será necesario definir el infinitivo en todo caso. Si se
+desea tener un código que funcione tanto para V3 como para V5 será necesario escribir
+algo como esto:
+
+```
+#ifV3;
+Verb 'mira' 'mirar'
+    *                                    		-> Look;
+#IfNot;
+Verb 'mira'
+    *                                    		-> Look;
+#EndIf;
+```
+
+* Hay que recordar que esto solo vale para infinitivos regulares. En el caso de
+"huele/oler" es necesario definir tanto el imperativo como el infinitivo. Asimismo,
+hay que recordar que en V3 el máximo tamaño de cada palabra de vocabulario son 6
+caracteres, y en V5 son 9. Si introducimos dos palabras que sean equivalentes para
+el diccionario, el compilador dará error. Ejemplo:
+
+```
+Verb 'examina' 'examinar'
+    *                                    		-> Examine;
+! Esto dará error en V3, porque tanto "examina" como "examinar" coinciden en sus
+! seis primeros caracteres.
+
+Verb 'balancearte' 'balancearse'
+    *                                    		-> Swing;
+! Esto dará error tanto en V3 como en V5, porque sus 9 primeros caracteres
+! coinciden en las dos palabras.
+```
+
+* Hay dos instancias en las cuales el parser para V5 es ligera-
 mente mejor que para V3 en español: En V5 puede comprender sufijos -lo, -le, -la,
 -los, -les, -las, -te (como en "examina la caja y abrela" o en "examinate") pero no
 es así en V3. Y en V3 hay caracteres que no es posible introducir en las órdenes

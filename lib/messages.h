@@ -249,7 +249,6 @@ Default MSG_LOCK_KEY_DOESNT_FIT 74;
 Default MSG_LOCK_DEFAULT 75;
 Default MSG_DISROBE_NOT_WEARING 76;
 Default MSG_DISROBE_DEFAULT 77;
-Default MSG_REMOVE_CLOSED 78;
 Default MSG_REMOVE_NOT_HERE 79;
 Default MSG_SEARCH_IN_IT_ISARE 80;
 Default MSG_SEARCH_ON_IT_ISARE 81;
@@ -533,9 +532,7 @@ Constant SKIP_MSG_ASKFOR_DEFAULT;
 #Iffalse MSG_INSERT_NOT_OPEN < 1000;
 #Iffalse MSG_GO_DOOR_CLOSED < 1000;
 #Iffalse MSG_EMPTY_IS_CLOSED < 1000;
-#Iffalse MSG_REMOVE_CLOSED < 1000;
 Constant SKIP_MSG_ENTER_NOT_OPEN;
-#Endif;
 #Endif;
 #Endif;
 #Endif;
@@ -827,13 +824,13 @@ Constant SKIP_MSG_EXAMINE_DARK;
 #Endif;
 #Ifndef SKIP_MSG_ENTER_NOT_OPEN;
 	MSG_ENTER_NOT_OPEN, MSG_EXIT_NOT_OPEN, MSG_INSERT_NOT_OPEN,
-	MSG_GO_DOOR_CLOSED, MSG_EMPTY_IS_CLOSED, MSG_REMOVE_CLOSED:
+	MSG_GO_DOOR_CLOSED, MSG_EMPTY_IS_CLOSED:
 	! p_arg_1 = the object which is closed, thus blocking the player's action.
-		"No puedes, dado que ", (the) p_arg_1, " ", (isorare) p_arg_1, " cerrad", (_o) p_arg_1, ".";
+		"No puedes, dado que ", (ObjIs) p_arg_1, " cerrad", (_o) p_arg_1, ".";
 #Endif;
 #Ifndef SKIP_MSG_GIVE_PLAYER;
 	MSG_GIVE_PLAYER, MSG_TAKE_ALREADY_HAVE:
-		"Ya tienes ", (ItorThem) noun, ".";
+		"Ya ", (_lo) noun, " tienes.";
 #Endif;
 #Ifndef SKIP_MSG_SAVE_FAILED;
 	MSG_SAVE_FAILED, MSG_RESTORE_FAILED, MSG_RESTART_FAILED:
@@ -1024,7 +1021,7 @@ Constant SKIP_MSG_EXAMINE_DARK;
 #EndIf;
 #IfTrue MSG_SEARCH_CANT_SEE_CLOSED < 1000;
 	MSG_SEARCH_CANT_SEE_CLOSED:
-		"No puedes ver el interior, puesto que ", (the) noun, " ", (IsorAre) noun, " cerrad", (_o) noun, ".";
+		"No puedes ver el interior, puesto que ", (ObjIs) noun, " cerrad", (_o) noun, ".";
 #EndIf;
 #IfTrue MSG_EXAMINE_ONOFF < 1000;
 	MSG_EXAMINE_ONOFF:
@@ -1249,6 +1246,10 @@ default:
 
 [ CObjIs p_obj;
 	print (The) p_obj, " ", (isorare) p_obj;
+];
+
+[ ObjIs p_obj;
+	print (the) p_obj, " ", (isorare) p_obj;
 ];
 
 [ IsorAre p_obj;

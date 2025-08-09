@@ -1,4 +1,48 @@
 Próxima publicación:
 
 =======
+2.0: Nuevas características y actualización a PunyInform v6.0 (9 Agosto 2025)
+
+- Solo para v5, para detectar automáticamente infinitivos regulares, comprueba si un verbo terminado en "r" no es comprendido, elimina la "r" y vuelve a intentar.
+
+Cambios heredados de PunyInform v6.0: correcciones de bugs y nuevas características (8 Agosto 2025):
+- Nueva función: OzmooColoursAvailable(), devuelve verdadero si los ocho colores adicionales de Ozmoo están disponibles.
+- Se han añadido constantes para los ocho colores adicionales compatibles con Ozmoo: CLR_OZMOO_ORANGE, CLR_OZMOO_BROWN, CLR_OZMOO_LIGHT_RED, CLR_OZMOO_DARK_GREY, CLR_OZMOO_MEDIUM_GREY, CLR_OZMOO_LIGHT_GREEN, CLR_OZMOO_LIGHT_BLUE, CLR_OZMOO_LIGHT_GREY. 
+- Se ha añadido un clr_talk_menu global a ext_talk_menu.inf, para que el programador del juego pueda establecer el color del menú.
+- Se han actualizado howto/colours.inf y howto/talk_menu.inf.
+- Los mensajes MSG_SHOW_DEFAULT, MSG_GIVE_DEFAULT (por ejemplo, "John no parece interesado.") se han adaptado a los actores que tienen pluralname.
+- Los mensajes MSG_ASKFOR_DEFAULT, MSG_ASKTO_DEFAULT, MSG_ORDERS_WONT (por ejemplo, "John tiene cosas mejores que hacer.") se han adaptado a los actores que tienen pluralname.
+- Los mensajes MSG_LOCK_KEY_DOESNT_FIT, MSG_UNLOCK_KEY_DOESNT_FIT (por ejemplo, "La llave plateada no parece encajar en la cerradura.") se han adaptado para gestionar llaves con pluralname. 
+- El mensaje MSG_REMOVE_NOT_HERE (por ejemplo, "Pero el tenedor ya no está ahí.") se ha adaptado para manejar objetos con pluralname. 
+- El verbo de depuración GOTO ahora solo tendrá en cuenta los objetos de destino que parezcan ser habitaciones, es decir, que no tengan atributos o propiedades que no sean significativos para las habitaciones.
+- El verbo de depuración GOTO ahora aceptará un carácter "*" al final como comodín, por ejemplo, "GOTO HALL*" se puede utilizar para ir a la primera habitación que comience por "HALL".
+- Corregido: El objeto de "cheap scenery" no tenía el atributo reactivo en juegos con OPTIONAL_MANUAL_REACTIVE, lo que hacía que no se reiniciaran itobj y themobj cuando el jugador cambiaba de habitación.
+- Nueva regla de impresión: ObjIs, imprime, por ejemplo, "la pelota está" o "los barriles están".
+- Se ha corregido la línea de estado demasiado larga cuando el ancho de la pantalla era superior a 55 y se definía OPTIONAL_SL_NO_MOVES (problema n.º 144).
+- Se ha cambiado RemoveSub, de modo que "sácame de [obj]" se transforma en <<Exit [obj]>>
+- Nueva función: la rutina short_name de un objeto puede decidir cómo imprimir el nombre en función de si la impresión del nombre se realiza en el contexto de una regla de impresión (The). La rutina short_name lo hace comprobando si caps_mode == true.
+- El objeto jugador predeterminado ahora se imprime como "You" cuando se imprime con una regla de impresión (The). (Problemas n.º 139 y n.º 145).
+- Corregido: Si invocas una acción en Inicializar y compilas con el modo Estricto, obtendrás un mensaje de error de programación, ya que real_location no estaba establecido y BeforeRoutines() y AfterRoutines() intentarían acceder a las propiedades de este objeto. Ahora estas rutinas se omitirán si real_location no está establecido.
+- Corregido: Si dentro de un contenedor cerrado, sin inside_description, nos faltaba una nueva línea antes de enumerar el contenido. (Problema n.º 150).
+- Se ha cambiado para que MSG_LOOK_BEFORE_ROOMNAME (que normalmente no imprime nada, y se suele utilizar para imprimir una nueva línea para los autores que lo desean) solo se imprima en dos casos: (A) cuando el jugador escribe algo que se traduce en una acción ##Look, y (B) cuando el jugador se mueve utilizando la acción ##Go. A partir de ahora, las llamadas a <Look> en el código no provocan que se imprima este mensaje.
+- Se ha cambiado _UpdateDarkness para que se imprima una nueva línea antes de llamar a <Look>, cuando se enciende una lámpara. (Incidencia n.º 148)
+- Al enumerar objetos con PrintContents, se amplía la regla de no mostrar un contenedor/soporte en el que se encuentra el jugador, para no mostrar un contenedor/soporte que contenga indirectamente al jugador.
+- Se ha eliminado la bandera global newline_flag y se ha acortado, simplificado y acelerado la rutina Look.
+- Se ha cambiado la forma en que talk_menu detecta si se utiliza con PunyInform o con la biblioteca estándar, ya que la forma antigua fallaba si también se utilizaban extensiones de banderas.
+- Se ha añadido código a howto/colours.inf y howto/talk_menu-inf para evitar un error en algunos intérpretes, en el que el color de fondo predeterminado no se restaura al reiniciar.
+- Corregido: si el jugador pide vaciar el SACK_OBJECT y el jugador está al máximo de su capacidad, se coloca un objeto en el objeto saco y posteriormente se elimina junto con todo lo demás. (Problema n.º 146)
+- Se han movido las matrices _InsertMessages y _PutOnMessages a la memoria estática para reducir la memoria dinámica.
+- Se ha acortado el código para imprimir el banner.
+- Se ha modificado para que las acciones Empty/EmptyT no interrumpan el procesamiento si no se puede eliminar un objeto del contenedor de origen o no se puede colocar en el destino.
+- Microoptimización para aumentar la velocidad en MoveFloatingObjects para z5.
+- Se ha cambiado para utilizar la versión 3 de Grammar, una forma más compacta de almacenar la gramática (requiere Inform v6.43). (Incidencia n.º 132)
+- PunyInform ahora gestiona la configuración de la metaetiqueta en acciones individuales (requiere Inform v6.43). (Incidencia n.º 133)
+- Se ha corregido el uso incorrecto de @get_char en ext_talk_menu y ext_quote_box, que provocaba que fallaran en el intérprete Apple II v5 de Infocom. (Incidencia n.º 152)
+- Se ha optimizado _ParseAndPerformAction, colocando multiple_objects-->0 en una variable local.
+- Se ha eliminado el mensaje MSG_REMOVE_CLOSED y el código en RemoveSub que lo llamaba, ya que la comprobación era superflua. (Incidencia n.º 147)
+- Se ha añadido una nueva función opcional OPTIONAL_GUESS_KEY que, si se define OPTIONAL_GUESS_MISSING_NOUN, permite al analizador seleccionar automáticamente la llave correcta para una cerradura. (Incidencia n.º 149)
+- Se ha actualizado la Guía del autor del juego, corrigiendo algunos consejos que habían quedado obsoletos y añadiendo más consejos sobre cómo optimizar el tamaño.
+- Se ha corregido un error en cheap_scenery: si el objeto de escenario barato era abordado por una acción sin haber sido previamente emparejado con ninguna palabra (algo que normalmente no debería ocurrir, pero hay formas de que suceda), la rutina anterior solía bloquearse. (Incidencia n.º 153)
+
+=======
 1.0: primera versión pública de la librería punyInformES, traducción al español de punyInform (1 Julio 2025)

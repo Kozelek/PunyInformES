@@ -19,7 +19,7 @@ Include "globals.h";
 
 Include "puny.h";
 
-Verb 'arranca' 'arrancar'
+Verb 'arranca'
 	* noun -> SwitchOn;
 
 Object Calle "Calle"

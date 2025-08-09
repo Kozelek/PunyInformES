@@ -283,9 +283,15 @@ Include "puny.h";
 	"Eso parece peligroso e inútil.";
 ];
 
+#IfV3;
 Verb 'quema' 'quemar'
 	* noun					-> Burn
 	* noun 'con' noun		-> Burn;
+#IfNot;
+Verb 'quema'
+	* noun					-> Burn
+	* noun 'con' noun		-> Burn;
+#EndIf;
 
 Extend 'enciende' first
 	* noun					-> Burn
@@ -320,10 +326,11 @@ Extend 'poner' first
 Extend 'habla' first
 	* 'a'/'con' creature -> TalkTo
 	* creature -> TalkTo;
+#IfV3;
 Extend 'hablar' first
 	* 'a'/'con' creature -> TalkTo
 	* creature -> TalkTo;
-
+#EndIf;
 
 ! ====================================
 ! El siguiente código, fuertemente inspirado en la extensión cheap_scenery,

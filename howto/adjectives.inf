@@ -98,7 +98,7 @@ Object -> Cinta "cinta"
 		description "Dark Side of the Moon, por Pink Floyd.",
 	has female;
 
-Verb 'reproduce' 'reproducir'
+Verb 'reproduce'
 	* held 'en' noun -> Play;
 
 [PlaySub;

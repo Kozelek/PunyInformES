@@ -79,7 +79,28 @@ Constant TM_MSG_PAGE_OPTION "[N] Más opciones";
 ];
 
 #Ifndef USEINFORM;
+
+#Ifv5;
+Replace RestartSub;
+#Endif;
+
 Include "puny.h";
+
+#Ifv5;
+! Asegúrate de regresar a los colores por defecto, como arreglo
+! de un bug de algunos intérpretes, donde el color de fondo no
+! vuelve automáticamente a sus colores por defecto al reiniciar.
+[ RestartSub;
+	PrintMsg(MSG_RESTART_CONFIRM);
+	if(YesOrNo()) {
+		@set_colour CLR_DEFAULT CLR_DEFAULT;
+		ClearScreen(WIN_ALL);
+		@restart;
+		return MSG_RESTART_FAILED;
+	}
+];
+#Endif;
+
 #Endif;
 
 Include "ext_talk_menu.h"; ! Requiere ext_flags.h *SI* se establecen banderas
@@ -203,7 +224,34 @@ Object -> Josh "Josh"
 		talk_array array_charla_josh,
 	has proper animate;
 
+#Ifv5;
+[Initialise ozmoo_colours;
+#IfNot;
 [Initialise;
+#Endif;
+#Ifdef PUNYINFORM_MAJOR_VERSION;
+#Ifv5;
+	if(OzmooColoursAvailable())
+		ozmoo_colours = true;
+	if(HDR_TERPFLAGS->0 & 1) {
+		print "^^¿Quieres color? ";
+		if(YesOrNo()) {
+			clr_on = true;
+			clr_bg = CLR_BLACK;
+			if(ozmoo_colours) {
+				clr_fg = CLR_OZMOO_MEDIUM_GREY;
+				clr_talk_menu = CLR_WHITE; ! Escogemos uno de los 8 colores extra en Ozmoo
+			} else {
+				clr_fg = CLR_WHITE;
+				clr_talk_menu = CLR_YELLOW;
+			}
+			clr_fgstatus = CLR_BLUE;
+		}
+		ClearScreen(WIN_ALL);
+	}
+#Endif;
+#Endif;
+
 #Ifdef light;
 	give player light;
 #Endif;

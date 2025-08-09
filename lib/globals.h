@@ -2,13 +2,13 @@
 !
 System_file;
 
-Constant PUNYINFORM_MAJOR_VERSION = 1;
+Constant PUNYINFORM_MAJOR_VERSION = 2;
 Constant PUNYINFORM_MINOR_VERSION = 0;
 Constant PUNYINFORM_PATCH_VERSION = 0; ! Usually 0 (if zero, it is not printed in banner)
 ! Constant PUNYINFORM_VERSION_SUFFIX = "dev"; ! Comment out if none
 
-#Ifndef VN_1636;
-Message fatalerror "*** La librería PunyInformES necesita Inform v6.36 o posterior ***";
+#Ifndef VN_1643;
+Message fatalerror "*** La librería PunyInformES necesita Inform v6.43 o posterior ***";
 #Endif; ! VN_
 
 #IfV5;
@@ -49,7 +49,7 @@ Message fatalerror "No puedes definir STATUSLINE_TIME y STATUSLINE_SCORE a la ve
 #EndIf;
 #EndIf;
 
-Constant Grammar__Version = 2;
+Constant Grammar__Version = 3;
 Constant INDIV_PROP_START 64;
 Constant NULL         = $ffff;
 
@@ -497,7 +497,6 @@ Global himobj = 0;       ! The object which is currently "him"
 Global herobj = 0;       ! The object which is currently "her"
 Global themobj = 0;       ! The object which is currently "them"
 Global top_object;
-Global newline_flag;     ! Used by Look
 Global also_flag;        ! Used by Look
 Global inventory_style = 1;
 Global inventory_stage;
@@ -506,6 +505,7 @@ Global receive_action;
 Global run_after_routines_msg;
 Global run_after_routines_arg_1;
 Global no_implicit_actions;         ! Don't implicitly do things.
+Global caps_mode;
 #Ifdef OPTIONAL_MANUAL_SCOPE_BOOST;
 Global react_before_in_scope;
 Global react_after_in_scope;
@@ -543,6 +543,15 @@ Constant CLR_BLUE            = 6;
 Constant CLR_MAGENTA         = 7;
 Constant CLR_CYAN            = 8;
 Constant CLR_WHITE           = 9;
+
+Constant CLR_OZMOO_ORANGE      = 16;
+Constant CLR_OZMOO_BROWN       = 17;
+Constant CLR_OZMOO_LIGHT_RED   = 18;
+Constant CLR_OZMOO_DARK_GREY   = 19;
+Constant CLR_OZMOO_MEDIUM_GREY = 20;
+Constant CLR_OZMOO_LIGHT_GREEN = 21;
+Constant CLR_OZMOO_LIGHT_BLUE  = 22;
+Constant CLR_OZMOO_LIGHT_GREY  = 23;
 
 #IfV5;
 Constant WIN_ALL     0;
@@ -618,7 +627,13 @@ Array parse->(2 + 4 * (MAX_INPUT_WORDS + 1)); ! + 1 to make room for an extra wo
 ! extra arrays to be able to ask for additional info (do you mean X or Y?)
 Array buffer2->(MAX_INPUT_CHARS + 3);
 Array parse2->(2 + 4 * (MAX_INPUT_WORDS + 1));
-Array parse3->(2 + 4 * (MAX_INPUT_WORDS + 1));
+Array parse3->(2 + 4 * (MAX_INPUT_WORDS + 1)); ! Must be placed directly after parse2 (used together for empty_arr below)
+
+#Iftrue 4*MAX_INPUT_WORDS >= MAX_SCOPE;
+Constant empty_arr = parse2;
+#Ifnot;
+Array empty_arr --> MAX_SCOPE;
+#Endif;
 
 Constant RTE_MINIMUM = 0;
 Constant RTE_NORMAL  = 1;

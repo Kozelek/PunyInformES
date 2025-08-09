@@ -8,7 +8,8 @@ Verb 'responde' 'di' 'dile' 'decir'
     * 'a//' creature topic              		-> Answer reverse ! infsp fix , delete 'reverse'
     * topic 'a//' creature        				-> Answer ;
 
-Verb 'pregunta' 'interroga' 'preguntar' 'interrogar'
+
+Verb 'pregunta' 'interroga'
     * creature 'sobre'/'por' topic      		-> Ask
     * 'a//' creature 'sobre'/'por' topic 		-> Ask
     * 'sobre'/'por' topic 'a//' creature 		-> Ask reverse
@@ -18,18 +19,34 @@ Verb 'pide' 'pidele' 'pedir'
     * 'a//' creature noun        				-> AskFor
     * noun 'a//' creature        				-> AskFor reverse;
 
-Verb 'rompe' 'aplasta' 'golpea' 'romper' 'aplastar' 'golpear'
-    'destruye' 'patea' 'pisotea' 'destruir' 'patear' 'pisotear'
+#ifV3;
+Verb 'rompe' 'aplasta' 'golpea' 'romper'
+    'destruye' 'patea' 'pisotea' 'patear'
 	'ataca' 'mata' 'asesina' 'tortura' 'noquea'
-	'atacar' 'matar' 'asesinar' 'torturar' 'noquear'
+	'atacar' 'matar'
 	* noun                                      -> Attack
     * 'a//' noun                    			-> Attack
 	* noun 'con' held                          	-> Attack;
+#Ifnot;
+Verb 'rompe' 'aplasta' 'golpea'
+    'destruye' 'patea' 'pisotea' 'destruir'
+	'ataca' 'mata' 'asesina' 'tortura' 'noquea'
+	* noun                                      -> Attack
+    * 'a//' noun                    			-> Attack
+	* noun 'con' held                          	-> Attack;
+#Endif;
 
-Verb 'escala' 'trepa' 'escalar' 'trepar'
+#ifV3;
+Verb 'escala' 'trepa' 'trepar'
     * 'a//' noun            					-> Climb
     * noun                                		-> Climb
     * 'por' noun                          		-> Climb;
+#Ifnot;
+Verb 'escala' 'trepa'
+    * 'a//' noun            					-> Climb
+    * noun                                		-> Climb
+    * 'por' noun                          		-> Climb;
+#Endif;
 Verb 'sube' 'subir' 'subete' 'subirse' 'subirte'
 	*											-> GoUp
     * noun                              		-> Climb
@@ -40,19 +57,39 @@ Verb 'cierra' 'cerrar' 'cubre' 'cubrir'
     * noun 'con' 'pestillo'        				-> Lock
     * noun 'con' held                    		-> Lock;
 
+#ifV3;
 Verb 'corta' 'rasga' 'cortar' 'rasgar'
     * noun                               		-> Cut
     * noun 'con' held                    		-> Attack;
+#Ifnot;
+Verb 'corta' 'rasga'
+    * noun                               		-> Cut
+    * noun 'con' held                    		-> Attack;
+#Endif;
 
-Verb 'cava' 'excava' 'cavar' 'excavar'
+#ifV3;
+Verb 'cava' 'excava' 'cavar'
     * 'en' noun                					-> Dig
     * noun                              		-> Dig
     * noun 'con' held                   		-> Dig
     * 'en' noun 'con' held              		-> Dig;
+#Ifnot;
+Verb 'cava' 'excava'
+    * 'en' noun                					-> Dig
+    * noun                              		-> Dig
+    * noun 'con' held                   		-> Dig
+    * 'en' noun 'con' held              		-> Dig;
+#Endif;
 
+#ifV3;
 Verb 'bebe' 'beber'
     * noun                               		-> Drink;
+#Ifnot;
+Verb 'bebe'
+    * noun                               		-> Drink;
+#Endif;
 
+#ifV3;
 Verb 'deja' 'suelta' 'dejar' 'soltar'
     * multiheld                          		-> Drop
     * 'a//' noun            					-> Drop
@@ -60,7 +97,17 @@ Verb 'deja' 'suelta' 'dejar' 'soltar'
     * multiexcept 'dentro' 'de' noun     		-> Insert
     * multiexcept 'sobre' noun           		-> PutOn
     * multiexcept 'encima' 'de' noun     		-> PutOn;
+#Ifnot;
+Verb 'deja' 'suelta' 'soltar'
+    * multiheld                          		-> Drop
+    * 'a//' noun            					-> Drop
+    * multiexcept 'en' noun         			-> Insert
+    * multiexcept 'dentro' 'de' noun     		-> Insert
+    * multiexcept 'sobre' noun           		-> PutOn
+    * multiexcept 'encima' 'de' noun     		-> PutOn;
+#Endif;
 
+#ifV3;
 Verb 'tira' 'tirar'
     * 'de' noun                          		-> Pull
     * multiheld                          		-> Drop
@@ -72,57 +119,117 @@ Verb 'tira' 'tirar'
     * held 'a//' noun                      		-> ThrowAt
     * held 'por' noun                    		-> Insert
     * held 'contra' noun                 		-> ThrowAt;
+#Ifnot;
+Verb 'tira'
+    * 'de' noun                          		-> Pull
+    * multiheld                          		-> Drop
+    * multiexcept 'en' container         		-> Insert
+    * multiexcept 'en' noun         			-> PutOn
+    * multiexcept 'dentro' 'de' noun     		-> Insert
+    * multiexcept 'sobre' noun           		-> PutOn
+    * multiexcept 'encima' 'de' noun     		-> PutOn
+    * held 'a//' noun                      		-> ThrowAt
+    * held 'por' noun                    		-> Insert
+    * held 'contra' noun                 		-> ThrowAt;
+#Endif;
 
+#ifV3;
 Verb 'come' 'comete' 'comerse' 'comerte' 'comer'
     * held                -> Eat;
+#Ifnot;
+Verb 'come' 'comete' 'comerse' 'comerte'
+    * held                -> Eat;
+#Endif;
 
 #IfDef OPTIONAL_EXTENDED_VERBSET;
+#ifV3;
 Verb 'entra' 'cruza' 'entrar' 'cruzar'
 	*                                   -> GoIn
 	* noun                              -> Enter;
-#IfNot;
-Verb 'entra' 'cruza' 'entrar' 'cruzar'
+#Ifnot;
+Verb 'entra' 'cruza'
+	*                                   -> GoIn
 	* noun                              -> Enter;
 #Endif;
+#Ifnot;
+#ifV3;
+Verb 'entra' 'cruza' 'entrar' 'cruzar'
+	* noun                              -> Enter;
+#Ifnot;
+Verb 'entra' 'cruza'
+	* noun                              -> Enter;
+#Endif;
+#Endif;
 
-Verb 'examina' 'examinar' 'x//'
+Verb 'examina' 'x//' 'ex'
 	* noun -> Examine;
 
+#ifV3;
+Verb 'sal' 'fuera' 'afuera' 'salte' 'bajate' 'levantate' 'bajarse'
+    'salirse' 'bajarte' 'salirte' 'salir'
+    *                                   -> Exit
+    * 'de' noun                         -> GetOff
+    * 'fuera'                           -> Exit
+    * 'afuera'                          -> Exit;
+#Ifnot;
 Verb 'sal' 'fuera' 'afuera' 'salte' 'bajate' 'levantate' 'bajarse'
     'levantarse' 'salirse' 'bajarte' 'levantarte' 'salirte' 'salir'
     *                                   -> Exit
     * 'de' noun                         -> GetOff
     * 'fuera'                           -> Exit
     * 'afuera'                          -> Exit;
+#Endif;
 
+#ifV3;
 Verb 'baja' 'bajar'
     *                                   -> GoDown
     * 'de' noun                         -> GetOff;
+#Ifnot;
+Verb 'baja'
+    *                                   -> GoDown
+    * 'de' noun                         -> GetOff;
+#Endif;
 
-Verb 'llena' 'rellena' 'llenar' 'rellenar'
+#ifV3;
+Verb 'llena' 'rellena' 'llenar'
     * noun                           	-> Fill;
+#Ifnot;
+Verb 'llena' 'rellena'
+    * noun                           	-> Fill;
+#Endif;
 
-Verb 'coge' 'toma' 'recoge' 'coger' 'tomar' 'recoger'
+#ifV3;
+Verb 'coge' 'toma' 'recoge' 'coger' 'tomar'
   * multi                             	-> Take
   * 'a//' creature                    	-> Take
   * multiinside 'de' noun             	-> Remove;
+#Ifnot;
+Verb 'coge' 'toma' 'recoge'
+  * multi                             	-> Take
+  * 'a//' creature                    	-> Take
+  * multiinside 'de' noun             	-> Remove;
+#Endif;
 
-Verb 'give' 'feed' 'offer' 'pay'
-	* held 'to' creature                -> Give
-	* creature held                     -> Give reverse
-	* 'over' held 'to' creature         -> Give;
-Verb 'da' 'dar' 'dale' 'ofrece' 'ofrecer'
+#ifV3;
+Verb 'da' 'dar' 'dale' 'ofrece'
     * held 'a//' creature        		-> Give
     * 'a//' creature held        		-> Give reverse
     * creature held            			-> Give reverse;
+#Ifnot;
+Verb 'da' 'dale' 'ofrece'
+    * held 'a//' creature        		-> Give
+    * 'a//' creature held        		-> Give reverse
+    * creature held            			-> Give reverse;
+#Endif;
 
 [ ADirection;
 	if (noun == Directions) rtrue;
 	rfalse;
 ];
 
-Verb 'anda' 'camina' 'corre' 'ir' 've' 'vete' 'vuelve'
-	'andar' 'caminar' 'correr'
+#ifV3;
+Verb 'anda' 'camina' 'corre' 'ir' 've' 'vete'
+	'andar' 'correr'
     *                                   -> Go
     * noun=ADirection                   -> Go
     * 'a//' noun=ADirection           	-> Go
@@ -131,8 +238,20 @@ Verb 'anda' 'camina' 'corre' 'ir' 've' 'vete' 'vuelve'
     * 'a//' noun                        -> Enter
     * 'hacia' noun                      -> Enter
     * 'por' noun                        -> Enter;
+#Ifnot;
+Verb 'anda' 'camina' 'corre' 'ir' 've' 'vete'
+    *                                   -> Go
+    * noun=ADirection                   -> Go
+    * 'a//' noun=ADirection           	-> Go
+    * 'hacia' noun=ADirection           -> Go
+    * noun                              -> Enter
+    * 'a//' noun                        -> Enter
+    * 'hacia' noun                      -> Enter
+    * 'por' noun                        -> Enter;
+#Endif;
 #IfDef OPTIONAL_EXTENDED_VERBSET;
-Verb 'pon' 'mete' 'echa' 'inserta' 'coloca' 'poner' 'meter' 'echar' 'insertar' 'colocar'
+#ifV3;
+Verb 'pon' 'mete' 'echa' 'inserta' 'coloca' 'poner' 'meter' 'echar'
   * multiexcept 'en' container                              	-> Insert
   * multiexcept 'en' noun                                    	-> PutOn
   * multiexcept 'dentro' 'de' noun                           	-> Insert
@@ -149,7 +268,26 @@ Verb 'pon' 'mete' 'echa' 'inserta' 'coloca' 'poner' 'meter' 'echar' 'insertar' '
   * 'cerrojo'/'pestillo'/'cierre' 'a//' noun 'con' held      	-> Lock
   * 'el' 'cerrojo'/'pestillo'/'cierre' 'a//' noun 'con' held 	-> Lock;
 #Ifnot;
-Verb 'pon' 'mete' 'echa' 'inserta' 'coloca' 'poner' 'meter' 'echar' 'insertar' 'colocar'
+Verb 'pon' 'mete' 'echa' 'inserta' 'coloca' 'poner'
+  * multiexcept 'en' container                              	-> Insert
+  * multiexcept 'en' noun                                    	-> PutOn
+  * multiexcept 'dentro' 'de' noun                           	-> Insert
+  * multiexcept 'sobre' noun                                 	-> PutOn
+  * noun 'a//' topic                                         	-> SetTo
+  * 'a//' creature 'en' container                           	-> Insert
+  * 'a//' creature 'en' noun                                 	-> PutOn
+  * 'a//' creature 'dentro' 'de' noun                        	-> Insert
+  * 'a//' creature 'sobre' noun                              	-> PutOn
+  * multiexcept 'encima' 'de' noun                           	-> PutOn
+  * 'a//' creature 'encima' 'de' noun                        	-> PutOn
+  * 'cerrojo'/'pestillo'/'cierre' 'a//' noun                 	-> Lock
+  * 'el' 'cerrojo'/'pestillo'/'cierre' 'a//' noun            	-> Lock
+  * 'cerrojo'/'pestillo'/'cierre' 'a//' noun 'con' held      	-> Lock
+  * 'el' 'cerrojo'/'pestillo'/'cierre' 'a//' noun 'con' held 	-> Lock;
+#Endif;
+#Ifnot;
+#ifV3;
+Verb 'pon' 'mete' 'echa' 'inserta' 'coloca' 'poner' 'meter' 'echar'
   * multiexcept 'en' container                              	-> Insert
   * multiexcept 'en' noun                                    	-> PutOn
   * multiexcept 'dentro' 'de' noun                           	-> Insert
@@ -164,6 +302,23 @@ Verb 'pon' 'mete' 'echa' 'inserta' 'coloca' 'poner' 'meter' 'echar' 'insertar' '
   * 'el' 'cerrojo'/'pestillo'/'cierre' 'a//' noun            	-> Lock
   * 'cerrojo'/'pestillo'/'cierre' 'a//' noun 'con' held      	-> Lock
   * 'el' 'cerrojo'/'pestillo'/'cierre' 'a//' noun 'con' held 	-> Lock;
+#Ifnot;
+Verb 'pon' 'mete' 'echa' 'inserta' 'coloca' 'poner'
+  * multiexcept 'en' container                              	-> Insert
+  * multiexcept 'en' noun                                    	-> PutOn
+  * multiexcept 'dentro' 'de' noun                           	-> Insert
+  * multiexcept 'sobre' noun                					-> PutOn
+  * 'a//' creature 'en' container                           	-> Insert
+  * 'a//' creature 'en' noun                                 	-> PutOn
+  * 'a//' creature 'dentro' 'de' noun                        	-> Insert
+  * 'a//' creature 'sobre' noun                              	-> PutOn
+  * multiexcept 'encima' 'de' noun                           	-> PutOn
+  * 'a//' creature 'encima' 'de' noun                        	-> PutOn
+  * 'cerrojo'/'pestillo'/'cierre' 'a//' noun                 	-> Lock
+  * 'el' 'cerrojo'/'pestillo'/'cierre' 'a//' noun            	-> Lock
+  * 'cerrojo'/'pestillo'/'cierre' 'a//' noun 'con' held      	-> Lock
+  * 'el' 'cerrojo'/'pestillo'/'cierre' 'a//' noun 'con' held 	-> Lock;
+#Endif;
 #EndIf;
 
 #Ifdef OPTIONAL_FLEXIBLE_INVENTORY;
@@ -175,19 +330,29 @@ Verb 'inventario' 'i//'
 	* 											-> Inv;
 #Endif;
 
+#ifV3;
 Verb 'salta' 'saltar'
     *                                    		-> Jump
     * noun                               		-> JumpOver
     * 'a//' noun                          		-> Enter
     * 'sobre' noun                       		-> JumpOver
     * 'por' 'encima' 'de' noun        			-> JumpOver;
+#Ifnot;
+Verb 'salta'
+    *                                    		-> Jump
+    * noun                               		-> JumpOver
+    * 'a//' noun                          		-> Enter
+    * 'sobre' noun                       		-> JumpOver
+    * 'por' 'encima' 'de' noun        			-> JumpOver;
+#EndIf;
 
-Verb 'escucha' 'oye' 'escuchar' 'oir'
+Verb 'escucha' 'oye' 'oir'
     *                                    		-> Listen
     * 'a//' noun            					-> Listen
     * noun                               		-> Listen;
 
-Verb 'look' 'mira' 'm//' 'ver' 'l//' 'mirar'
+#ifV3;
+Verb 'mira' 'm//' 'ver' 'mirar'
     *                                    		-> Look
     * 'a//' creature                    		-> Examine
     * noun                               		-> Examine
@@ -197,62 +362,126 @@ Verb 'look' 'mira' 'm//' 'ver' 'l//' 'mirar'
     * 'sobre' noun                       		-> Search
     * 'a//' 'traves' 'de' noun        			-> Search
     * 'por' noun                         		-> Search;
+#Ifnot;
+Verb 'mira' 'm//' 'ver'
+    *                                    		-> Look
+    * 'a//' creature                    		-> Examine
+    * noun                               		-> Examine
+    * 'a//'/'hacia' noun        				-> Examine
+    * 'en' noun                          		-> Search
+    * 'dentro' 'de' noun                 		-> Search
+    * 'sobre' noun                       		-> Search
+    * 'a//' 'traves' 'de' noun        			-> Search
+    * 'por' noun                         		-> Search;
+#EndIf;
 
 Verb 'abre' 'abrir'
     * noun                               		-> Open
     * noun 'con' held                    		-> Unlock;
 
-Verb 'arrastra' 'arrastrar'
+Verb 'arrastra'
 	* noun                                      -> Pull;
 
-Verb 'empuja' 'mueve' 'empujar' 'mover' 'pulsa' 'pulsar'
+#ifV3;
+Verb 'empuja' 'mueve' 'mover' 'pulsa' 'pulsar'
     * noun                               		-> Push
     * noun 'a//' noun                			-> Transfer
     * noun 'hacia' noun=ADirection              -> PushDir
     * noun noun=ADirection                      -> PushDir;
+#Ifnot;
+Verb 'empuja' 'mueve' 'mover' 'pulsa'
+    * noun                               		-> Push
+    * noun 'a//' noun                			-> Transfer
+    * noun 'hacia' noun=ADirection              -> PushDir
+    * noun noun=ADirection                      -> PushDir;
+#EndIf;
 
 Verb 'ponte' 'ponerse' 'ponerte' 'ponerme'
 	* held                              		-> Wear;
 
+#ifV3;
 Verb 'lee' 'leer'
     * noun                               		-> Examine
     * 'sobre' topic 'en' noun        			-> Consult reverse
     * topic 'en' noun                			-> Consult reverse;
+#Ifnot;
+Verb 'lee'
+    * noun                               		-> Examine
+    * 'sobre' topic 'en' noun        			-> Consult reverse
+    * topic 'en' noun                			-> Consult reverse;
+#EndIf;
 
+#ifV3;
 Verb 'saca' 'sacar'
+	* multiinside 'de' noun             		-> Remove
+	* 'a//' creature 'de' noun          		-> Remove;
+Verb 'sacate' 'quitate' 'sacarse' 'sacarte' 'sacarme' 'quitar'
+	* noun                              		-> Disrobe;
+#Ifnot;
+Verb 'saca'
 	* multiinside 'de' noun             		-> Remove
 	* 'a//' creature 'de' noun          		-> Remove;
 Verb 'sacate' 'quitate' 'sacarse' 'quitarse' 'quitarte' 'sacarte' 'sacarme' 'quitarme' 'quitar'
 	* noun                              		-> Disrobe;
+#EndIf;
 
+#ifV3;
 Verb 'lava' 'limpia' 'pule' 'abrillanta' 'friega' 'frota'
-	'lavar' 'limpiar' 'pulir' 'abrillantar' 'fregar' 'frotar'
+	'lavar' 'pulir' 'fregar' 'frotar'
     * noun                               		-> Rub
     * 'a//' creature                    		-> Rub;
+#Ifnot;
+Verb 'lava' 'limpia' 'pule' 'abrillanta' 'friega' 'frota'
+	'pulir' 'fregar'
+    * noun                               		-> Rub
+    * 'a//' creature                    		-> Rub;
+#EndIf;
 
+#ifV3;
 Verb 'busca' 'buscar'
     * 'en' noun                          		-> Search
     * topic 'en' noun                 			-> Consult reverse
     * 'en' noun 'sobre' topic        			-> Consult
     * 'en' noun topic            				-> Consult
     * 'en' noun 'acerca' 'de' topic    			-> Consult;
+#Ifnot;
+Verb 'busca'
+    * 'en' noun                          		-> Search
+    * topic 'en' noun                 			-> Consult reverse
+    * 'en' noun 'sobre' topic        			-> Consult
+    * 'en' noun topic            				-> Consult
+    * 'en' noun 'acerca' 'de' topic    			-> Consult;
+#EndIf;
 
-Verb 'registra' 'registrar'
+Verb 'registra'
 	* noun                         		        -> Search;
 
+#ifV3;
 Verb 'grita' 'gritar'
 	* topic 'a//' creature                  	-> Answer
 	* 'a//' noun                            	-> ShoutAt
 	* topic                                     -> Shout
 	*                                           -> Shout;
+#Ifnot;
+Verb 'grita'
+	* topic 'a//' creature                  	-> Answer
+	* 'a//' noun                            	-> ShoutAt
+	* topic                                     -> Shout
+	*                                           -> Shout;
+#EndIf;
 
-Verb 'muestra' 'ensena' 'mostrar' 'ensenar'
+Verb 'muestra' 'ensena' 'mostrar'
     * creature held                     		-> Show reverse
     * 'a//' creature held        				-> Show reverse
     * held 'a//' creature        				-> Show;
 
+#ifV3;
+Verb 'echate' 'sientate' 'echarse' 'sentar' 'echarte'
+    * 'en' noun                          		-> Enter;
+#Ifnot;
 Verb 'echate' 'sientate' 'echarse' 'sentarse' 'echarte' 'sentarte'
     * 'en' noun                          		-> Enter;
+#EndIf;
 
 Verb 'huele' 'oler'
     *                                    		-> Smell
@@ -260,18 +489,25 @@ Verb 'huele' 'oler'
     * noun                               		-> Smell;
 
 #IfDef OPTIONAL_EXTENDED_VERBSET;
-Verb 'enciende' 'prende' 'encender' 'prender'
+Verb 'enciende' 'prende' 'encender'
     * switchable            					-> SwitchOn
     * noun                						-> Burn;
 #Ifnot;
-Verb 'enciende' 'prende' 'encender' 'prender'
+Verb 'enciende' 'prende' 'encender'
     * noun            							-> SwitchOn;
 #EndIf;
-Verb 'desconecta' 'apaga' 'desconectar' 'apagar'
+#ifV3;
+Verb 'desconecta' 'apaga' 'apagar'
     * noun                               		-> SwitchOff
     * 'a//' creature                    		-> SwitchOff;
+#Ifnot;
+Verb 'desconecta' 'apaga'
+    * noun                               		-> SwitchOff
+    * 'a//' creature                    		-> SwitchOff;
+#EndIf;
 
-Verb 'cuenta' 'narra' 'explica' 'habla' 'contar' 'narrar' 'explicar' 'hablar'
+#ifV3;
+Verb 'cuenta' 'narra' 'explica' 'habla' 'contar' 'narrar' 'hablar'
     * creature 'de' topic        				-> Tell
     * creature 'sobre' topic        			-> Tell
     * creature topic                       		-> Tell
@@ -284,21 +520,55 @@ Verb 'cuenta' 'narra' 'explica' 'habla' 'contar' 'narrar' 'explicar' 'hablar'
     * 'acerca' 'de' topic 'con' creature 		-> Tell reverse
     * 'de' topic 'con'/'a//' creature    		-> Tell reverse
     * topic 'a//' creature        				-> Tell reverse;
+#Ifnot;
+Verb 'cuenta' 'narra' 'explica' 'habla' 'contar'
+    * creature 'de' topic        				-> Tell
+    * creature 'sobre' topic        			-> Tell
+    * creature topic                       		-> Tell
+    * 'a//' creature 'de'/'sobre' topic 		-> Tell
+    * 'a//' creature  topic        				-> Tell
+    * 'con' creature 'sobre' topic    			-> Tell
+    * 'con' creature 'de' topic        			-> Tell
+    * 'con' creature 'acerca' 'de' topic 		-> Tell
+    * 'sobre' topic 'con' creature    			-> Tell reverse
+    * 'acerca' 'de' topic 'con' creature 		-> Tell reverse
+    * 'de' topic 'con'/'a//' creature    		-> Tell reverse
+    * topic 'a//' creature        				-> Tell reverse;
+#EndIf;
 
-Verb 'ata' 'enchufa' 'une' 'atar' 'enchufar' 'unir'
+#ifV3;
+Verb 'ata' 'enchufa' 'une' 'atar' 'unir'
     * noun                               		-> Tie
     * 'a//' creature                    		-> Tie
     * 'a//' creature 'a//' noun         		-> Tie
     * noun 'a//' noun                      		-> Tie;
+#Ifnot;
+Verb 'ata' 'enchufa' 'une' 'unir'
+    * noun                               		-> Tie
+    * 'a//' creature                    		-> Tie
+    * 'a//' creature 'a//' noun         		-> Tie
+    * noun 'a//' noun                      		-> Tie;
+#EndIf;
 
+#ifV3;
 Verb 'toca' 'tocar'
     * noun                               		-> Touch
     * 'a//' creature                    		-> Touch;
+#Ifnot;
+Verb 'toca'
+    * noun                               		-> Touch
+    * 'a//' creature                    		-> Touch;
+#EndIf;
 
-Verb 'gira' 'atornilla' 'desatornilla' 'girar' 'atornillar' 'desatornillar'
+#ifV3;
+Verb 'gira' 'atornilla' 'desatornilla' 'girar'
     * noun                               -> Turn;
+#Ifnot;
+Verb 'gira' 'atornilla' 'desatornilla'
+    * noun                               -> Turn;
+#EndIf;
 
-Verb 'espera' 'esperar' 'z//'
+Verb 'espera' 'z//'
     *                                    -> Wait;
 
 [ AnswerSub;
@@ -593,7 +863,7 @@ Verb 'espera' 'esperar' 'z//'
 ! 7: Second isn't supporter
 ! 8: Check if second is full
 ! 9: Default (success) message
-Array _InsertMessages -->
+Array _InsertMessages static -->
 	MSG_INSERT_ALREADY
 	MSG_INSERT_ITSELF
 	MSG_INSERT_NOT_OPEN
@@ -694,7 +964,7 @@ Array _InsertMessages -->
 ! 7: Second isn't supporter
 ! 8: Check if second is full
 ! 9: Default (success) message
-Array _PutOnMessages -->
+Array _PutOnMessages static -->
 	MSG_PUTON_ALREADY
 	MSG_PUTON_ITSELF
 	0
@@ -712,8 +982,9 @@ Array _PutOnMessages -->
 ];
 
 [ RemoveSub _i;
+	if(noun == player)
+		<<Exit second>>;
 	_i = parent(noun);
-	if (_i has container && _i hasnt open) { PrintMsg(MSG_REMOVE_CLOSED, _i); rtrue; }
 	if (_i ~= second) return MSG_REMOVE_NOT_HERE;
 	if(TryToTakeNoun() ~= false) rtrue;
 	action = ##Remove; if (AfterRoutines()) rtrue;
@@ -890,20 +1161,33 @@ Array _PutOnMessages -->
 
 #IfDef OPTIONAL_EXTENDED_VERBSET;
 
+#IfV3;
 Verb 'sopla' 'soplar'
     * noun                               		-> Blow;
+#Ifnot;
+Verb 'sopla'
+    * noun                               		-> Blow;
+#EndIf;
 
 Verb 'tonto' 'bobo' 'idiota'
     *                                    		-> Mild
     * topic                            			-> Mild;
 
+#IfV3;
+Verb 'quema' 'quemar'
+    * noun                               		-> Burn
+    * 'a//' creature                    		-> Burn
+    * 'a//' creature 'con' held         		-> Burn
+    * noun 'con' held                    		-> Burn;
+#Ifnot;
 Verb 'quema'
     * noun                               		-> Burn
     * 'a//' creature                    		-> Burn
     * 'a//' creature 'con' held         		-> Burn
     * noun 'con' held                    		-> Burn;
+#EndIf;
 
-Verb 'compra' 'comprar'
+Verb 'compra'
     * noun                               		-> Buy;
 
 Verb 'consulta'
@@ -914,81 +1198,145 @@ Verb 'consulta'
     * noun 'acerca' 'de' topic            		-> Consult
     * topic 'en' noun            				-> Consult reverse;
 
+#IfV3;
+Verb 'vacia' 'vaciar'
+    * noun                               		-> Empty
+    * noun 'dentro' 'de' noun            		-> EmptyT
+    * noun 'en' noun                     		-> EmptyT
+    * noun 'sobre' noun                  		-> EmptyT
+    * noun 'encima' 'de' noun            		-> EmptyT;
+#Ifnot;
 Verb 'vacia'
     * noun                               		-> Empty
     * noun 'dentro' 'de' noun            		-> EmptyT
     * noun 'en' noun                     		-> EmptyT
     * noun 'sobre' noun                  		-> EmptyT
     * noun 'encima' 'de' noun            		-> EmptyT;
+#EndIf;
 
-Verb 'besa' 'abraza' 'besar' 'abrazar'
+#IfV3;
+Verb 'besa' 'abraza' 'besar'
     * creature                           		-> Kiss
     * 'a//' creature                    		-> Kiss;
+#Ifnot;
+Verb 'besa' 'abraza'
+    * creature                           		-> Kiss
+    * 'a//' creature                    		-> Kiss;
+#EndIf;
 
 Verb 'no'
 	*                                           -> No;
 
+#IfV3;
 Verb 'reza' 'rezar'
     *                                    		-> Pray;
+#Ifnot;
+Verb 'reza'
+    *                                    		-> Pray;
+#EndIf;
 
-Verb 'ajusta' 'fija' 'ajustar' 'fijar'
+#IfV3;
+Verb 'ajusta' 'fija' 'fijar'
     * noun                               		-> Set
     * noun 'en'/'a//' topic        				-> SetTo;
+#Ifnot;
+Verb 'ajusta' 'fija'
+    * noun                               		-> Set
+    * noun 'en'/'a//' topic        				-> SetTo;
+#EndIf;
 
 Verb 'mierda' 'jode' 'joder' 'puta' 'cono' 'cabron' 'puto'
     *                                   		-> Strong
     * topic                            			-> Strong;
 
+#IfV3;
 Verb 'canta' 'cantar'
     *                    						-> Sing;
+#Ifnot;
+Verb 'canta'
+    *                    						-> Sing;
+#EndIf;
 
-Verb 'duerme' 'dormir' 'descansa' 'descansar'
+Verb 'duerme' 'dormir' 'descansa'
     *                    						-> Sleep;
 
+#IfV3;
+Verb 'perdon' 'disculpa'
+    *                                   		-> Sorry;
+#Ifnot;
 Verb 'perdon' 'perdona' 'disculpa'
     *                                   		-> Sorry;
+#EndIf;
 
-Verb 'retuerce' 'aprieta' 'estruja' 'tuerce' 'torcer' 'estrujar' 'apretar' 'retorcer'
+#IfV3;
+Verb 'retuerce' 'aprieta' 'estruja' 'tuerce' 'torcer' 'apretar' 'retorcer'
     * noun                               		-> Squeeze
     * 'a//' creature                    		-> Squeeze;
+#Ifnot;
+Verb 'retuerce' 'aprieta' 'estruja' 'tuerce' 'torcer' 'apretar' 'retorcer'
+    * noun                               		-> Squeeze
+    * 'a//' creature                    		-> Squeeze;
+#EndIf;
 
+#IfV3;
 Verb 'nada' 'nadar' 'bucea' 'bucear'
     *                                    		-> Swim;
+#Ifnot;
+Verb 'nada' 'bucea'
+    *                                    		-> Swim;
+#EndIf;
 
-Verb 'balanceate' 'columpiate' 'meneate' 'balancearse' 'columpiarse'
-    'menearse' 'balancearte' 'columpiarte' 'menearte' 'balancear' 'columpiar'
+#IfV3;
+Verb 'meneate' 'menearse' 'balancear' 'columpiar'
     * 'en' noun                          		-> Swing;
+#Ifnot;
+Verb 'balanceate' 'columpiate' 'meneate' 'balancear'
+    'menearse' 'menearte' 'columpiar'
+    * 'en' noun                          		-> Swing;
+#EndIf;
 
-Verb 'saborea' 'prueba' 'saborear' 'probar' 'lame' 'lamer'
+#IfV3;
+Verb 'saborea' 'prueba' 'probar' 'lame' 'lamer'
     * noun                               		-> Taste
     * 'a//' noun            					-> Taste;
+#Ifnot;
+Verb 'saborea' 'prueba' 'probar' 'lame'
+    * noun                               		-> Taste
+    * 'a//' noun            					-> Taste;
+#EndIf;
 
 Verb 'piensa' 'pensar'
     *                                    		-> Think;
 
-Verb 'transfiere' 'cambia' 'transferir' 'cambiar'
+#IfV3;
+Verb 'transfiere' 'cambia'
     * noun 'a//' noun                     -> Transfer;
+#Ifnot;
+Verb 'transfiere' 'cambia' 'transferir'
+    * noun 'a//' noun                     -> Transfer;
+#EndIf;
 
-Verb 'wake' 'awake' 'awaken'
-	*                                           -> Wake
-	* 'up'                                      -> Wake
-	* creature                                  -> WakeOther
-	* creature 'up'                             -> WakeOther
-	* 'up' creature                             -> WakeOther;
 Verb 'despierta' 'despertar' 
     *                                    		-> Wake
     * creature                           		-> WakeOther
     * 'a//' creature                    		-> WakeOther;
-Verb 'despertarte'
-    *                    						-> Wake;
 
+#IfV3;
 Verb 'sacude' 'agita' 'sacudir' 'agitar'
     * creature                          		-> Attack
     * 'a//' creature                    		-> Attack
     * 'la' 'mano'                       		-> WaveHands
     * 'las' 'manos'                     		-> WaveHands
     * noun                               		-> Wave;
-Verb 'saluda' 'saludar'
+#Ifnot;
+Verb 'sacude' 'agita' 'sacudir'
+    * creature                          		-> Attack
+    * 'a//' creature                    		-> Attack
+    * 'la' 'mano'                       		-> WaveHands
+    * 'las' 'manos'                     		-> WaveHands
+    * noun                               		-> Wave;
+#EndIf;
+Verb 'saluda'
     * 'con' 'la' 'mano'            				-> WaveHands;
 
 Verb 'si'
@@ -1012,7 +1360,7 @@ Verb 'si'
 	<EmptyT noun FAKE_D_OBJ>;
 ];
 
-[ EmptyTSub _i _recipient;
+[ EmptyTSub _i _n _obj _recipient;
 	if(noun == second) return MSG_EMPTY_WOULDNT_ACHIEVE;
 	if(noun hasnt container) { PrintMsg(MSG_EMPTY_NOT_CONTAINER, noun); rtrue; }
 	if(noun hasnt open) {
@@ -1023,13 +1371,19 @@ Verb 'si'
 		_recipient = DirPropToFakeObj(selected_direction);
 	else
 		_recipient = second;
-	_i = child(noun);
-	if(_i == 0) { PrintMsg(MSG_EMPTY_ALREADY_EMPTY, noun); rtrue; }
-	while(_i ~= 0) {
-		if(keep_silent == 0) print (name) _i, ": ";
-		<Transfer _i _recipient>;
-		if(_i in noun || _i in player) rtrue;
-		_i = child(noun);
+	_obj = child(noun);
+	if(_obj == 0) { PrintMsg(MSG_EMPTY_ALREADY_EMPTY, noun); rtrue; }
+	while(_obj ~= 0 && _n<MAX_SCOPE) {
+		empty_arr-->_n = _obj;
+		_n++;
+		_obj = sibling(_obj);
+	}
+	for(_i=0: _i<_n: _i++) {
+		_obj = empty_arr-->_i;
+		if(_obj in noun) {
+			if(keep_silent == 0) print (name) _obj, ": ";
+			<Transfer _obj _recipient>;
+		}
 	}
 	run_after_routines_msg = 1;
 ];
@@ -1194,7 +1548,7 @@ Verb meta 'quit' 'q//' 'fin'
 #IfDef OPTIONAL_FULL_SCORE;
 #IfDef TASKS_PROVIDED;
 [ FullScoreSub _i _score_sum _sc;
-#IfNot;
+#Ifnot;
 [ FullScoreSub _i _score_sum;
 #EndIf;
 	new_line;
@@ -1209,7 +1563,7 @@ Verb meta 'quit' 'q//' 'fin'
 			PrintTaskName(_i);
 #Endif;
 		}
-#IfNot;
+#Ifnot;
 	_i = 0; ! Avoid warning
 #EndIf;
 #IfDef OPTIONAL_SCORED;
@@ -1222,7 +1576,7 @@ Verb meta 'quit' 'q//' 'fin'
 		PrintMsg(MSG_FULLSCORE_ROOMS);
 	}
 	_score_sum = score - _score_sum - things_score - places_score;
-#IfNot;
+#Ifnot;
 	_score_sum = score - _score_sum;
 #EndIf;
 	if(_score_sum ~= 0) {
@@ -1291,7 +1645,7 @@ Verb meta 'quit' 'q//' 'fin'
 	verb_word = 'cargar';
 	return MSG_RESTORE_FAILED;
 ._restore_was_successful; ! This is never reached, since a successful restore continues after save opcode.
-#IfNot;
+#Ifnot;
 [ RestoreSub _flag;
 	@restore -> _flag;
 	! must have failed here so no need to check the flag
@@ -1305,7 +1659,7 @@ Verb meta 'quit' 'q//' 'fin'
 	return MSG_SAVE_FAILED;
 ._save_was_successful;
 	return MSG_SAVE_DEFAULT;
-#IfNot;
+#Ifnot;
 [ SaveSub _result;
 	@save -> _result;
 	if(_result == 0) return MSG_SAVE_FAILED;
@@ -1344,25 +1698,21 @@ Verb meta 'quit' 'q//' 'fin'
 	inversion;
 	print " PunyInformES v", PUNYINFORM_MAJOR_VERSION, (char) '.', PUNYINFORM_MINOR_VERSION;
 	if(PUNYINFORM_PATCH_VERSION)
-		print ".", PUNYINFORM_PATCH_VERSION;
+		print (char) '.', PUNYINFORM_PATCH_VERSION;
 #Ifdef PUNYINFORM_VERSION_SUFFIX;
 	print (string) PUNYINFORM_VERSION_SUFFIX;
 #EndIf;
-	_i = 0;
+	print (char) ' ';
 #IfDef STRICT_MODE;
 	#IfV5;
-	print " S";
-	_i = 1;
+	print (char) 'S';
 	#EndIf;
 #EndIf;
 #IfDef DEBUG;
-	if(_i == 0) print " ";
-	print "D";
-	_i = 1;
+	print (char) 'D';
 #EndIf;
 #IfTrue RUNTIME_ERRORS > 0;
-	if(_i == 0) print " ";
-	print "R";
+	print (char) 'R';
 #EndIf;
 	new_line;
 ];
@@ -1571,13 +1921,16 @@ Array _GotoSubBuffer --> (1 + (GOTOSUB_BUFFER_SIZE + 1)/2); ! Add an extra word 
 
 [ _RoomLike p_obj;
 	! Return true if p_obj seems to be a room
-	if(p_obj > Directions && p_obj <= top_object &&  parent(p_obj) == 0
+	if(p_obj > Directions && p_obj <= top_object &&  p_obj in nothing
 			&& (~~(p_obj provides describe or life or found_in))
 			&& (~~DebugParseNameObject(p_obj))) {
 		if(p_obj has edible or talkable or supporter or container or transparent
-				or concealed or proper or scenery or static or animate or clothing
+				or concealed or scenery or static or animate or clothing
 				or pluralname or switchable or door or lockable)
 			rfalse;
+#Ifndef OPTIONAL_NO_DARKNESS;
+		if(p_obj == thedark) rfalse;
+#Endif;
 		rtrue;
 	}
 	rfalse;
@@ -1597,35 +1950,33 @@ Array _GotoSubBuffer --> (1 + (GOTOSUB_BUFFER_SIZE + 1)/2); ! Add an extra word 
 	_first = WordAddress(consult_from);
 	_i = consult_from + consult_words - 1;
 	_count = WordAddress(_i) + WordLength(_i) - _first;
-	objectloop(_obj) {
-		if(parent(_obj) == nothing) {
-!			print _obj;
-			@output_stream 3 _GotoSubBuffer;
-			print (name) _obj;
-			@output_stream -3;
-			_k = _GotoSubBuffer-->0;
+	objectloop(_obj && _RoomLike(_obj)) {
+		@output_stream 3 _GotoSubBuffer;
+		print (name) _obj;
+		@output_stream -3;
+		_k = _GotoSubBuffer-->0;
 #IfTrue RUNTIME_ERRORS > RTE_MINIMUM;
-			if(_k > GOTOSUB_BUFFER_SIZE) {
-				_RunTimeError(ERR_BUFFER_OVERRUN, _obj);
-				rtrue;
-			}
+		if(_k > GOTOSUB_BUFFER_SIZE) {
+			_RunTimeError(ERR_BUFFER_OVERRUN, _obj);
+			rtrue;
+		}
 #Endif;
-			if(_k == _count) {
-				_match = true;
-				for(_i=_first, _j=0 : _j<_count : _i++, _j++) {
-					_val_printed = _t->_j;
-					_val_input = _i->0;
-					if(_val_printed == _val_input) continue;
-					if(_val_printed < 91 && _val_printed > 64 && _val_printed + 32 == _val_input) continue;
-					_match = false;
-					break;
-				}
-				if(_match) {
+		_match = true;
+		for(_i=_first, _j=0 : _j<_count : _i++, _j++) {
+			_val_printed = _t->_j;
+			if(_j >= _k) _val_printed = 0;
+			_val_input = _i->0;
+			if(_val_input == '*') { _match = 2; break; } ! The rest is considered a match
+			if(_val_printed == _val_input) continue;
+			if(_val_printed < 91 && _val_printed > 64 && _val_printed + 32 == _val_input) continue;
+			_match = false;
+			break;
+		}
+		if(_match == true && _count < _k) _match = false;
+		if(_match) {
 ._gotoObj;
-					PlayerTo(_obj);
-					rtrue;
-				}
-			}
+			PlayerTo(_obj);
+			rtrue;
 		}
 	}
 ._not_a_room;
@@ -1826,16 +2177,15 @@ Constant _REAL_LOCATION_TEXT " *** real_location ***";
 ];
 
 [ _ListObjsInOnMsg p_parent;
-	if(newline_flag)
-		print "^";
+	print "^";
 	if(p_parent has supporter) print "Sobre "; else print "En ";
 	print (the) p_parent, " puedes ver ";
 	if(also_flag) print "también ";
 ];
 
-[ Look _obj _top_ceil _ceil _describe_room
-	_you_can_see_1 _you_can_see_2 _desc_prop _last_level _action;
-	PrintMsg(MSG_LOOK_BEFORE_ROOMNAME);
+[ Look _obj _top_ceil _ceil _describe_room _you_can_see_1 _you_can_see_2 
+		_desc_prop _last_level _action;
+	if(input_action == ##Look) PrintMsg(MSG_LOOK_BEFORE_ROOMNAME);
 	if((lookmode == 1 && location hasnt visited) || lookmode == 2) _describe_room = true;
 #IfV5;
 	style bold;
@@ -1863,9 +2213,8 @@ Constant _REAL_LOCATION_TEXT " *** real_location ***";
 		}
 #EndIf;
 		_PrintObjName(location);
-	} else {
+	} else
 		print (The) _ceil;
-	}
 #IfV5;
 	style roman;
 #EndIf;
@@ -1885,17 +2234,17 @@ Constant _REAL_LOCATION_TEXT " *** real_location ***";
 		print (the) _obj, ")";
 		_obj = parent(_obj);
 	}
+	new_line;
 	while(_ceil ~= player or 0) {
 		if(_describe_room) {
 			if(_ceil == location) {
 				new_line;
 				PrintOrRun(_ceil, description);
 			} else if(_ceil.inside_description ~= 0 or NULL) {
-				new_line;
+				if(_ceil ~= _top_ceil) new_line;
 				PrintOrRun(_ceil, inside_description);
 			}
-		} else if(_ceil == location)
-			new_line;
+		}
 
 		also_flag = false;
 		! write intial and describe messages in a new paragraph
@@ -1910,20 +2259,15 @@ Constant _REAL_LOCATION_TEXT " *** real_location ***";
 					}
 				}
 				if(_obj has container or door) {
-					if(_obj has open) {
+					_desc_prop = when_closed;
+					if(_obj has open)
 						_desc_prop = when_open;
-					} else {
-						_desc_prop = when_closed;
-					}
 				} else if(_obj has switchable) {
-					if(_obj has on) {
+					_desc_prop = when_off;
+					if(_obj has on)
 						_desc_prop = when_on;
-					} else {
-						_desc_prop = when_off;
-					}
-				} else {
+				} else
 					_desc_prop = initial;
-				}
 				if(_obj.&_desc_prop && (_obj hasnt moved || _desc_prop == when_off)) { ! Note: when_closed in an alias of when_off
 					give _obj ~workflag;
 					new_line;
@@ -1939,25 +2283,19 @@ Constant _REAL_LOCATION_TEXT " *** real_location ***";
 			_you_can_see_1 = _ListObjsInOnMsg;
 		}
 		_you_can_see_2 = ".^";
-		newline_flag = true;
 		if(PrintContents(_you_can_see_1, _ceil, true)) print (string) _you_can_see_2;
 
 
 #IfDef OPTIONAL_PRINT_SCENERY_CONTENTS;
-		newline_flag = true;
 		objectloop(_obj in _ceil)
 			if(_obj has scenery &&
 					(_obj has supporter ||
 						(_obj has container && _obj has transparent or open)) &&
 						child(_obj) ~= 0 &&
 						IndirectlyContains(_obj, player) == false) {
-				if(PrintContents(_ListObjsInOnMsg, _obj)) {
-					print (string) ". ";
-					newline_flag = false;
-				}
+				if(PrintContents(_ListObjsInOnMsg, _obj))
+					print ".^";
 			}
-		if(newline_flag == false)
-			print "^";
 #EndIf;
 
 		! Descend one level
@@ -2193,6 +2531,8 @@ Constant _REAL_LOCATION_TEXT " *** real_location ***";
 
 	if(AfterRoutines()) rtrue;
 	if(keep_silent) rtrue;
+	
+	PrintMsg(MSG_LOOK_BEFORE_ROOMNAME);
 	Look();
 ];
 
@@ -2239,14 +2579,14 @@ Constant _REAL_LOCATION_TEXT " *** real_location ***";
 		'transcript': print "ript"; return;
 #EndIf;
 	}
-#IfNot; ! This is z5+
+#Ifnot; ! This is z5+
 	switch(p_v) {
 		'superbrief': print "superbrief"; return;
 		'g//': print "repetir"; return;
 		'i//': print (address) 'inventario'; return;
 		'l//': print "mirar"; return;
 		'q//': print "fin"; return;
-		'x//': print (address) 'examinar'; return;
+		'x//': print "examinar"; return;
 		'z//': print "esperar"; return;
 #IfDef OPTIONAL_EXTENDED_METAVERBS;
 		'transcript': print "transcript"; return;

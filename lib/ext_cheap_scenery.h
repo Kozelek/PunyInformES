@@ -545,6 +545,8 @@ Object CheapScenery
 		before [_i _k _self_bak;
 #Endif;
 			_i = CSData-->CSDATA_POINTER;
+			if(_i == 0) ! There is no match
+				print_ret (string) CS_DEFAULT_MSG;
 			_k = _i-->0;
 			if(_k > 0 && _k < 100)
 				_k = 1 + (_k / 10) + (_k % 10);
@@ -589,17 +591,22 @@ Object CheapScenery
 			}
 			print_ret (string) CS_DEFAULT_MSG;
 		],
-		react_after [;
+		react_after [ _i;
 			Go:
 				if(itobj == self) itobj = 0;
 #ifdef PUNYINFORM_MAJOR_VERSION;
 				if(themobj == self) themobj = 0;
 #Endif;
-		]
-	has concealed scenery
-#Ifdef OPTIONAL_REACTIVE_PARSE_NAME;
-		reactive
+#Ifv5;
+				_i = 0; ! Get rid of warning
+				@copy_table CSData 0 10;
+#Ifnot;
+._BlankNext;
+				CSData-->_i = 0;
+				@inc_chk _i 4 ?~_BlankNext;
 #Endif;
+		]
+	has concealed scenery reactive
 ;
 
 

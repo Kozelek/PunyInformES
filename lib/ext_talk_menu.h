@@ -130,13 +130,6 @@ System_file;
 ! activate or inactivate multiple topics at once. If you're not using this
 ! option, you can set talk_menu_multi_mode to false, and gain some
 ! performance.
-!-------------
-! It is now possible to define constant TM_STYLE_INLINE in V5 before including
-! this library, and the topics of the conversation will appear inline as in V3.
-! Example:
-!
-!       Constant TM_STYLE_INLINE;
-!       Include "ext_talk_menu.h";
 
 Constant EXT_TALK_MENU = 1;
 
@@ -148,7 +141,6 @@ Constant RUNTIME_ERRORS = 2;
 Constant RTE_MINIMUM = 0;
 Constant RTE_NORMAL = 1;
 Constant RTE_VERBOSE = 2;
-Constant TM_NOT_PUNY;
 #Endif;
 #Iftrue RUNTIME_ERRORS > RTE_MINIMUM;
 Constant TM_ERR = "^[Talk_menu error #";
@@ -213,13 +205,11 @@ Constant TM_MSG_EXIT_OPTION "[ENTER] Terminar conversación";
 Constant TM_MSG_PAGE_OPTION "[S] Página siguiente";
 #Endif;
 #Ifv5;
-#Ifndef TM_STYLE_INLINE;
 #Ifndef TM_MSG_EXIT_OPTION_SHORT;
 Constant TM_MSG_EXIT_OPTION_SHORT "[ENTER] Terminar"; ! This + TM_MSG_PAGE_OPTION_SHORT should be 18 characters or less
 #Endif;
 #Ifndef TM_MSG_PAGE_OPTION_SHORT;
 Constant TM_MSG_PAGE_OPTION_SHORT "[S]iguiente"; ! This + TM_MSG_EXIT_OPTION_SHORT should be 18 characters or less
-#Endif;
 #Endif;
 #Endif;
 
@@ -253,6 +243,7 @@ Constant TM_ADD_BEFORE_AND_AFTER 4; ! Can be used directly after subject
 
 Global talk_menu_talking = false;
 Global talk_menu_multi_mode = true;
+Global clr_talk_menu = CLR_CURRENT;
 
 [ _TMPrintMsg p_msg p_no_newline;
 	if(metaclass(p_msg) == Routine) {
@@ -303,33 +294,7 @@ Global talk_menu_multi_mode = true;
 			_index = _index - 2;
 		}
 		_val = p_array-->_index;
-		if(_val == TM_END) {
-			if(_find_topic < 29) {
-				! Signal failure, as the topic was not found
-				if(p_value == 1) rtrue;
-				rfalse;
-			}
-			if(_stash_array) {
-				p_array = _stash_array;
-				_index = 0;
-				_stash_array = 0;
-			} else {
-				! The topic wasn't found, or we are in multi mode
-				if(p_value == 1) rtrue; ! When trying to read a status, reaching the end means failure 
-				return _success; ! The topic wasn't found, or we are in multi mode
-			}
-		} else if(_val == TM_MAYBE_ADD_LIST) {
-			if(_find_topic < 29) {
-				! Signal failure, as the topic was not found
-				if(p_value == 1) rtrue;
-				rfalse;
-			}
-			_index = _index + 2;
-			_curr_id = p_array-->_index;
-			_stash_array = p_array + _index + _index;
-			p_array = _curr_id;
-			_index = -1;
-		} else if(_val == TM_INACTIVE or TM_ACTIVE or TM_STALE) {
+		if(_val == TM_INACTIVE or TM_ACTIVE or TM_STALE) {
 			if(_find_topic < 29) {
 				if(_find_topic-- == 1) jump _tm_found_topic;
 				continue;
@@ -357,6 +322,34 @@ Global talk_menu_multi_mode = true;
 					_index = _index + 3;
 					break;
 
+				}
+			}
+		} else if(_val == TM_MAYBE_ADD_LIST or TM_END) {
+			if(_val == TM_MAYBE_ADD_LIST) {
+				if(_find_topic < 29) {
+					! Signal failure, as the topic was not found
+					if(p_value == 1) rtrue;
+					rfalse;
+				}
+				_index = _index + 2;
+				_curr_id = p_array-->_index;
+				_stash_array = p_array + _index + _index;
+				p_array = _curr_id;
+				_index = -1;
+			} else  { ! _val == TM_END
+				if(_find_topic < 29) {
+					! Signal failure, as the topic was not found
+					if(p_value == 1) rtrue;
+					rfalse;
+				}
+				if(_stash_array) {
+					p_array = _stash_array;
+					_index = 0;
+					_stash_array = 0;
+				} else {
+					! The topic wasn't found, or we are in multi mode
+					if(p_value == 1) rtrue; ! When trying to read a status, reaching the end means failure 
+					return _success; ! The topic wasn't found, or we are in multi mode
 				}
 			}
 		}
@@ -414,7 +407,6 @@ Global talk_menu_multi_mode = true;
 
 
 #Ifv5;
-#Ifndef TM_STYLE_INLINE;
 Array TenDashes static -> "----------";
 [ FastDashes p_dashes;
 	while(p_dashes > 10) {
@@ -424,17 +416,17 @@ Array TenDashes static -> "----------";
 	@print_table TenDashes p_dashes 1;
 ];
 #Endif;
-#Endif;
 
 Array _TMLines --> 10;
 
 #Ifv5;
-#Ifdef TM_STYLE_INLINE;
-[ RunTalk p_npc _array _i _j _n _val _offset _count _more _add_msg _stash_array;
+#Ifdef PUNYINFORM_MAJOR_VERSION;
+[ RunTalk p_npc _array _i _j _n _val _height _width _offset _count _more _has_split _add_msg _stash_array _old_fg;
 #Ifnot;
 [ RunTalk p_npc _array _i _j _n _val _height _width _offset _count _more _has_split _add_msg _stash_array;
 #Endif;
 #Ifnot;
+! Target is z3 
 [ RunTalk p_npc _array _i _j _n _val _offset _count _more _add_msg _stash_array;
 #Endif;
 	talk_menu_talking = true;
@@ -450,7 +442,6 @@ Array _TMLines --> 10;
 #Endif;
 	! Prepare upper window
 #Ifv5;
-#Ifndef TM_STYLE_INLINE;
 	! Find out or guess the height of the screen
 	_height = HDR_SCREENHLINES->0;
 	_width = HDR_SCREENWCHARS->0;
@@ -461,7 +452,6 @@ Array _TMLines --> 10;
 	if(_height > 31) _height = 16;
 	else if(_height > 13) @log_shift _height (-1) -> _height; !Division by 2
 	else _height = 7;
-#Endif;
 #Endif;
 
 	! Print all valid lines to say
@@ -512,20 +502,11 @@ Array _TMLines --> 10;
 			_i = _i + 3;
 		else if(_val == TM_ACTIVE) {
 #Ifv5;
-#Ifdef TM_STYLE_INLINE;
-			if(_count >= 8) { _more = 1; break; }
-			_n++;
-			if(_n <= _offset) continue;
-			_count++;
-			if(_count == 1) {
-				_TMPrintMsg(TM_MSG_TALK_ABOUT_WHAT);
-			}
-			print "  ", _count, ": ";
-#Ifnot;
 			if(_count >= _height - 6) { _more = 1; break; }
 			_n++;
 			if(_n <= _offset) continue;
 			_count++;
+!			print "Talk to ", (the) p_npc, " about:^";
 			if(_count == 1) {
 				_has_split = true;
 				@split_window _height;
@@ -533,15 +514,21 @@ Array _TMLines --> 10;
 				DrawStatusLine();
 				@set_window 1;
 				@set_cursor 2 1;
+#Ifdef PUNYINFORM_MAJOR_VERSION;
+				if(clr_on) {
+					_old_fg = clr_fg;
+					ChangeFgColour(clr_talk_menu);
+				}
+#Endif;
 				_TMPrintMsg(TM_MSG_TALK_ABOUT_WHAT);
 			}
 			print "  ", _count % 10, ": ";
-#Endif;
 #Ifnot;
 			if(_count >= 8) { _more = 1; break; }
 			_n++;
 			if(_n <= _offset) continue;
 			_count++;
+!			print "Talk to ", (the) p_npc, " about:^";
 			if(_count == 1) {
 				_TMPrintMsg(TM_MSG_TALK_ABOUT_WHAT);
 			}
@@ -560,9 +547,7 @@ Array _TMLines --> 10;
 	}
 	if(_n == 0) {
 #Ifv5;
-#Ifndef TM_STYLE_INLINE;
 		@set_window 0;
-#Endif;
 #Endif;
 		_val = TM_MSG_NO_TOPICS;
 !		"Right now, you wouldn't know what to talk about.";
@@ -571,34 +556,26 @@ Array _TMLines --> 10;
 !			"With that, you politely end the conversation.";
 		_TMPrintMsg(_val);
 #Ifv5;
-#Ifdef TM_STYLE_INLINE;
-		rtrue;
-#Ifnot;
 		jump _tm_end_of_talk;
-#Endif;
 #Ifnot;
 		rtrue;
 #Endif;
 	}
 
 #Ifv5;
-#Ifndef TM_STYLE_INLINE;
 	_i = _height - 1;
 	@set_cursor _i 1;
 	FastDashes(_width);
 	_i = _height - 3;
 	@set_cursor _i 1;
 #Endif;
-#Endif;
 	_i = TM_MSG_EXIT_OPTION;
 	_j = TM_MSG_PAGE_OPTION;
 #Ifv5;
-#Ifndef TM_STYLE_INLINE;
 	if(_width < 39) {
 		_i = TM_MSG_EXIT_OPTION_SHORT;
 		_j = TM_MSG_PAGE_OPTION_SHORT;
 	}
-#Endif;
 #Endif;
 	_TMPrintMsg(_i, true);
 
@@ -607,6 +584,12 @@ Array _TMLines --> 10;
 		_TMPrintMsg(_j, true);
 	}
 	new_line;
+#Ifdef PUNYINFORM_MAJOR_VERSION;
+#Ifv5;
+	if(clr_on)
+		ChangeFgColour(_old_fg);
+#Endif;
+#Endif;
 
 	! Ask player to choose a line to say
 ._askAgain;
@@ -614,32 +597,12 @@ Array _TMLines --> 10;
 	_j = 0;
 	while(_j == 0) {
 #IfV5;
-#Ifdef TM_STYLE_INLINE;
-		! This is inline
-		@read_char -> _val;
-
-		if(_val == 13 or 'q' or 'Q' or 'x' or 'X') {
-			_TMPrintMsg(TM_MSG_EXIT);
-			jump _tm_end_of_talk;
-		}
-		if(_val == 's' or 'S' or 130) {
-			if(_more) {
-				_offset = _offset + 8;
-				jump _tm_restart_talk;
-			}
-			else if(_offset) {
-				_offset = 0;
-				jump _tm_restart_talk;
-			}
-		}
-		_j = _val - 48;
-		if(_j == 0) _j = 10;
-#IfNot;
-		@read_char -> _val;
+		@read_char 1 -> _val;
 
 		if(_val == 13 or 'q' or 'Q' or 'x' or 'X') {
 			@set_window 0;
 			_TMPrintMsg(TM_MSG_EXIT);
+!			"With that, you politely end the conversation.";
 			jump _tm_end_of_talk;
 		}
 		if(_val == 's' or 'S' or 130) {
@@ -654,7 +617,6 @@ Array _TMLines --> 10;
 		}
 		_j = _val - 48;
 		if(_j == 0) _j = 10;
-#Endif;
 #IfNot;
 		! This is v3
 		PrintMsg(MSG_PROMPT);
@@ -663,6 +625,7 @@ Array _TMLines --> 10;
 
 		if(num_words == 0) {
 			_TMPrintMsg(TM_MSG_EXIT);
+!			"With that, you politely end the conversation.";
 			rtrue;
 		}
 		_val = buffer->1;
@@ -698,9 +661,7 @@ Array _TMLines --> 10;
 	_i++;
 
 #Ifv5;
-#Ifndef TM_STYLE_INLINE;
 	@set_window 0;
-#Endif;
 #Endif;
 
 	_add_msg = _array-->_i;
@@ -793,44 +754,44 @@ Array _TMLines --> 10;
 	}
 ._tm_end_of_talk;
 #Ifv5;
-#Ifndef TM_STYLE_INLINE;
 	if(_has_split) {
 		@erase_window 1;
 		@split_window 0;
 		@set_window 0;
-		#Ifdef TM_NOT_PUNY;
-			gg_statuswin_cursize = 0;
-		#Ifnot;
+		#Ifdef PUNYINFORM_MAJOR_VERSION;
 			statusline_current_height = 0;
+		#Ifnot;
+			gg_statuswin_cursize = 0;
 		#Endif;
 	}
-#Endif;
 #Endif;
 	talk_menu_talking = false;
 	rtrue;
 ];
 
 [ TalkSub;
-#Ifdef TM_NOT_PUNY;
-   if (noun==player) { L__M(##Tell, 1, noun); rtrue; }
-   if (~~(noun provides talk_array)) { L__M(##Show, 2, second); rtrue; }
-#Ifnot;
+#Ifdef PUNYINFORM_MAJOR_VERSION;
    if (noun==player) { PrintMsg(MSG_TELL_PLAYER); rtrue; }
    if (~~(noun provides talk_array)) { second = noun; PrintMsg(MSG_SHOW_DEFAULT); rtrue; }
+#Ifnot;
+   if (noun==player) { L__M(##Tell, 1, noun); rtrue; }
+   if (~~(noun provides talk_array)) { L__M(##Show, 2, second); rtrue; }
 #Endif;
    RunTalk(noun);
    AfterRoutines();
 ];
 
-Verb 'conversa' 'conversar'
+Verb 'conversa'
 	* 'a'/'con' creature                        ->Talk
 	* creature                                  ->Talk;
 Extend 'habla' first
 	* 'a'/'con' creature -> Talk
 	* creature -> Talk;
+#ifV3;
 Extend 'hablar' first
 	* 'a'/'con' creature -> Talk
 	* creature -> Talk;
+#EndIf;
 
 #Ifdef DEBUG;
 #Ifdef FLAG_COUNT;

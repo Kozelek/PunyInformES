@@ -89,6 +89,12 @@ Include "grammar.h";
 
 #IfV5;
 
+[ OzmooColoursAvailable;
+	if($3a-->0 == $4f5a)
+		rtrue;
+	rfalse;
+];
+
 [ ClearScreen window;
 	if (clr_on) {
 		@set_colour clr_fg clr_bg;
@@ -251,7 +257,7 @@ Constant ONE_SPACE_STRING = " ";
 				! Width is 53+, leave some space to the right
 				_PrintSpacesOrMoveBack(15, MOVES__TX);
 #Ifndef OPTIONAL_NON_FLASHING_STATUSLINE;
-				parser_one = 8;
+				parser_one = 6;
 #Endif;
 			} else {
 				_PrintSpacesOrMoveBack(11, MOVES__TX);
@@ -507,6 +513,10 @@ Constant ONE_SPACE_STRING = " ";
 
 
 [ PrintShortName o;
+	if(caps_mode == 2) 
+		caps_mode = true;
+	else 
+		caps_mode = false;
 	if (o == 0) { print "nada"; rtrue; }
 	switch (metaclass(o)) {
 	  Routine:  print "<routine ", o, ">"; rtrue;
@@ -518,6 +528,9 @@ Constant ONE_SPACE_STRING = " ";
 ];
 
 [ _PrintObjName p_obj p_form;
+	caps_mode = false;
+	if(p_form == FORM_CDEF)
+		caps_mode = 2;
 	if(p_obj hasnt proper) {
 		if(p_form == FORM_CDEF) {
 			if (p_obj has pluralname) {
@@ -910,7 +923,7 @@ Constant ONE_SPACE_STRING = " ";
 
 [ _PrintContentsShowObj p_obj;
 	! Return true if object should be shown in list, false if not
-	if(p_obj ~= parent(player) && ! don't print container when player in it
+	if(IndirectlyContains(p_obj, player) == false && ! don't print container when player in it 
 			(pc_depth > 0 || c_style & WORKFLAG_BIT == 0 || p_obj has workflag) &&
 	! Hide concealed and scenery unless taking inventory
 			(action == ##Inv || (p_obj hasnt concealed && p_obj hasnt scenery)))
@@ -995,7 +1008,11 @@ Constant ONE_SPACE_STRING = " ";
 			jump _isnt_present;
 		} else {
 			_j = _obj.&found_in;
+#Ifv5;
+			@log_shift _len (-1) -> _len; ! Divide by 2
+#Ifnot;
 			_len = _len / 2;
+#Endif;
 			_len = _len - 1;
 ._check_next_value;
 				_o = _j-->_len;
@@ -1077,7 +1094,7 @@ Constant ONE_SPACE_STRING = " ";
 	_old_lookmode = lookmode;
 	if(p_flag==false)
 		lookmode = 2;
-	if(p_flag==false or 2 && deadflag == GS_PLAYING)
+	if(p_flag~=true && deadflag == GS_PLAYING)
 		Look();
 	lookmode = _old_lookmode;
 ];
@@ -1102,8 +1119,10 @@ Constant ONE_SPACE_STRING = " ";
 		location = thedark;
 	} else {
 		location = real_location;
-		if(_old_darkness && p_silent == false)
+		if(_old_darkness && p_silent == false) {
+			new_line;
 			<Look>;
+		}
 	}
 ];
 
@@ -1232,6 +1251,7 @@ Include "parser.h";
 ];
 
 [ BeforeRoutines;
+	if(real_location == 0) rfalse;
 
 	GetScopeCopy(player, REACT_BEFORE_REASON); ! later used by _RunReact
 
@@ -1292,6 +1312,7 @@ Include "parser.h";
 [ AfterRoutines;
 	! react_after - Loops over the scope to find possible react_before routines
 	! to run in each object, if it's found stop the action by returning true
+	if(real_location == 0) rfalse;
 
 	GetScopeCopy(player, REACT_AFTER_REASON); ! later used by _RunReact
 
@@ -2212,7 +2233,12 @@ Include "parser.h";
 Object selfobj "tú"
 	with
 		name 'yo' 'mi' 'mismo',
-		short_name  "yo mismo",
+!		short_name  "tú mismo",
+		short_name  [; 
+			if(caps_mode) { print "Tú"; rtrue; }
+			print "tú mismo";
+			rtrue;
+		],
 		description "Tan buen aspecto como siempre.",
 		before NULL,
 		after NULL,

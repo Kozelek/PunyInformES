@@ -21,7 +21,26 @@ Constant INITIAL_LOCATION_VALUE = Biblioteca;
 
 Include "globals.h";
 
+#Ifv5;
+Replace RestartSub;
+#Endif;
+
 Include "puny.h";
+
+#Ifv5;
+! Asegúrate de regresar a los colores por defecto, como arreglo
+! de un bug de algunos intérpretes, donde el color de fondo no
+! vuelve automáticamente a sus colores por defecto al reiniciar.
+[ RestartSub;
+	PrintMsg(MSG_RESTART_CONFIRM);
+	if(YesOrNo()) {
+		@set_colour CLR_DEFAULT CLR_DEFAULT;
+		ClearScreen(WIN_ALL);
+		@restart;
+		return MSG_RESTART_FAILED;
+	}
+];
+#Endif;
 
 ! Declara las constantes de color que necesitamos para cambiar convenientemente de color durante el juego
 Constant MY_DEFAULT_FG = CLR_CYAN;
@@ -43,15 +62,23 @@ Object -> Box "caja"
 		inside_description "Se siente tan bien, de pie en la caja.",
 	has container open openable enterable female;
 
+
+#Ifv3;
 [Initialise;
-#Ifv5;
+#IfNot;
+[Initialise ozmoo_colours;
+	if(OzmooColoursAvailable())
+		ozmoo_colours = true;
 	if(HDR_TERPFLAGS->0 & 1) {
 		print "^^¿Quieres color? ";
 		if(YesOrNo()) {
 			clr_on = true;
 			clr_fg = MY_DEFAULT_FG; ! Definido en este programa, justo después de incluir "puny.h"
 			clr_bg = CLR_BLACK;
-			clr_fginput = CLR_YELLOW; ! No lo configures, o configúralo a CLR_CURRENT, para mantener la entrada en el mismo color que el texto normal.
+			if(ozmoo_colours)
+				clr_fginput = CLR_OZMOO_LIGHT_GREEN; ! Escogemos usar uno de los 8 colores extra de Ozmoo
+			else
+				clr_fginput = CLR_YELLOW; ! No lo configures, o configúralo a CLR_CURRENT, para mantener la entrada en el mismo color que el texto normal.
 			clr_fgstatus = CLR_RED; ! No lo configures, o configúralo a CLR_CURRENT, para mantener la línea de estado en el mismo color que el texto normal.
 		}
 		ClearScreen(WIN_ALL);

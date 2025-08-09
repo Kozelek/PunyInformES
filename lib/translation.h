@@ -59,6 +59,7 @@ System_file;
 	if (change) { ! ha habido un cambio
 		Tokenise__(buffer, parse);
 	}
+	ProcessInfinitives();
 ];
 
 [ ProcessChars change i b new;
@@ -79,6 +80,22 @@ System_file;
 		if(new > 0) {
 			b -> i = new;
 			change = true;
+		}
+	}
+	if (change) { ! ha habido un cambio
+		Tokenise__(buffer, parse);
+	}
+];
+
+[ ProcessInfinitives w x length change;
+	for (w=parse->1:w>=1:w--) {
+		length = parse->(4*w);
+		if (parse-->(w*2-1) == 0 && length >= 2) {
+			x = parse->(4*w + 1) + length - 1; 
+			if (buffer->x == 'r') { ! Palabra terminada en r, posible infinitivo regular
+				change = true;
+				buffer->x = ' ';
+			}
 		}
 	}
 	if (change) { ! ha habido un cambio
