@@ -12,22 +12,12 @@ Message fatalerror "*** La librería PunyInformES necesita Inform v6.43 o poster
 #Endif; ! VN_
 
 #IfV5;
-Zcharacter 'á';
-Zcharacter 'é';
-Zcharacter 'í';
-Zcharacter 'ó';
-Zcharacter 'ú';
-Zcharacter 'Á';
-Zcharacter 'É';
-Zcharacter 'Í';
-Zcharacter 'Ó';
-Zcharacter 'Ú';
-Zcharacter 'ü';
-Zcharacter 'Ü';
-Zcharacter 'ñ';
-Zcharacter 'Ñ';
-Zcharacter 'ç';
-Zcharacter 'Ç';
+
+Zcharacter
+    "abcdefghij.lmnopqrstuv,áyí"
+    "ABCDEFGHIJóLMNOPQRSTUVzXYZ"
+    "0éñ¿úkx¡w*;[!?_]'/>-:()";
+
 #EndIf;
 
 #IfnDef CUSTOM_ABBREVIATIONS;
