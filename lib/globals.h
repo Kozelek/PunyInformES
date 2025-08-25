@@ -13,13 +13,6 @@ Message fatalerror "*** La librería PunyInformES necesita Inform v6.43 o poster
 
 #IfV5;
 
-Zcharacter
-    "abcdefghij.lmnopqrstuv,áyí"
-    "ABCDEFGHIJóLMNOPQRSTUVzXYZ"
-    "0éñ¿úkx¡w*;[!?_]'/>-:()";
-
-#EndIf;
-
 #IfnDef CUSTOM_ABBREVIATIONS;
 #include "abbrevs.h";
 #EndIf;
