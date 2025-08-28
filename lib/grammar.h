@@ -1815,7 +1815,7 @@ Verb meta 'verify' 'verificacion'
 #Endif; ! NO_PLACES
 
 [ ScriptOnSub;
-	transcript_mode = ((HDR_GAMEFLAGS-->0) & 1);
+	transcript_mode = (HDR_GAMEFLAGS-->0) & 1;
 	if (transcript_mode) "La transcripción ya está activada.";
 	@output_stream 2;
 	if (((HDR_GAMEFLAGS-->0) & 1) == 0) "Intento de transcribir fallido.";

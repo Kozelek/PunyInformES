@@ -1,6 +1,18 @@
 Próxima publicación:
 
 =======
+v2.0.1: corrección de bugs (28 Aug 2025)
+
+- Se ha eliminado la tabla de caracteres de global.h (porque se debería hacer para cada juego con ZAbbrevMaker).
+- Se ha introducido un ejemplo de tabla de caracteres en library_of_horror.inf y se han mejorado las abreviaturas con ello.
+
+Cambios heredados de PunyInform v6.0.1:
+- Corrección de errores: Establecer scope_routine=0 en el analizador antes de realizar la acción, para evitar que el scope quede mal.
+- Si se realizaba la acción ##Restart mientras se generaba una transcripción, la librería olvidaba que tenía una transcripción activa e imprimía una advertencia si el reproductor intentaba introducir un comentario con "*".
+- Se ha acelerado la rutina WordValue.
+- Se han corregido problemas menores y se ha limpiado howto/talk_menu.inf.
+
+=======
 2.0: Nuevas características y actualización a PunyInform v6.0 (9 Agosto 2025)
 
 - Solo para v5, para detectar automáticamente infinitivos regulares, comprueba si un verbo terminado en "r" no es comprendido, elimina la "r" y vuelve a intentar.

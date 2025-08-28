@@ -14,18 +14,9 @@ Constant USEINFORM;
 Constant Story      "Menú de conversación";
 Constant Headline   "^Una muestra de la extensión ext_talk_menu.^";
 
-! Descomente UNA de las dos líneas siguientes, para mostrar el tiempo o la puntuación/vueltas
-! Dejando las dos comentadas, la librería ocupará más.
-!Constant STATUSLINE_TIME; Statusline time;
-Constant STATUSLINE_SCORE; Statusline score; #Ifdef STATUSLINE_SCORE; #Endif;
+Constant STATUSLINE_SCORE; Statusline score;
 
-! Comenta para llevar la cuenta de la puntuación
-! El valor es lo que se mostrará como puntuación en la línea de status en z3
 Constant NO_SCORE = 0;
-
-! Personalizar la línea de estado en z5+ (no tendrá efecto en z3)
-!Constant OPTIONAL_SL_NO_SCORE;
-!Constant OPTIONAL_SL_NO_MOVES;
 
 ! Descomentar para añadir características opcionales a PunyInform
 !Constant DEBUG;
@@ -63,9 +54,7 @@ Constant TM_MSG_TOPICS_DEPLETED "Con eso, la conversación llega a su fin natura
 Constant TM_MSG_EXIT = TM_MSG_EXIT_Routine;
 
 Constant TM_MSG_EXIT_OPTION "[ENTER] Adiós por ahora";
-#Ifv5;
 Constant TM_MSG_PAGE_OPTION "[N] Más opciones";
-#Endif;
 [TMPrintLine p_actor p_array p_line;
 	! Rutina para imprimir una línea, por el jugador o un PNJ. Define tu propia versión según sea necesario.
 	if(p_array-->p_line == TM_NO_LINE)
@@ -133,7 +122,7 @@ Array linda_charla_warhammer -->
 
 Array linda_charla_paris -->
 	30 "El Sena" "¿Te gusta el Sena?" "Es como mi río favorito, ¡desde siempre!"
-	30 "Torre Eiffel" "¿Ha visitado la Torre Eiffel?" "Bueno, lo he visto. No he subido. Me dan miedo las alturas" "Linda se estremece."
+	30 "Torre Eiffel" "¿Has visitado la Torre Eiffel?" "Bueno, la he visto. No he subido. Me dan miedo las alturas" "Linda se estremece."
 	TM_END;
 
 Array array_charla_linda -->
@@ -239,8 +228,8 @@ Object -> Josh "Josh"
 			clr_on = true;
 			clr_bg = CLR_BLACK;
 			if(ozmoo_colours) {
-				clr_fg = CLR_OZMOO_MEDIUM_GREY;
-				clr_talk_menu = CLR_WHITE; ! Escogemos uno de los 8 colores extra en Ozmoo
+				clr_fg = CLR_OZMOO_MEDIUM_GREY; ! Escogemos uno de los 8 colores extra en Ozmoo
+				clr_talk_menu = CLR_WHITE;
 			} else {
 				clr_fg = CLR_WHITE;
 				clr_talk_menu = CLR_YELLOW;
