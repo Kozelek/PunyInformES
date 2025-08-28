@@ -11,8 +11,6 @@ Constant PUNYINFORM_PATCH_VERSION = 1; ! Usually 0 (if zero, it is not printed i
 Message fatalerror "*** La librería PunyInformES necesita Inform v6.43 o posterior ***";
 #Endif; ! VN_
 
-#IfV5;
-
 #IfnDef CUSTOM_ABBREVIATIONS;
 #include "abbrevs.h";
 #EndIf;
