@@ -1,6 +1,13 @@
 Próxima publicación:
 
 =======
+v2.0.2: corrección de bugs (13 Sept 2025)
+
+Cambios heredados de PunyInform v6.0.2:
+- Rutinas de scope optimizadas. (Problema n.º 155)
+- Se ha añadido el juego de demostración Mini-Cluedo como statusline_teleport.inf a la carpeta howto.
+
+=======
 v2.0.1: corrección de bugs (28 Aug 2025)
 
 - Se ha eliminado la tabla de caracteres de global.h (porque se debería hacer para cada juego con ZAbbrevMaker).

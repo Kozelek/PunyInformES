@@ -17,6 +17,7 @@
 ! $ZCODE_LESS_DICT_DATA=1 elimina un byte de datos vacío por cada palabra del diccionario
 ! $LONG_DICT_FLAG_BUG=0 activa una corrección de errores en Inform v6.42+, para que se tengan
 ! en cuenta las banderas de plural en palabras largas, por ejemplo 'transmogrifiers//p'.
+! $ZCODE_COMPACT_GLOBALS=1 evita reservar espacio de memoria dinámica para globales sin usar.
 
 Constant Story      "Mínima";
 Constant Headline   "^Un juego de ejemplo que usa PunyInform.^";

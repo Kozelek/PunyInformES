@@ -240,7 +240,7 @@ Constant MAX_WAIT_MINUTES 1440;
 
 
 #Ifdef STATUSLINE_SCORE;
-	Extend 'espera' 'esperar'
+	Extend 'espera'
 		* 'durante' number 'turno'/'turnos'          -> WaitMoves
 		* 'durante' number 'minuto'/'minutos'        -> WaitMinutes
 		* 'durante' number 'hora'/'horas'            -> WaitHours
@@ -249,7 +249,7 @@ Constant MAX_WAIT_MINUTES 1440;
 		* number 'turno'/'turnos'                    -> WaitMoves
 		* number                                     -> WaitMoves;
 #Ifnot;
-	Extend 'espera' 'esperar'
+	Extend 'espera'
 		* 'hasta' parsetime                          -> WaitUntil
 		* 'durante' number 'turno'/'turnos'          -> WaitMoves
 		* 'durante' number 'minuto'/'minutos'        -> WaitMinutes
@@ -259,3 +259,25 @@ Constant MAX_WAIT_MINUTES 1440;
 		* number 'turno'/'turnos'                    -> WaitMoves
 		* number                                     -> WaitMoves;
 #Endif;
+#IfV3;
+#Ifdef STATUSLINE_SCORE;
+	Extend 'esperar'
+		* 'durante' number 'turno'/'turnos'          -> WaitMoves
+		* 'durante' number 'minuto'/'minutos'        -> WaitMinutes
+		* 'durante' number 'hora'/'horas'            -> WaitHours
+		* number 'minuto'/'minutos'                  -> WaitMinutes
+		* number 'hora'/'horas'                      -> WaitHours
+		* number 'turno'/'turnos'                    -> WaitMoves
+		* number                                     -> WaitMoves;
+#Ifnot;
+	Extend 'esperar'
+		* 'hasta' parsetime                          -> WaitUntil
+		* 'durante' number 'turno'/'turnos'          -> WaitMoves
+		* 'durante' number 'minuto'/'minutos'        -> WaitMinutes
+		* 'durante' number 'hora'/'horas'            -> WaitHours
+		* number 'minuto'/'minutos'                  -> WaitMinutes
+		* number 'hora'/'horas'                      -> WaitHours
+		* number 'turno'/'turnos'                    -> WaitMoves
+		* number                                     -> WaitMoves;
+#Endif;
+#EndIf;

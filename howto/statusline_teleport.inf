@@ -1,0 +1,299 @@
+!% -Cu
+! Este es un juego tipo Cluedo, creado para mostrar cómo se podría hacer
+! en PunyInform. El programa se explica con cierto detalle en
+! https://intfiction.org/t/mini-cluedo-in-punyinform/75748
+!
+! Este programa muestra al menos dos características que pueden resultar 
+! útiles en muchos proyectos:
+! * Una línea de estado personalizada, que tiene dos líneas de altura.
+! * Un sistema de teletransporte, es decir, el jugador puede escribir
+! el nombre de una habitación para ir allí, sin necesidad de utilizar un
+! verbo. Por ejemplo, "estudio" traslada al jugador al estudio.
+! AVISO: No puede compilarse en V3.
+
+Constant Story      "Mini-Cluedo";
+Constant Headline   "^Una demostración de PunyInform.^";
+
+Constant STATUSLINE_SCORE; Statusline score;
+
+Constant NO_SCORE = 0;
+
+!Constant DEBUG;
+!Constant RUNTIME_ERRORS = 0; ! 0, 1 or 2. 0 = fichero más pequeño, 2 = más información
+Constant OPTIONAL_NO_DARKNESS;
+Constant OPTIONAL_ALLOW_WRITTEN_NUMBERS;
+Constant OPTIONAL_GUESS_MISSING_NOUN;
+Constant OPTIONAL_EXTENDED_METAVERBS;
+Constant OPTIONAL_PROVIDE_UNDO;
+
+Constant INITIAL_LOCATION_VALUE = Biblioteca;
+
+Include "globals.h";
+
+Global destino_teleportacion;
+Global escena_crimen;
+Global asesino;
+Global cuenta_habitaciones;
+
+Property palabras_teleportacion;
+Property posibilidades;
+
+Replace DrawStatusLine;
+
+[ UnknownVerb p_word p_word_2 i o arr;
+	destino_teleportacion = 0;
+	if(NumberWords() > 1) p_word_2 = WordValue(2);
+	for(i = cuenta_habitaciones: i>=0: i--) {
+		o = Habitaciones-->i;
+		arr = o.&palabras_teleportacion;
+		if(p_word == arr-->0 or arr-->1) {
+			destino_teleportacion = o; 
+			if(o == location)
+				destino_teleportacion = "¡Ya estás allí!";
+			break;
+		}
+	}
+	if(destino_teleportacion)
+		return ',teleport';
+	rfalse;
+];
+
+Constant GS_MAL = 3;
+
+[ DeathMessage;
+	print "Has sufrido la humillación de la Jefa de Policía";
+];
+
+Include "puny.h";
+
+[ DrawStatusLine p_linefeeds exits i o;
+	! Si se llama con p_linefeeds == true, imprime el número de saltos de línea necesarios
+    ! para asegurarse de que el texto al inicio del juego no quede cubierto por la línea de estado.
+	if(p_linefeeds) "^";
+
+	! Si no hay ubicación del jugador, no debemos intentar dibujar la ventana de estado.
+	if (location == nothing || parent(player) == nothing)
+		return;
+
+	_StatusLineHeight(2);
+	_MoveCursor(1, 1); ! Esto también establece la ventana superior como activa.
+	FastSpaces(screen_width);
+	_MoveCursor(1, 2);
+	print (name) location;
+	_PrintSpacesOrMoveBack(12, MOVES__TX);
+	print turns;
+	_MoveCursor(2, 1);
+	FastSpaces(screen_width);
+	_MoveCursor(2, 2);
+	print "Salidas: ";
+	for(i = 1: i <= cuenta_habitaciones: i++) {
+		o = Habitaciones-->i;
+		if(o ~= location) {
+			if(exits) print ", ";
+			print (name) o;
+			exits++;
+		}
+	 }
+	_MainWindow(); ! set_window
+];
+
+Include "ext_waittime.h";
+
+Object Biblioteca "Biblioteca"
+	with
+		palabras_teleportacion 'biblioteca',
+		description "Estás en una biblioteca.";
+
+Object Estudio "Estudio"
+	with
+		palabras_teleportacion 'estudio',
+		description "Estás en un estudio.";
+
+Object Salon "Salón"
+	with
+		palabras_teleportacion 'salon',
+		description "Estás en un salón.";
+
+Object SalaOcio "Sala de ocio"
+	with
+		palabras_teleportacion 'sala' 'ocio',
+		description "Estás en una sala de ocio.";
+
+Array Habitaciones table Biblioteca Estudio Salon SalaOcio;
+
+
+Class Sospechoso
+	with
+		posibilidades 0 1 1 1 1, ! El primer índice es 0, no se utiliza.
+		daemon [ i k loc total elegido;
+			! Solo se mueve 1/3 del tiempo.
+			if(random(3) > 1) return;
+			loc = parent(self);
+			! Suma los pesos de todos los destinos
+			for(i=cuenta_habitaciones: i>0: i--)
+				if(Habitaciones-->i ~= loc)
+					total = total + self.&posibilidades-->i;
+			! Elige un destino aleatorio, donde la probabilidad de elegir una
+			! cierta habitación es relativa a su peso. Ajusta los pesos para que
+			! sea más probable que visitemos habitaciones que no hemos visitado en mucho tiempo.
+			k = random(total);
+			for(i=cuenta_habitaciones: i>0: i--) {
+				if(Habitaciones-->i == loc)
+					self.&posibilidades-->i = 0;
+				else {
+					k = k - self.&posibilidades-->i;
+					if(k <= 0 && elegido == 0) elegido = Habitaciones-->i;
+					(self.&posibilidades-->i)++;
+				}
+			}
+			if(player in loc)
+				print "^", (The) self, " sale de la habitación.^";
+			move self to elegido;
+			if(player in elegido) {
+				waittime_waiting = false;
+				print "^", (The) self, " llega.^";
+			}
+		],
+	has animate proper;
+
+Sospechoso Bill "Bill" with name 'bill';
+Sospechoso Tom "Tom" with name 'tom';
+Sospechoso Linda "Linda" with name 'linda' has female;
+Sospechoso Sue "Sue" with name 'sue' has female;
+
+Array Sospechosos table Bill Tom Linda Sue;
+
+[ HeOrShe p_noun;
+	if(p_noun has female)
+		print "ella";
+	else
+		print "él";
+];
+
+[ CHeOrShe p_noun;
+	if(p_noun has female)
+		print "Ella";
+	else
+		print "Él";
+];
+
+[o p_noun;
+	if(p_noun has female)
+		print "a";
+	else
+		print "o";
+];
+
+
+#Ifdef DEBUG;
+Verb meta 'posibilidad' 'posibilidades'
+	* creature -> Posibilidad;
+
+[ PosibilidadeSub i;
+	if(~~(noun provides posibilidades))
+		print_ret "¡", (The) noun, " no tiene la propiedad posibilidades!";
+	for(i=1: i<=cuenta_habitaciones: i++) {
+		print (The) Habitaciones-->i, ": ", noun.&posibilidades-->i;
+		if(noun in Habitaciones-->i) print " (La habitación actual de ",(the) noun,")";
+		print "^";
+	}
+	print "normal_directions_enabled vale ", normal_directions_enabled, "^";
+];
+#Endif;
+
+
+Verb ',teleport'
+	* 			-> Teleporta
+	* topic 	-> Teleporta;
+
+[ TeleportaSub;
+	if(destino_teleportacion ofclass String)
+		print_ret (string) destino_teleportacion;
+	PlayerTo(destino_teleportacion);
+];
+
+Extend 'busca' replace
+	* 							   -> BuscaSala
+	* 'habitacion'/'sala'/'escena' -> BuscaSala;
+
+[ BuscaSalaSub;
+	if(location == escena_crimen)
+		"Encuentras todas las pruebas que necesitas: sin duda, esta es la escena del crimen.";
+	"No encuentras nada que indique que aquí se haya cometido un asesinato.";
+];
+
+Extend 'interroga' replace
+	* creature -> Interroga
+	* 'a//' creature -> Interroga;
+
+[ InterrogaSub;
+	if(noun == asesino)
+		"~Vale, lo admito, ¡lo hice!~, ", (string) random("grita", "chilla", "exclama"), " ", 
+			 (HeOrShe) noun, ".";
+	print_ret (CHeOrShe) noun, " niega con calma tener nada que ver con el asesinato.";
+];
+
+Verb 'acusa'
+	* creature -> Acusa;
+
+[ AcusaSub;
+	deadflag = GS_MAL;
+	print "La policía llega. ";
+	if(location == escena_crimen && noun == asesino) {
+		deadflag = GS_WIN;
+		print_ret (The) noun, " ", 
+			(string) random("se derrumba", "solloza en silencio", "ríe diabólicamente"),
+			" cuando se l", (o) noun, " llevan. 
+			^^La jefa de policía te mira con admiración: ~¡Bien hecho, detective!~";
+	}
+	if(location == escena_crimen) {
+		print_ret (The) noun, " te mira con confusión: ~¡Pero tengo una coartada!~ 
+			^^La jefa de policía interroga a la persona y descubre que ", (HeOrShe) noun,
+			" de hecho tiene coartada, y l", (o) noun, " libera.
+			^^La jefa te mira y menea la cabeza, decepcionada.";
+	}
+	if(noun == asesino) {
+		print_ret (The) noun, " te sonríe: ~No tienes ni idea, ¿verdad? Estoy seguro de que
+            no encontrarán indicios de que se haya cometido un asesinato aquí.~
+			^^La jefa de policía hace que sus agentes registren rápidamente la habitación. Al
+             no haber pruebas que respalden tu afirmación, tienen que dejar a ", (the) noun, " marcharse.
+			La jefa te mira y menea la cabeza, decepcionada.";
+	}
+	print_ret (The) noun, " te mira con total confusión: ~¿Estás diciendo que *yo*
+        cometí un asesinato, *AQUÍ*? ¡Debes estar fuera de tus cabales!~ 
+		^^La Jefa de Policía hace que sus agentes registren rápidamente la habitación, mientras
+        ella interroga al sospechoso. Al no encontrar pruebas que respalden que ", (the) noun,
+		" es responsable del delito, o que esta sea siquiera la escena del crimen, ", 
+		(the) noun, " es libre para marcharse.
+		^^La jefa te mira y menea la cabeza, decepcionada.";
+];
+
+Verb meta 'ayuda' 'acerca' 'instrucciones'
+	* -> Help;
+
+[ HelpSub;
+	"Alguien ha cometido un asesinato.
+        ^* Ve a otra habitación escribiendo su nombre.
+        ^* Puedes INTERROGAR a una persona para preguntarle si lo ha hecho, y te responderá con sinceridad. 
+        ^* Puedes BUSCAR para decidir si tu ubicación actual es la escena del crimen. 
+        ^* Puedes ESPERAR (o Z, o ESPERAR 10) para esperar a que los sospechosos se muevan.
+		^* Puedes ACUSAR a una persona. Si acusas a la persona que es la asesina, 
+        y lo haces en la escena del crimen, ganas.
+        De lo contrario, pierdes. ¡Buena suerte!";
+];
+
+[Initialise o loc;
+	<Help>;
+	print "^ (¡Escribe AYUDA para repetir este texto en cualquier momento!)^";
+	normal_directions_enabled = false;
+	cuenta_habitaciones = Habitaciones-->0;
+	objectloop(o ofclass Sospechoso) {
+		loc = Habitaciones-->(random(cuenta_habitaciones));
+		move o to loc;
+		StartDaemon(o);
+	}
+	escena_crimen = Habitaciones-->(random(cuenta_habitaciones));
+	asesino = Sospechosos-->(random(Sospechosos-->0));
+];
+
+

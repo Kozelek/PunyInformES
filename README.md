@@ -17,8 +17,9 @@ PunyInformES, por el momento es imprescindible dirigirse al repositorio de
 
 ## Comentarios relativos a la traducción de PunyInformES:
 
-* Para programar con esta versión de PunyInformES, será necesario disponer de la
-versión v6.43 o posterior del compilador de Inform.
+* PunyInform usa la Gramática Versión 3 que solo es soportada por versiones recientes
+del compilador de Inform 6. PunyInform requiere al menos la versión 6.44 de Inform,
+y recomendamos usar la última versión disponible.
 
 * El parser intenta adivinar el infinitivo automáticamente solo en la versión V5.
 Para ello, elimina la última "r" de un verbo y comprueba si el imperativo resultante
