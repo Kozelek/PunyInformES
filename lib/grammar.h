@@ -20,17 +20,14 @@ Verb 'pide' 'pidele' 'pedir'
     * noun 'a//' creature        				-> AskFor reverse;
 
 #ifV3;
-Verb 'rompe' 'aplasta' 'golpea' 'romper'
-    'destruye' 'patea' 'pisotea' 'patear'
-	'ataca' 'mata' 'asesina' 'tortura' 'noquea'
-	'atacar' 'matar'
+Verb 'rompe' 'golpea' 'romper' 'destruye' 'patea' 'patear'
+	'ataca' 'mata' 'asesina' 'atacar' 'matar'
 	* noun                                      -> Attack
     * 'a//' noun                    			-> Attack
 	* noun 'con' held                          	-> Attack;
 #Ifnot;
-Verb 'rompe' 'aplasta' 'golpea'
-    'destruye' 'patea' 'pisotea' 'destruir'
-	'ataca' 'mata' 'asesina' 'tortura' 'noquea'
+Verb 'rompe' 'golpea' 'destruye' 'patea' 'destruir'
+	'ataca' 'mata' 'asesina'
 	* noun                                      -> Attack
     * 'a//' noun                    			-> Attack
 	* noun 'con' held                          	-> Attack;
@@ -52,17 +49,17 @@ Verb 'sube' 'subir' 'subete' 'subirse' 'subirte'
     * noun                              		-> Climb
     * 'a//' / 'en' / 'por'  noun        		-> Enter;
 
-Verb 'cierra' 'cerrar' 'cubre' 'cubrir'
+Verb 'cierra' 'cerrar'
     * noun                               		-> Close
     * noun 'con' 'pestillo'        				-> Lock
     * noun 'con' held                    		-> Lock;
 
 #ifV3;
-Verb 'corta' 'rasga' 'cortar' 'rasgar'
+Verb 'corta' 'cortar'
     * noun                               		-> Cut
     * noun 'con' held                    		-> Attack;
 #Ifnot;
-Verb 'corta' 'rasga'
+Verb 'corta'
     * noun                               		-> Cut
     * noun 'con' held                    		-> Attack;
 #Endif;
@@ -1690,6 +1687,8 @@ Verb meta 'quit' 'q//' 'fin'
 	#EndIf;
 	#IfDef Headline;
 		print (string) Headline;
+	#IfNot;
+		new_line;
 	#EndIf;
 #EndIf;
 	print "Versión ", (0-->1) & $03ff, " / No.Serie ";
@@ -2238,7 +2237,6 @@ Constant _REAL_LOCATION_TEXT " *** real_location ***";
 	while(_ceil ~= player or 0) {
 		if(_describe_room) {
 			if(_ceil == location) {
-				new_line;
 				PrintOrRun(_ceil, description);
 			} else if(_ceil.inside_description ~= 0 or NULL) {
 				if(_ceil ~= _top_ceil) new_line;
