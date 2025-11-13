@@ -237,14 +237,14 @@ Constant FAKE_IN_OBJ = 10011;
 Constant FAKE_OUT_OBJ = 10012;
 #IfV5;
 Array _direction_dict_words static --> 'n//' 's//' 'e//' 'o//' 'ne' 'no' 'se' 'so' 'su//' 'ba//' 0 0
-	'norte' 'sur' 'este' 'oeste' 'noreste' 'noroeste' 'sureste' 'suroeste' 'subir' 'bajar' 'entrar' 'salir';
+	'norte' 'sur' 'este' 'oeste' 'noreste' 'noroeste' 'sureste' 'suroeste' 'sube' 'baja' 'entra' 'sal';
 #Ifdef OPTIONAL_SHIP_DIRECTIONS;
 Array _ship_direction_dict_words static --> 'pr//' 'po//' 'est' 'bab//' 0 0 0 0 'su//' 'ba//' 0 0
-	'proa' 'popa' 'estribor' 'babor' 0 0 0 0 'subir' 'bajar' 'entrar' 'salir';
+	'proa' 'popa' 'estribor' 'babor' 0 0 0 0 'sube' 'baja' 'entra' 'sal';
 #Endif;
 #Endif;
 Array direction_properties_array static -> 0 n_to s_to e_to w_to ne_to nw_to se_to sw_to u_to d_to in_to out_to;
-Array direction_name_array static --> "dirección" "norte" "sur" "este" "oeste" "noreste" "noroeste" "sureste" "suroeste" "subir" "bajar" "entrar" "salir";
+Array direction_name_array static --> "dirección" "norte" "sur" "este" "oeste" "noreste" "noroeste" "sureste" "suroeste" "sube" "baja" "entra" "sal";
 Constant DIRECTION_COUNT = 12;
 
 #IfNot; ! not OPTIONAL_FULL_DIRECTIONS
@@ -255,14 +255,14 @@ Constant FAKE_IN_OBJ = 10007;
 Constant FAKE_OUT_OBJ = 10008;
 #IfV5;
 Array _direction_dict_words static --> 'n//' 's//' 'e//' 'o//' 'su//' 'ba//' 0 0
-	'norte' 'sur' 'este' 'oeste' 'subir' 'bajar' 'entrar' 'salir';
+	'norte' 'sur' 'este' 'oeste' 'sube' 'baja' 'entra' 'sal';
 #Ifdef OPTIONAL_SHIP_DIRECTIONS;
 Array _ship_direction_dict_words static --> 'pr//' 'po//' 'est' 'bab//' 'su//' 'ba//' 0 0
-	'proa' 'popa' 'estribor' 'babor' 'subir' 'bajar' 'entrar' 'salir';
+	'proa' 'popa' 'estribor' 'babor' 'sube' 'baja' 'entra' 'sal';
 #Endif;
 #Endif;
 Array direction_properties_array static -> 0 n_to s_to e_to w_to u_to d_to in_to out_to;
-Array direction_name_array static --> "dirección" "norte" "sur" "este" "oeste" "subir" "bajar" "entrar" "salir";
+Array direction_name_array static --> "dirección" "norte" "sur" "este" "oeste" "sube" "baja" "entra" "sal";
 Constant DIRECTION_COUNT = 8;
 
 #EndIf; ! not OPTIONAL_FULL_DIRECTIONS
@@ -670,8 +670,20 @@ Object Directions
 			if(normal_directions_enabled) {
 				@scan_table _w _arr (DIRECTION_COUNT * 2) -> _i ?_matched_word_in_list;
 #Ifndef OPTIONAL_SHIP_DIRECTIONS;
-				if(_w == 'suelo' or 'tierra' or 'abajo') {
+				if(_w == 'subir' or 'arriba') {
+					selected_direction_index = DIRECTION_COUNT - 3;
+					jump _matched_and_have_set_dir_index;
+				}
+				if(_w == 'bajar' or 'abajo') {
 					selected_direction_index = DIRECTION_COUNT - 2;
+					jump _matched_and_have_set_dir_index;
+				}
+				if(_w == 'entrar' or 'adentro') {
+					selected_direction_index = DIRECTION_COUNT - 1;
+					jump _matched_and_have_set_dir_index;
+				}
+				if(_w == 'salir' or 'afuera') {
+					selected_direction_index = DIRECTION_COUNT;
 					jump _matched_and_have_set_dir_index;
 				}
 #Endif;
@@ -682,8 +694,23 @@ Object Directions
 			if(ship_directions_enabled)
 				@scan_table _w _arr (DIRECTION_COUNT * 2) -> _i ?_matched_word_in_list;
 			if((normal_directions_enabled || ship_directions_enabled) &&
-					_w == 'suelo' or 'tierra' or 'abajo') {
+					_w == 'subir' or 'arriba') {
+				selected_direction_index = DIRECTION_COUNT - 3;
+				jump _matched_and_have_set_dir_index;
+			}
+			if((normal_directions_enabled || ship_directions_enabled) &&
+					_w == 'bajar' or 'abajo') {
 				selected_direction_index = DIRECTION_COUNT - 2;
+				jump _matched_and_have_set_dir_index;
+			}
+			if((normal_directions_enabled || ship_directions_enabled) &&
+					_w == 'entrar' or 'adentro') {
+				selected_direction_index = DIRECTION_COUNT - 1;
+				jump _matched_and_have_set_dir_index;
+			}
+			if((normal_directions_enabled || ship_directions_enabled) &&
+					_w == 'salir' or 'afuera') {
+				selected_direction_index = DIRECTION_COUNT;
 				jump _matched_and_have_set_dir_index;
 			}
 #EndIf;

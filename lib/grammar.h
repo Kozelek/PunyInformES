@@ -138,7 +138,6 @@ Verb 'come' 'comete' 'comerse' 'comerte'
     * held                -> Eat;
 #Endif;
 
-#IfDef OPTIONAL_EXTENDED_VERBSET;
 #ifV3;
 Verb 'entra' 'cruza' 'entrar' 'cruzar'
 	*                                   -> GoIn
@@ -147,15 +146,6 @@ Verb 'entra' 'cruza' 'entrar' 'cruzar'
 Verb 'entra' 'cruza'
 	*                                   -> GoIn
 	* noun                              -> Enter;
-#Endif;
-#Ifnot;
-#ifV3;
-Verb 'entra' 'cruza' 'entrar' 'cruzar'
-	* noun                              -> Enter;
-#Ifnot;
-Verb 'entra' 'cruza'
-	* noun                              -> Enter;
-#Endif;
 #Endif;
 
 Verb 'examina' 'x//' 'ex'
@@ -1151,6 +1141,11 @@ Array _PutOnMessages static -->
 	<Go FAKE_U_OBJ>;
 ];
 
+[ GoInSub;
+	! shortcut to <<Go in>>
+	<Go FAKE_IN_OBJ>;
+];
+
 
 ! ---------------------
 ! Extended verbs
@@ -1383,11 +1378,6 @@ Verb 'si'
 		}
 	}
 	run_after_routines_msg = 1;
-];
-
-[ GoInSub;
-	! shortcut to <<Go in>>
-	<Go FAKE_IN_OBJ>;
 ];
 
 [ KissSub;
