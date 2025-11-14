@@ -678,11 +678,11 @@ Object Directions
 					selected_direction_index = DIRECTION_COUNT - 2;
 					jump _matched_and_have_set_dir_index;
 				}
-				if(_w == 'entrar' or 'adentro') {
+				if(_w == 'entrar' or 'adentro' or 'dentro') {
 					selected_direction_index = DIRECTION_COUNT - 1;
 					jump _matched_and_have_set_dir_index;
 				}
-				if(_w == 'salir' or 'afuera') {
+				if(_w == 'salir' or 'afuera' or 'fuera') {
 					selected_direction_index = DIRECTION_COUNT;
 					jump _matched_and_have_set_dir_index;
 				}
