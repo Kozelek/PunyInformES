@@ -1865,7 +1865,8 @@ Verb meta 'forest'
 	*                                           -> Forest;
 
 Verb meta 'rooms'
-	*                                           -> Rooms;
+	*                                           -> Rooms
+	* topic                                     -> Rooms;
 
 Verb meta 'gonear'
 	* noun                                      -> GoNear;
@@ -1908,7 +1909,12 @@ Constant GOTOSUB_BUFFER_SIZE 80;
 Array _GotoSubBuffer --> (1 + (GOTOSUB_BUFFER_SIZE + 1)/2); ! Add an extra word of constant has odd value
 
 
-[ _RoomLike p_obj;
+#Ifdef DebugIsARoom;
+[ _RoomLike p_obj _verdict _return_code;
+#IfNot;
+[ _RoomLike p_obj _verdict;
+#Endif;
+
 	! Return true if p_obj seems to be a room
 	if(p_obj > Directions && p_obj <= top_object &&  p_obj in nothing
 			&& (~~(p_obj provides describe or life or found_in))
@@ -1916,17 +1922,23 @@ Array _GotoSubBuffer --> (1 + (GOTOSUB_BUFFER_SIZE + 1)/2); ! Add an extra word 
 		if(p_obj has edible or talkable or supporter or container or transparent
 				or concealed or scenery or static or animate or clothing
 				or pluralname or switchable or door or lockable)
-			rfalse;
+			jump _decided;
 #Ifndef OPTIONAL_NO_DARKNESS;
-		if(p_obj == thedark) rfalse;
+		if(p_obj == thedark) jump _decided;
 #Endif;
-		rtrue;
+		_verdict = true;
 	}
-	rfalse;
+._decided;
+#Ifdef DebugIsARoom;
+	_return_code = DebugIsARoom(p_obj, _verdict);
+	if(_return_code > 0)
+		_verdict = 2 - _return_code;
+#Endif;
+	return _verdict;
 ];
 
 
-[ GotoSub _obj _first _count _i _j _k _t _val_printed _val_input _match;
+[ GotoSub _obj;
 	if(consult_words == 1) {
 		_obj = TryNumber(consult_from);
 		if(_obj > 0) {
@@ -1935,39 +1947,12 @@ Array _GotoSubBuffer --> (1 + (GOTOSUB_BUFFER_SIZE + 1)/2); ! Add an extra word 
 			jump _not_a_room;
 		}
 	}
-	_t = _GotoSubBuffer + 2;
-	_first = WordAddress(consult_from);
-	_i = consult_from + consult_words - 1;
-	_count = WordAddress(_i) + WordLength(_i) - _first;
-	objectloop(_obj && _RoomLike(_obj)) {
-		@output_stream 3 _GotoSubBuffer;
-		print (name) _obj;
-		@output_stream -3;
-		_k = _GotoSubBuffer-->0;
-#IfTrue RUNTIME_ERRORS > RTE_MINIMUM;
-		if(_k > GOTOSUB_BUFFER_SIZE) {
-			_RunTimeError(ERR_BUFFER_OVERRUN, _obj);
-			rtrue;
-		}
-#Endif;
-		_match = true;
-		for(_i=_first, _j=0 : _j<_count : _i++, _j++) {
-			_val_printed = _t->_j;
-			if(_j >= _k) _val_printed = 0;
-			_val_input = _i->0;
-			if(_val_input == '*') { _match = 2; break; } ! The rest is considered a match
-			if(_val_printed == _val_input) continue;
-			if(_val_printed < 91 && _val_printed > 64 && _val_printed + 32 == _val_input) continue;
-			_match = false;
-			break;
-		}
-		if(_match == true && _count < _k) _match = false;
-		if(_match) {
+	_obj = _GotoRoomsHelper(true);
+	if(_obj == 0)
+		jump _not_a_room;
 ._gotoObj;
-			PlayerTo(_obj);
-			rtrue;
-		}
-	}
+	PlayerTo(_obj);
+	rtrue;
 ._not_a_room;
 	"That doesn't seem to be a room.";
 ];
@@ -2058,21 +2043,92 @@ Constant _REAL_LOCATION_TEXT " *** real_location ***";
 			TreeSub(real_location);
 ];
 
-[ RoomsSub _obj;
-	for(_obj=Directions + 1 : _obj<= top_object: _obj++)
+[ _GotoRoomsHelper p_return_first _obj _first _i _j _k _m _n _t _count 
+		_first_typed_char _first_typed_char_upcase _last_start_pos;
+	! p_return_first = true: return the first matching room
+	! p_return_first = false: print all matching rooms
+	_t = _GotoSubBuffer + 2;
+	if(consult_from) {
+		_first = WordAddress(consult_from);
+		if(_first->0 == '*') _first++; ! Ignore '*' at start of search string
+		_i = consult_from + consult_words - 1;
+		_count = WordAddress(_i) + WordLength(_i) - _first;
+		if(_first->(_count-1) == '*') _count--;  ! Ignore '*' at end of search string
+		_first_typed_char = _first->0;
+		_first_typed_char_upcase = _first_typed_char;
+		if(_first_typed_char_upcase < 123 && _first_typed_char_upcase > 96) {
+			_first_typed_char_upcase = _first_typed_char_upcase - 32;
+		}
+		
+	}
+	_obj=Directions + 1;
+!	for(_obj=Directions + 1 : _obj<= top_object: _obj++)
+._check_next_obj;
 		if(_RoomLike(_obj)) {
+
+			if(_count > 0) {
+				@output_stream 3 _GotoSubBuffer;
+				print (name) _obj;
+				@output_stream -3;
+				_k = _GotoSubBuffer-->0;
+#IfTrue RUNTIME_ERRORS > RTE_MINIMUM;
+				if(_k > GOTOSUB_BUFFER_SIZE) {
+					_RunTimeError(ERR_BUFFER_OVERRUN, _obj);
+					rtrue;
+				}
+#Endif;
+				_last_start_pos = _k - _count;
+
+				! Check if search string is part of room name
+				_j = 0;
+				!for(_j=0:_j<=_last_start_pos:_j++) {
+._match_loop;
+					if(_t->_j == _first_typed_char or _first_typed_char_upcase) {
+						! Found a match for first character
+						if(_count == 1) jump _found_match;
+						_m = _count - 1;
+						_i = 1;
+						_n = _j + 1;
+!							for(_i=1,_n=_j+1:_i<_count:_i++,_n++) {
+._match_next_char;
+							_k = _t->_n;
+							if(_k < 91 && _k > 64)
+								_k = _k + 32;
+							if(_k ~= _first->_i) {
+								jump _leave_inner_match_loop;
+							}
+							_n++;
+							@inc_chk _i _m ?~_match_next_char;
+!							}
+						jump _found_match;
+._leave_inner_match_loop;
+					}
+					@inc_chk _j _last_start_pos ?~_match_loop;
+!				}
+				jump _end_of_obj_loop;
+			} 
+._found_match;		
+			if(p_return_first)
+				return _obj;
 			print (name) _obj, " (", _obj, ")";
 			if(_obj == real_location) {
-#IfV5;
+#Ifv5;
 				style bold;
 #Endif;
 				print (string) _REAL_LOCATION_TEXT;
-#IfV5;
+#Ifv5;
 				style roman;
 #Endif;
 			}
 			new_line;
 		}
+._end_of_obj_loop;
+		@inc_chk _obj top_object ?~_check_next_obj;
+	return false;
+];
+
+[ RoomsSub;
+	_GotoRoomsHelper();
 ];
 
 
