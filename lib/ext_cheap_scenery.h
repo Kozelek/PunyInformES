@@ -352,7 +352,7 @@ Property individual cheap_scenery;
 	rtrue;
 ];
 
-[ _ParseCheapScenery p_obj p_prop p_base_wn _i _j _sw1 _sw2 _len _ret _arr _longest _next_i _self_bak;
+[ _ParseCheapScenery p_obj p_prop p_base_wn _i _j _sw1 _sw2 _len _ret _arr _longest _next_i _self_bak _adjs;
 	_longest = CSData-->CSDATA_MATCH_LENGTH;
 	_arr = p_obj.&p_prop;
 	_len = p_obj.#p_prop;
@@ -450,35 +450,33 @@ Property individual cheap_scenery;
 				jump _cs_found_a_match;
 			}
 		} else if(_sw1 > 0 && _sw1 < 100) {
-			wn = p_base_wn;
-			_sw2 = _sw1 / 10; ! Repurposing _sw2 as a temp var
-			_j = _i + 1; ! Start of adjectives
-			_ret = 0;
-			if(_sw2 > 0) {
-				_ret = _CSMatchNameList(_arr + _j + _j, _sw2);
-				_j = _j + _sw2;
-				wn--;
-			}
-			_sw2 = _sw1 % 10;
-			_sw1 = _CSMatchNameList(_arr + _j + _j, _sw2);
-
+            wn = p_base_wn;
+            _sw2 = _sw1 % 10; ! Repurposing _sw2 as a temp var
+            _adjs = _sw1 / 10;
+            _j = _i + _adjs + 1; ! Start of nouns
+            _sw1 = _CSMatchNameList(_arr + _j + _j, _sw2);
+            _j = _i + 1; ! Start of adjectives
+            wn--;
+            _ret = 0;
+            if(_sw1 > 0 && _adjs > 0)
+                _ret = _CSMatchNameList(_arr + _j + _j, _adjs);
 #Iftrue RUNTIME_ERRORS > RTE_MINIMUM;
-			if(metaclass(_arr-->(_j + _sw2)) ~= String or Routine) {
+            if(metaclass(_arr-->(_j + _sw2)) ~= String or Routine) {
 #Iftrue RUNTIME_ERRORS == RTE_VERBOSE;
-				print (string) CS_ERR,"3: Element ", _j + _sw2, " in property ", (property) p_prop, " of ",
-					(name) p_obj, " is not a string or routine]^";
+                print (string) CS_ERR,"3: Element ", _j + _sw2, " in property ", (property) p_prop, " of ",
+                    (name) p_obj, " is not a string or routine]^";
 #Ifnot;
-				print (string) CS_ERR,"3]^";
+                print (string) CS_ERR,"3]^";
 #Endif;
-				rfalse;
-			}
+                rfalse;
+            }
 #Endif;
 
-			_ret = _ret + _sw1;
-			_next_i = _j + _sw2 - 2;
-			if(_sw1 && _ret > _longest) {
-				jump _cs_found_a_match;
-			}
+            _ret = _ret + _sw1;
+            _next_i = _i + _sw2 + _adjs - 1;
+            if(_sw1 && _ret > _longest) {
+                jump _cs_found_a_match;
+            }
 		} else {
 			wn = p_base_wn;
 			_ret = _CSMatchNameList(_arr + _i + _i, 2);
