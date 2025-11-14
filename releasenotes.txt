@@ -6,7 +6,7 @@ v2.1.0: correcciones de bugs y nuevas funcionalidades (14 Nov 2025)
 - Añade sinónimos para direcciones arriba, abajo, entra y sal.
 - Corrige salto de linea extra tras título localidad, y elimina sinonimos poco usados
 
-Cambios heredados de PunyInform v6.1.0:
+Cambios heredados de PunyInform v6.1.1:
 - El verbo de depuración «rooms» ahora admite una subcadena opcional para buscar en los nombres de las habitaciones, por ejemplo, «rooms redor» mostrará habitaciones como "Corredor principal".
 - Se ha cambiado el verbo de depuración "goto" para que realice la búsqueda exactamente igual que "rooms", ignorando cualquier asterisco al principio o al final de la cadena, por ejemplo, "goto redor" mueve al jugador a la primera habitación que tenga "redor" en cualquier parte de su nombre.
 - Se ha añadido un punto de entrada solo para el modo DEBUG: DebugIsARoom(obj, verdict). La biblioteca lo llamará cuando el jugador utilice los verbos de depuración «goto» o «rooms» para decidir si un objeto es una habitación. El parámetro verdict es 0 si la biblioteca considera que no es una habitación y 1 si considera que sí lo es. Devuelve: 0 para aceptar la decisión de la biblioteca, 1 para indicar que es una habitación y 2 para indicar que no lo es.
