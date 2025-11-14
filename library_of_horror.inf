@@ -415,12 +415,13 @@ Extend 'encender' first
 	"Eso parece inútil.";
 ];
 
-
-Extend only 'cubrir' 'cubre' replace
+#IfV3;
+Verb 'cubrir' 'cubre' 'venda' 'vendar'
 	* noun 'con'/'usando' held	-> Cover;
-
-Verb 'venda' = 'cubre';
-Verb 'vendar' = 'cubrir';
+#IfNot;
+Verb 'cubrir' 'cubre' 'venda'
+	* noun 'con'/'usando' held	-> Cover;
+#EndIf;
 
 Extend 'pon' first
 	* held 'en' creature		-> Cover reverse
