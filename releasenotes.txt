@@ -1,6 +1,17 @@
 Próxima publicación:
 
 =======
+v2.2.0:
+- Modificado howto/cheapscenerydemo.inf para incluir un ejemplo de objeto 'barato' con adjetivos.
+
+Cambios heredados de PunyInform v6.2:
+
+- El verbo 'places' (parte de los metaverbos extendidos) ahora realiza una comprobación más exhaustiva para decidir si un objeto es una habitación, y el autor del juego puede controlar el proceso utilizando una rutina de punto de entrada IsARoom.
+- La rutina del punto de entrada DebugIsARoom ha cambiado de nombre a IsARoom y se utiliza para los verbos de depuración 'rooms' y 'goto' *y* para el metaverbo ampliado 'places'.
+- La rutina _RoomLike (utilizada por los verbos 'goto', 'rooms'  y 'places') ahora requiere que un objeto proporcione la propiedad de descripción para ser considerado como una posible habitación.
+- Se ha actualizado howto/statusline_teleport.inf para que también funcione en formato z3.
+
+=======
 v2.1.0: correcciones de bugs y nuevas funcionalidades (14 Nov 2025)
 - ext_cheap_scenery.h ahora permite usar adjetivos en el orden correcto en castellano (sustantivo + adjetivo).
 - Añade sinónimos para direcciones arriba, abajo, entra y sal.

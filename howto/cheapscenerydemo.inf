@@ -75,12 +75,11 @@ Constant BOOKDESC "No te interesa leer.";
 Object Biblioteca "Biblioteca"
 	with
 		description "Estás en una gran biblioteca encantadora. Puedes examinar o intentar
-		coger los libros, los estantes, la biblioteca, el aire, la atmósfera,
+		coger los libros viejos, los estantes, la biblioteca, el aire, la atmósfera,
 		las paredes y el techo. La sala de lectura se encuentra al este.",
 		e_to SalaLectura,
 		cheap_scenery
-			'libro' 'libros//p' BOOKDESC
-			'volumen' 'volumenes//p' BOOKDESC
+			24 'viejo' 'viejos//p' 'libro' 'libros//p' 'volumen' 'volumenes//p' BOOKDESC
 			'estante' 'estantes//p' "Están llenos de libros."
 			CSP_BIBLIOTECA CS_PARSE_NAME [ _i _w;
 				_w = NextWord();

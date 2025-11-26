@@ -63,10 +63,8 @@ Object -> Box "caja"
 	has container open openable enterable female;
 
 
-#Ifv3;
-[Initialise;
-#IfNot;
 [Initialise ozmoo_colours;
+#Ifv5;
 	if(OzmooColoursAvailable())
 		ozmoo_colours = true;
 	if(HDR_TERPFLAGS->0 & 1) {
@@ -83,6 +81,8 @@ Object -> Box "caja"
 		}
 		ClearScreen(WIN_ALL);
 	}
+#Ifnot;
+	ozmoo_colours = false;
 #Endif;
 	print "^^Y así comienza la historia...^^";
 ];

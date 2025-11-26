@@ -24,7 +24,9 @@ Constant OPTIONAL_NO_DARKNESS;
 Constant OPTIONAL_ALLOW_WRITTEN_NUMBERS;
 Constant OPTIONAL_GUESS_MISSING_NOUN;
 Constant OPTIONAL_EXTENDED_METAVERBS;
+#Ifv5;
 Constant OPTIONAL_PROVIDE_UNDO;
+#Endif;
 
 Constant INITIAL_LOCATION_VALUE = Biblioteca;
 
@@ -35,8 +37,10 @@ Global escena_crimen;
 Global asesino;
 Global cuenta_habitaciones;
 
+#Ifv5;
 Property palabras_teleportacion;
 Property posibilidades;
+#Endif;
 
 Replace DrawStatusLine;
 
@@ -66,6 +70,7 @@ Constant GS_MAL = 3;
 
 Include "puny.h";
 
+#Ifv5;
 [ DrawStatusLine p_linefeeds exits i o;
 	! Si se llama con p_linefeeds == true, imprime el número de saltos de línea necesarios
     ! para asegurarse de que el texto al inicio del juego no quede cubierto por la línea de estado.
@@ -96,6 +101,23 @@ Include "puny.h";
 	 }
 	_MainWindow(); ! set_window
 ];
+#Ifnot;
+Verb 'salidas'
+	* -> Exits;
+
+[ ExitsSub i o exits;
+	print "Puedes ir a: ";
+	for(i = 1: i <= cuenta_habitaciones: i++) {
+		o = Habitaciones-->i;
+		if(o ~= location) {
+			if(exits) print ", ";
+			print (name) o;
+			exits++;
+		}
+	 }
+	 new_line;
+];
+#Endif;
 
 Include "ext_waittime.h";
 
@@ -186,7 +208,7 @@ Array Sospechosos table Bill Tom Linda Sue;
 
 
 #Ifdef DEBUG;
-Verb meta 'posibilidad' 'posibilidades'
+Verb meta 'posibilidad'
 	* creature -> Posibilidad;
 
 [ PosibilidadeSub i;
@@ -197,7 +219,7 @@ Verb meta 'posibilidad' 'posibilidades'
 		if(noun in Habitaciones-->i) print " (La habitación actual de ",(the) noun,")";
 		print "^";
 	}
-	print "normal_directions_enabled vale ", normal_directions_enabled, "^";
+	new_line;
 ];
 #Endif;
 
@@ -272,9 +294,12 @@ Verb meta 'ayuda' 'acerca' 'instrucciones'
 	* -> Help;
 
 [ HelpSub;
-	"Alguien ha cometido un asesinato.
-        ^* Ve a otra habitación escribiendo su nombre.
-        ^* Puedes INTERROGAR a una persona para preguntarle si lo ha hecho, y te responderá con sinceridad. 
+	print "Alguien ha cometido un asesinato.
+        ^* Ve a otra habitación escribiendo su nombre.";
+#Ifv3;
+	print "^* Escribe SALIDAS para listar las habitaciones a las que puedes ir.";
+#Endif;
+    "^* Puedes INTERROGAR a una persona para preguntarle si lo ha hecho, y te responderá con sinceridad. 
         ^* Puedes BUSCAR para decidir si tu ubicación actual es la escena del crimen. 
         ^* Puedes ESPERAR (o Z, o ESPERAR 10) para esperar a que los sospechosos se muevan.
 		^* Puedes ACUSAR a una persona. Si acusas a la persona que es la asesina, 
