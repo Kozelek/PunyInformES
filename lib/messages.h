@@ -713,7 +713,7 @@ Constant SKIP_MSG_EXAMINE_DARK;
 #IfTrue MSG_SACK_PUTTING < 1000;
 	MSG_SACK_PUTTING:
 	! p_arg_1 = the object being put into SACK_OBJECT.
-		"(poniendo ", (the) p_arg_1, " dentro de ", (the) SACK_OBJECT, " para hacer sitio)";
+		"(poniendo ", (the) p_arg_1, " dentro ", (de) SACK_OBJECT, " para hacer sitio)";
 #EndIf;
 #EndIf;
 #IfTrue MSG_PROMPT < 1000;
@@ -809,9 +809,9 @@ Constant SKIP_MSG_EXAMINE_DARK;
         else print "Subes en";
         " ", (the) noun, ".";
     MSG_EXIT_DEFAULT:
-        if (noun has container) print "Sales de";
-        else print "Bajas de";
-        " ", (the) noun, ".";
+        if (noun has container) print "Sales";
+        else print "Bajas";
+        " ", (de) noun, ".";
 #Endif;
 #Ifndef SKIP_MSG_GIVE_DEFAULT;
 	MSG_GIVE_DEFAULT, MSG_SHOW_DEFAULT:
@@ -850,7 +850,7 @@ Constant SKIP_MSG_EXAMINE_DARK;
 #Endif;
 #IfTrue MSG_INSERT_DEFAULT < 1000;
 	MSG_INSERT_DEFAULT:
-		"Pones ", (the) noun, " dentro de ", (the) second, ".";
+		"Pones ", (the) noun, " dentro ", (de) second, ".";
 #EndIf;
 #IfTrue MSG_PUTON_DEFAULT < 1000;
 	MSG_PUTON_DEFAULT:
@@ -1139,7 +1139,7 @@ MSG_RUB_DEFAULT, MSG_SQUEEZE_DEFAULT:
 	MSG_ENTER_BAD_LOCATION:
 		print "Tienes que ";
 		if(player notin location && ~~IndirectlyContains(parent(player), noun))
-			print "salir de ", (the) parent(player);
+			print "salir ", (de) parent(player);
 		else
 			print "entrar en ", (the) parent(noun);
 		" primero.";
@@ -1296,6 +1296,11 @@ default:
 	if (p_obj hasnt female) print "lo";
 	if (p_obj has pluralname) print "s";
 	return;
+];
+
+[de p_obj;
+	if (p_obj has female || p_obj has pluralname) print "de ", (the) p_obj;
+	else print "del ", (object) p_obj;
 ];
 
 

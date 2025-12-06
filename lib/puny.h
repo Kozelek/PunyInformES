@@ -459,6 +459,16 @@ Constant ONE_SPACE_STRING = " ";
 	return _verdict;
 ];
 
+[ _ObjectLike p_obj;
+	if(p_obj > Directions && p_obj <= top_object && p_obj notin Class && _RoomLike(p_obj) == false) {
+#Ifndef OPTIONAL_NO_DARKNESS;
+		if(p_obj == thedark) rfalse;
+#Endif;	
+		rtrue;
+	}
+	rfalse;
+];
+
 #Ifdef OPTIONAL_LANGUAGE_NUMBER;
 
 [ LanguageNumber n;

@@ -1,11 +1,23 @@
 Próxima publicación:
 
 =======
+v2.3.0:
+- Modificado howto/cheapscenerydemo.inf para añadir un comentario explicativo del uso de adjetivos.
+- Se crea la función "(de) nombre" para imprimir correctamente "del/ de" (ejemplo: "de la casa", "del martillo", "de los soldados"). Se modifican varios mensajes en messages.h para utilizar esta nueva función
+
+Cambios heredados de PunyInform v6.3:
+- El metaverbo ampliado 'places' ahora muestra una ubicación por línea, ya que es más rápido, más pequeño y más similar al metaverbo 'objects'.
+- El metaverbo ampliado 'objects' ahora también mostrará los objetos que se han eliminado del juego (es decir, que no tienen ningún padre).
+- El metaverbo extendido 'objects' ahora se basa en la rutina del punto de entrada IsARoom (si se proporciona) para decidir si un determinado objeto es una habitación o no.
+- Se han optimizado WordAddress() y WordLength() para z5.
+- 'COGER TODO' no intentará tomar objetos en un contenedor cerrado.
+- 'COGER X DE Y', donde Y es un contenedor cerrado (transparente), ahora activa la acción, a menos que X sea 'TODO', por lo que las rutinas 'before' pueden reaccionar. A menos que una rutina 'before' bloquee la acción, la rutina de acción la bloqueará. 'COGER TODO DE Y' sigue estando bloqueado por el analizador, por lo que el jugador no recibe un mensaje por cada elemento del contenedor.
+
+=======
 v2.2.0:
 - Modificado howto/cheapscenerydemo.inf para incluir un ejemplo de objeto 'barato' con adjetivos.
 
 Cambios heredados de PunyInform v6.2:
-
 - El verbo 'places' (parte de los metaverbos extendidos) ahora realiza una comprobación más exhaustiva para decidir si un objeto es una habitación, y el autor del juego puede controlar el proceso utilizando una rutina de punto de entrada IsARoom.
 - La rutina del punto de entrada DebugIsARoom ha cambiado de nombre a IsARoom y se utiliza para los verbos de depuración 'rooms' y 'goto' *y* para el metaverbo ampliado 'places'.
 - La rutina _RoomLike (utilizada por los verbos 'goto', 'rooms'  y 'places') ahora requiere que un objeto proporcione la propiedad de descripción para ser considerado como una posible habitación.

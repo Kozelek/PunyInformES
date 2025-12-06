@@ -71,7 +71,9 @@ Constant BOOKDESC "No te interesa leer.";
 		rfalse;
 ];
 
-
+! Para usar adjetivos con Cheap Scenery, hay que indicar cuántos adjetivos y sustantivos hay mediante un número de
+! dos cifras. Abajo, el número '24' indica que los 2 primeros son adjetivos y los 4 siguientes son sustantivos.
+! En ningún caso puede haber más de 9 sustantivos o 9 adjetivos.
 Object Biblioteca "Biblioteca"
 	with
 		description "Estás en una gran biblioteca encantadora. Puedes examinar o intentar
