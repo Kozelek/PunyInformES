@@ -4,7 +4,7 @@ System_file;
 
 Constant PUNYINFORM_MAJOR_VERSION = 2;
 Constant PUNYINFORM_MINOR_VERSION = 3;
-Constant PUNYINFORM_PATCH_VERSION = 0; ! Usually 0 (if zero, it is not printed in banner)
+Constant PUNYINFORM_PATCH_VERSION = 1; ! Usually 0 (if zero, it is not printed in banner)
 ! Constant PUNYINFORM_VERSION_SUFFIX = "dev"; ! Comment out if none
 
 #Ifndef VN_1644;
@@ -459,6 +459,7 @@ Global parser_phase;     ! the current phase
 Global parser_action;    ! needed for parse_name, ##PluralFound (see DM)
 Global parser_check_multiple;    ! parser should check if multiheld/multiinside
 Global parser_unknown_noun_found;! parser should report unknown word
+Global oops_unfixed = 0;         ! attempt to fix unknown word failed
 Global parser_all_found;! parser encountered 'all'
 Global parser_all_except_object; ! used to filter all but/except patterns
 Global parser_one; ! Used to pass extra information between user code and parser

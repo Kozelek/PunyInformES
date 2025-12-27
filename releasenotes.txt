@@ -1,6 +1,16 @@
 Próxima publicación:
 
 =======
+v2.3.1:
+Correcciones de bugs heredadas de PunyInform v6.3.1:
+- Se han optimizado ligeramente las rutinas _ParseNounPhrase e _IsSentenceDivider.
+- Se ha acelerado la asignación automática del atributo "reactive" para los juegos que no utilizan propiedades comunes personalizadas para muchos objetos.
+- Corregido: el verbo de depuración "routines" no imprimía nada en z5 al llamar a GamePreRoutine y GamePostRoutine.
+- Se ha cambiado el formato de los nombres de rutinas impresos por el verbo de depuración "routines" para que coincida con la salida de Inform 6 (que también se utiliza para los métodos que se invocan en z5 en PunyInform), por ejemplo, de (piedra redonda).before() a [ "piedra redonda".before() ].
+- Se ha corregido que el mensaje del comando "ups" ("oops") imprimiera la palabra original que no se entendía, incluso si el jugador cambiaba la palabra utilizando "ups".
+- Se ha corregido para que un punto y "entonces" siempre separe los comandos (a diferencia de la coma e "y", que se pueden utilizar para separar comandos u objetos en una lista).
+
+=======
 v2.3.0:
 - Modificado howto/cheapscenerydemo.inf para añadir un comentario explicativo del uso de adjetivos.
 - Se crea la función "(de) nombre" para imprimir correctamente "del/ de" (ejemplo: "de la casa", "del martillo", "de los soldados"). Se modifican varios mensajes en messages.h para utilizar esta nueva función

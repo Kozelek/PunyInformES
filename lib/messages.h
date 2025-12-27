@@ -941,7 +941,11 @@ Constant SKIP_MSG_EXAMINE_DARK;
 #EndIf;
 #IfTrue MSG_PARSER_DONT_UNDERSTAND_WORD < 1000;
 	MSG_PARSER_DONT_UNDERSTAND_WORD:
-			print "Perdón, no entiendo lo que ~";
+			print "Perdón, no entiendo ";
+			if(oops_unfixed) {
+				"tampoco esa otra palabra.";
+			}
+			print "lo que ~";
 			_PrintUnknownWord();
 			"~ significa.";
 #EndIf;
