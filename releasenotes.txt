@@ -1,6 +1,10 @@
 Próxima publicación:
 
 =======
+V2.3.2:
+- Corregido un bug introducido en 2.3.1 por el que se cambiaba la rutina que saltaba los artículos en español por los artículos en inglés.
+
+=======
 v2.3.1:
 Correcciones de bugs heredadas de PunyInform v6.3.1:
 - Se han optimizado ligeramente las rutinas _ParseNounPhrase e _IsSentenceDivider.

@@ -520,13 +520,13 @@ Constant _PARSENP_CHOOSEOBJ_WEIGHT = 1000;
 
 	! this is needed after a which question, so that we
 	! can answer 'the pink book' and similar
-!	while(p_parse_pointer --> 0 == 'a//' or 'the' or 'an') {
+!	while(p_parse_pointer --> 0 == 'un' or 'una' or 'unos' or 'unas' or 'el' or 'la' or 'los' or 'las') {
 !		wn++;
 !		p_parse_pointer = p_parse_pointer + 4;
 !	}
 ._skip_articles;
 	_k = p_parse_pointer --> 0;
-	if(_k== 'a//' or 'the' or 'an') {
+	if(_k== 'un' or 'una' or 'unos' or 'unas' or 'el' or 'la' or 'los' or 'las') {
 		p_parse_pointer = p_parse_pointer + 4;
 		@inc_chk wn 255 ?~_skip_articles; ! Always loop back
 	}
