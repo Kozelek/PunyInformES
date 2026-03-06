@@ -1,6 +1,14 @@
 Próxima publicación:
 
 =======
+v2.4:
+Lanzamiento de nuevas funciones heredadas de PunyInform v6.4:
+- Se ha cambiado la línea de estado de puntos/turnos para utilizar ":" como separador en lugar de "/", y para pantallas de ~40 caracteres de ancho, se imprime "Pt:0 Tu:0" en lugar de "Puntos: 0/0".
+- Se ha cambiado la línea de estado de puntos/turnos para que muestre la información de puntos + turnos lo más a la derecha posible en pantallas estrechas (menos de 67 caracteres de ancho, para una línea de estado de puntos + turnos).
+- Se han cambiado los valores umbral para el ancho de pantalla cuando DrawStatusLine cambia entre diferentes diseños, para cumplir con un principio simple: independientemente del tamaño de la pantalla, asegurarse de que los nombres de las salas de hasta 21 caracteres de longitud siempre se puedan imprimir en la línea de estado sin que la puntuación, los turnos o el tiempo sobrescriban ninguna parte del nombre de la sala.
+- Se ha corregido un error en la visualización de la línea de estado del tiempo: si la hora estaba entre 1 y 9, el carácter situado más a la derecha de la línea de estado podía mostrar un carácter que formaba parte del nombre de la sala.
+
+=======
 V2.3.2:
 - Corregido un bug introducido en 2.3.1 por el que se cambiaba la rutina que saltaba los artículos en español por los artículos en inglés.
 

@@ -3,8 +3,8 @@
 System_file;
 
 Constant PUNYINFORM_MAJOR_VERSION = 2;
-Constant PUNYINFORM_MINOR_VERSION = 3;
-Constant PUNYINFORM_PATCH_VERSION = 2; ! Usually 0 (if zero, it is not printed in banner)
+Constant PUNYINFORM_MINOR_VERSION = 4;
+Constant PUNYINFORM_PATCH_VERSION = 0; ! Usually 0 (if zero, it is not printed in banner)
 ! Constant PUNYINFORM_VERSION_SUFFIX = "dev"; ! Comment out if none
 
 #Ifndef VN_1644;
@@ -371,12 +371,22 @@ Constant FORM_DEF            = 2;
 Constant FORM_INDEF          = 3;
 
 #IfV3;
-Constant DICT_BYTES_FOR_WORD = 4;
+	Constant DICT_BYTES_FOR_WORD = 4;
 #IfNot;
-Constant DICT_BYTES_FOR_WORD = 6;
-Constant MOVES__TX = " Turnos: ";
-Constant SCORE__TX = " Puntos: ";
-Constant TIME__TX = " Tiempo: ";
+	Constant DICT_BYTES_FOR_WORD = 6;
+	#Ifndef STATUSLINE_TIME;
+		#Ifndef OPTIONAL_SL_NO_MOVES;
+			Constant MOVES__TX = " Turnos: ";
+			Constant MOVES_SHORT__TX = " Tu:";
+		#Endif;
+		#Ifndef OPTIONAL_SL_NO_SCORE;
+			Constant SCORE__TX = " Puntos: ";
+			Constant SCORE_SHORT__TX = " Pt:";
+		#Endif;
+	#Endif;
+	#Ifndef STATUSLINE_SCORE;
+		Constant TIME__TX = " Tiempo: ";
+	#Endif;
 #EndIf;
 
 !#Default Story        0;
