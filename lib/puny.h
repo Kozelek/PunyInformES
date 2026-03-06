@@ -158,6 +158,7 @@ Array _TenSpaces static -> "          ";
 
 Constant ONE_SPACE_STRING = " ";
 
+#Ifndef STATUSLINE_SCORE;
 [ _PrintStatusLineTime _h _pm;
 	if (screen_width > 30) {
 #Ifndef OPTIONAL_NON_FLASHING_STATUSLINE;
@@ -199,6 +200,7 @@ Constant ONE_SPACE_STRING = " ";
 			print " AM";
 	}
 ];
+#Endif; ! Ifndef STATUSLINE_SCORE
 
 [ _NumberLength p_number _length;
 	_length = 1;
@@ -218,6 +220,7 @@ Constant ONE_SPACE_STRING = " ";
 	return _length;
 ];
 
+#Ifndef STATUSLINE_TIME;
 [ _PrintStatusLineScore field_1_length field_2_length;
 #Ifdef OPTIONAL_SL_NO_SCORE;
 	field_1_length = 0;
@@ -326,6 +329,7 @@ Constant ONE_SPACE_STRING = " ";
 	}
 #Endif;
 ];
+#Endif; ! Ifndef STATUSLINE_TIME
 
 [ DrawStatusLine p_linefeeds _visibility_ceiling;
 	! For wide screens (67+ columns):

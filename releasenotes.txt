@@ -1,6 +1,11 @@
 Próxima publicación:
 
 =======
+v2.4.1:
+Correcciones de bugs heredadas de PunyInform v6.4.1:
+- El código de la línea de estado no se podía compilar con ciertas combinaciones de constantes definidas.
+
+=======
 v2.4:
 Lanzamiento de nuevas funciones heredadas de PunyInform v6.4:
 - Se ha cambiado la línea de estado de puntos/turnos para utilizar ":" como separador en lugar de "/", y para pantallas de ~40 caracteres de ancho, se imprime "Pt:0 Tu:0" en lugar de "Puntos: 0/0".
