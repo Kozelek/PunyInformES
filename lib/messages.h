@@ -815,7 +815,7 @@ Constant SKIP_MSG_EXAMINE_DARK;
 #Endif;
 #Ifndef SKIP_MSG_GIVE_DEFAULT;
 	MSG_GIVE_DEFAULT, MSG_SHOW_DEFAULT:
-		print_ret (The) second, " no parece", (_n) noun, " interesad", (_o) noun, ".";
+		print_ret (The) second, " no parece", (_n) second, " interesad", (_o) second, ".";
 #Endif;
 #Ifndef SKIP_MSG_ASKFOR_DEFAULT;
 	MSG_ASKFOR_DEFAULT, MSG_ASKTO_DEFAULT, MSG_ORDERS_WONT:
