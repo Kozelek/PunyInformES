@@ -178,6 +178,7 @@ System_file;
 
 Constant EXT_CHEAP_SCENERY = 1;
 
+! Define things that are provided by PunyInform, if we're not using PunyInform
 #Ifndef RUNTIME_ERRORS;
 Constant RUNTIME_ERRORS = 2;
 #Endif;
@@ -186,6 +187,19 @@ Constant RTE_MINIMUM = 0;
 Constant RTE_NORMAL = 1;
 Constant RTE_VERBOSE = 2;
 #Endif;
+#Ifndef IsARoutine;
+[ IsARoutine p_value;
+	if(p_value ofclass Routine) rtrue;
+	rfalse;
+];
+#Endif;
+#Ifndef IsAString;
+[ IsAString p_value;
+	if(p_value ofclass String) rtrue;
+	rfalse;
+];
+#Endif;
+
 #Iftrue RUNTIME_ERRORS > RTE_MINIMUM;
 Constant CS_ERR = "^[Cheap_scenery error #";
 #Endif;
@@ -538,7 +552,7 @@ Object CheapScenery
 			return _ret;
 		],
 #Ifdef SceneryReply;
-		before [_i _k _w1pos _w1 _w2 _id_or_routine _self_bak;
+		before [_i _k _w1 _w2 _id_or_routine _self_bak;
 #Ifnot;
 		before [_i _k _self_bak;
 #Endif;
@@ -551,10 +565,10 @@ Object CheapScenery
 			else
 				_k = 2;
 			_k = _i-->_k;
-			if(action == ##Examine && _k ofclass String)
+			if(action == ##Examine && IsAString(_k))
 				print_ret (string) _k;
 
-			if(_k ofclass Routine) {
+			if(IsARoutine(_k)) {
 				_self_bak = self;
 				self = location;
 				sw__var = action;
@@ -564,10 +578,10 @@ Object CheapScenery
 			}
 
 #ifdef SceneryReply;
-			if(SceneryReply ofclass string)
+			if(IsAString(SceneryReply))
 				print_ret (string) SceneryReply;
-			_w1 = _i-->_w1pos;
-			_w2 = _i-->(_w1pos + 1);
+			_w1 = _i-->0;
+			_w2 = _i-->1;
 			_id_or_routine = cs_match_id;
 			if(_w1 == CS_PARSE_NAME) {
 				if(_id_or_routine == 0)
@@ -578,12 +592,12 @@ Object CheapScenery
 				_w1 = 0;
 				if(_k) ! There is at least one adjective
 					_w1 = _w2;
-				_w2 = _i-->(_w1pos + 1 + _k);
+				_w2 = _i-->(1 + _k);
 			}
 			if(SceneryReply(_w1, _w2, _id_or_routine))
 				rtrue;
 #endif;
-			if(CS_DEFAULT_MSG ofclass Routine) {
+			if(IsARoutine(CS_DEFAULT_MSG)) {
 				CS_DEFAULT_MSG.Call();
 				rtrue;
 			}

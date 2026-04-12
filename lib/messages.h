@@ -126,9 +126,6 @@ Constant MSG_PARSER_CANT_DISAMBIGUATE "Sigo sin entender a qué te refieres.";
 #Ifndef MSG_PARSER_UNKNOWN_PERSON;
 Constant MSG_PARSER_UNKNOWN_PERSON "No veo a quién te refieres.";
 #EndIf;
-#Ifndef MSG_PARSER_NOSUCHTHING;
-Constant MSG_PARSER_NOSUCHTHING "No puedes ver tal cosa.";
-#EndIf;
 #Ifndef MSG_PARSER_CANT_OOPS;
 Constant MSG_PARSER_CANT_OOPS "Lo siento, eso no puede corregirse.";
 #EndIf;
@@ -326,6 +323,8 @@ Default MSG_NOTIFY_OFF = 146;
 Default MSG_ENTER_HELD 147;
 Default MSG_TAKE_DEFAULT 148;
 Default MSG_DROP_DROPPED 149;
+Default MSG_PARSER_NOSUCHTHING 150;
+Default MSG_SHOUT_NOSUCHTHING 151;
 
 #IfDef OPTIONAL_PROVIDE_UNDO_FINAL;
 #Ifndef MSG_UNDO_NOTHING_DONE;
@@ -673,8 +672,14 @@ Constant SKIP_MSG_EXAMINE_DARK;
 #Endif;
 #Endif;
 
+#Iffalse MSG_PARSER_NOSUCHTHING < 1000;
+#Iffalse MSG_SHOUT_NOSUCHTHING < 1000;
+Constant SKIP_MSG_PARSER_NOSUCHTHING;
+#Endif;
+#Endif;
+
 [ _PrintMsg p_msg p_arg_1 p_arg_2;
-	if(p_msg ofclass String)
+	if(IsAString(p_msg))
 		print_ret (string) p_msg;
 
 #Ifdef LibraryMessages;
@@ -961,6 +966,10 @@ Constant SKIP_MSG_EXAMINE_DARK;
 #IfTrue MSG_PARSER_NO_IT < 1000;
 	MSG_PARSER_NO_IT:
 		"No se a qué se refiere ~",(address) p_arg_1, "~.";
+#EndIf;
+#Ifndef SKIP_MSG_PARSER_NOSUCHTHING;
+	MSG_PARSER_NOSUCHTHING, MSG_SHOUT_NOSUCHTHING:
+		"No puedes ver tal cosa.";
 #EndIf;
 #IfTrue MSG_PARSER_CANT_SEE_IT < 1000;
 	MSG_PARSER_CANT_SEE_IT:

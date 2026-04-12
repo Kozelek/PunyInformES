@@ -3,8 +3,8 @@
 System_file;
 
 Constant PUNYINFORM_MAJOR_VERSION = 2;
-Constant PUNYINFORM_MINOR_VERSION = 4;
-Constant PUNYINFORM_PATCH_VERSION = 1; ! Usually 0 (if zero, it is not printed in banner)
+Constant PUNYINFORM_MINOR_VERSION = 5;
+Constant PUNYINFORM_PATCH_VERSION = 0; ! Usually 0 (if zero, it is not printed in banner)
 ! Constant PUNYINFORM_VERSION_SUFFIX = "dev"; ! Comment out if none
 
 #Ifndef VN_1644;
@@ -498,6 +498,7 @@ Global run_after_routines_msg;
 Global run_after_routines_arg_1;
 Global no_implicit_actions;         ! Don't implicitly do things.
 Global caps_mode;
+Global last_light_source;
 #Ifdef OPTIONAL_MANUAL_SCOPE_BOOST;
 Global react_before_in_scope;
 Global react_after_in_scope;
@@ -508,10 +509,6 @@ Global el_obj  =   0;
 Global la_obj  =   0;
 Global los_obj =  0;
 Global las_obj =  0;
-!Global un_obj  =  0;
-!Global una_obj = 0;
-!Global unos_obj =  0;
-!Global unas_obj  =  0;
 
 Global dict_start;
 Global dict_entry_size;
@@ -626,6 +623,15 @@ Constant empty_arr = parse2;
 #Ifnot;
 Array empty_arr --> MAX_SCOPE;
 #Endif;
+
+! Constants and global used to accelerate RunRoutines() in puny.h
+Constant _PunyZRegionCase1 = 1;
+Constant _PunyZRegionCase2 = 0;
+!Constant _PunyZRegionCase3 = 3; ! CAN'T HAPPEN!?
+! _puny_zregion_case Must start as case 2 (main changes it to case 1 if needed)
+Global _puny_zregion_case = _PunyZRegionCase1; 
+Global IsARoutine = _IsARoutine_Case1;
+Global IsAString = _IsAString_Case1;
 
 Constant RTE_MINIMUM = 0;
 Constant RTE_NORMAL  = 1;

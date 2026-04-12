@@ -1007,6 +1007,8 @@ Array _PutOnMessages static -->
 ];
 
 [ ShoutSub;
+	if(consult_words > 1 && WordValue(consult_from) == 'a')
+		return MSG_PARSER_NOSUCHTHING;
 	return MSG_SHOUT_DEFAULT;
 ];
 
@@ -2478,11 +2480,10 @@ Constant _REAL_LOCATION_TEXT " *** real_location ***";
 		if(_vehicle_mode == 0) { PrintMsg(MSG_GO_FIRST_LEAVE, parent(player)); rtrue; }
 		if(_vehicle_mode == 2 or 3) rtrue;
 	}
-	!if(player notin location) { PrintMsg(MSG_GO_FIRST_LEAVE, parent(player)); rtrue; }
 	if(real_location provides p_property) {
 		@get_prop real_location p_property -> _new_location; ! works in z3 and z5
 	}
-	if(_new_location ofclass String)
+	if(IsAString(_new_location))
 		print_ret (string) _new_location;
 	if(UnsignedCompare(_new_location, top_object) > 0) {
 		_new_location = real_location.p_property();

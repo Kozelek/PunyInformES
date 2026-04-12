@@ -33,14 +33,31 @@ Include "messages.h";
 Include "grammar.h";
 
 ! ######################### Helper routines
-[ UnsignedCompare p_x p_y _u _v;
-	if (p_x == p_y) return 0;
-	if (p_x < 0 && p_y >= 0) return 1;
-	if (p_x >= 0 && p_y < 0) return -1;
-	_u = p_x&~WORD_HIGHBIT; _v = p_y&~WORD_HIGHBIT;
-	if (_u > _v) return 1;
+
+[ Unsigned__Compare p_x p_y;
+	@jl p_x 0 ?_x_negative;
+	! x >= 0
+	@jl p_y 0 ?~_x_positive_y_positive;
+	! x >= 0 and y < 0
 	return -1;
+._x_negative;
+	@jl p_y 0 ?~rtrue; ! x < 0 and y >= 0
+	! x < 0 && y < 0
+._x_positive_y_positive;
+	! x and y have same sign
+	@jg p_x p_y ?rtrue;
+	@je p_x p_y ?rfalse;
+	return -1;
+! Original implementation:
+!	if (p_x == p_y) return 0;
+!	if (p_x < 0 && p_y >= 0) return 1;
+!	if (p_x >= 0 && p_y < 0) return -1;
+!	_u = p_x&~WORD_HIGHBIT; _v = p_y&~WORD_HIGHBIT;
+!	if (_u > _v) return 1;
+!	return -1;
 ];
+
+Constant UnsignedCompare = Unsigned__Compare;
 
 #Ifdef OPTIONAL_MANUAL_SCOPE;
 [ RunEntryPointRoutine p_routine;
@@ -126,8 +143,6 @@ Array cursor_pos --> 2;
 	}
 	statuswin_current = false;
 ];
-
-Array _TenSpaces static -> "          ";
 
 #Ifdef OPTIONAL_NON_FLASHING_STATUSLINE;
 [ _PrintSpacesOrMoveBack p_col p_string _current_col;
@@ -732,7 +747,7 @@ Constant ONE_SPACE_STRING = " ";
 	_count = 0;
 	for(_obj = p_obj: _obj ~= 0: _obj = NextEntry(_obj, pc_depth)) _count++;
 
-	if(lt_value ofclass String) {
+	if(IsAString(lt_value)) {
 		if(c_style & NEWLINE_BIT) {
 			FastSpaces(pc_indent);
 		}
@@ -898,7 +913,7 @@ Constant ONE_SPACE_STRING = " ";
 
 		if(_show_obj) {
 			if(_last_obj == 0) {
-				if(p_first_text ofclass String)
+				if(IsAString(p_first_text))
 					print (string) p_first_text;
 				else if(p_first_text ~= 0)
 					p_first_text(parent(p_obj));
@@ -985,43 +1000,159 @@ Constant ONE_SPACE_STRING = " ";
 
 ];
 
+Array _SpaceTable static -> "                    ";
+Constant _SpaceTableLength 20;
+
 [ FastSpaces p_spaces;
 #Ifv3;
 	while(p_spaces >= 6) {
 		print "      ";
 		p_spaces = p_spaces - 6;
 	}
-	for( : p_spaces > 0 : p_spaces--) @print_char ' ';
+	@jl p_spaces 1 ?rtrue;
+._print_space;
+	@print_char ' ';
+	@dec_chk p_spaces 1 ?~_print_space;
 #Ifnot;
-	while(p_spaces > 10) {
-		@print_table _TenSpaces 10 1;
-		p_spaces = p_spaces - 10;
+	if(p_spaces >= _SpaceTableLength) {
+._print_table_again;
+		@print_table _SpaceTable _SpaceTableLength 1;
+		p_spaces = p_spaces - _SpaceTableLength;
+		@jl p_spaces _SpaceTableLength ?~_print_table_again; 
 	}
-	if(p_spaces <= 0) rtrue;
-	@print_table _TenSpaces p_spaces 1;
+	@jl p_spaces 1 ?rtrue;
+	@print_table _SpaceTable p_spaces 1;
 #Endif;
 ];
 
-[ RunRoutines p_obj p_prop p_switch;
+[ _IsARoutine_Case1 p_value;
+	! Decide if a value is a routine address, faster than using ofclass
+	! For the ideas behind this implementation, see comments in RunRoutines
+	! Case 1, code_offset > 0 && strings_offset > 0
+	@jl p_value (#strings_offset) ?~rfalse;
+	@jl p_value (#code_offset) ?~rtrue;
+	rfalse;
+];
+
+[ _IsARoutine_Case2 p_value;
+	! Decide if a value is a routine address, faster than using ofclass
+	! For the ideas behind this implementation, see comments in RunRoutines
+	! Case 2, code_offset > 0 && strings_offset < 0
+	@jl p_value (#code_offset) ?~rtrue;
+	@jl p_value (#strings_offset) ?rtrue;
+	rfalse;
+];
+
+[ _IsAString_Case1 p_value;
+	! Decide if a value is a string address, faster than using ofclass
+	! For the ideas behind this implementation, see comments in RunRoutines
+	! Case 1, code_offset > 0 && strings_offset > 0
+	@jl p_value (#strings_offset) ?~rtrue;
+	@jl p_value (-1) ?rtrue;
+	rfalse;
+];
+
+[ _IsAString_Case2 p_value;
+	! Decide if a value is a string address, faster than using ofclass
+	! For the ideas behind this implementation, see comments in RunRoutines
+	! Case 2, code_offset > 0 && strings_offset < 0
+	@jl p_value (#strings_offset) ?rfalse;
+	@jl p_value (-1) ?rtrue;
+	rfalse;
+];
+
+[ RunRoutines p_obj p_prop p_switch _sw__var _self _address 
+		_len _i _value _result;
 #Ifndef OPTIONAL_NO_DARKNESS;
 	if(p_obj == thedark && p_prop ~= initial or short_name or description) p_obj = real_location;
 #Endif;
-	@push sw__var;
-	if(p_switch == 0) sw__var = action; else sw__var = p_switch;
-	if (p_prop < INDIV_PROP_START || p_obj.&p_prop ~= 0) {
-		p_switch = p_obj.p_prop();
+	_address = p_obj.&p_prop;
+	if (p_prop < INDIV_PROP_START || _address ~= 0) {
+		_sw__var = sw__var;
+		if(p_switch == 0) sw__var = action; else sw__var = p_switch;
+		_self = self; self = p_obj;
+!		p_switch = p_obj.p_prop();
+		if(_address == 0) { _value = p_obj.p_prop; jump _process_value; }
+		_len = p_obj.#p_prop;
+#Ifv5;
+		@log_shift _len (-1) -> _len; ! Divide by 2
+#Ifnot;
+		_len = _len / 2;
+#Endif;
+		@dec _len;
+._get_next_value;
+		_value = _address-->_i;
+._process_value;
+		@je _value 0 (-1) ?_isZero;
+		! Rather than using obj.prop(), which calls ofclass,
+		! which calls Z__Region, which calls UnsignedCompare,
+		! to decide what kind of value(s) are in the property,
+		! we have specialized code here, to reach the same
+		! conclusions, much cheaper.
+		if(_puny_zregion_case == _PunyZRegionCase1) {
+			! Case 1, code_offset > 0 && strings_offset > 0
+			! This is first, because it's the most common case
+			! for PunyInform games, and placing it first gives
+			! them a ~4% advantage in speed.
+!			if(value >= #strings_offset) return stringtype;
+			@jl _value (#strings_offset) ?~_isString;
+!			if(value >= #code_offset) return routinetype;
+			@jl _value (#code_offset) ?~_isRoutine;
+			@jl _value (-1) ?_isString;
+			jump _isConstant;
+		} 
+!		else if(_puny_zregion_case == _PunyZRegionCase2) {
+			! Case 2, code_offset > 0 && strings_offset < 0
+!			if(value >= #code_offset) return routinetype;
+			@jl _value (#code_offset) ?~_isRoutine;
+!			if(value < #strings_offset) return routinetype;
+			@jl _value (#strings_offset) ?_isRoutine;
+!			if(value < -1) return stringtype;
+			@jl _value (-1) ?_isString;
+			jump _isConstant;
+!		}
+!		! Case 3, code_offset < 0 && strings_offset < 0
+!		! Should never happen. If it happens, it's very rare
+!!		if(value >= (#strings_offset)) jump ret_string_or_const;
+!		@jl _value (#strings_offset) ?~_isStringOrConst;
+!!		if(value >= (#code_offset)) return routinetype;
+!		@jl _value (#code_offset) ?~_isRoutine;
+!		jump _isConstant;
+!._isStringOrConst;
+!!		if(value < -1) return stringtype;
+!		@jl _value (-1) ?_isString;
+!		jump _isConstant;
+
+._isRoutine;
+			@call _value -> _result;
+			@jz _result ?_next;
+			jump _done;
+._isString;
+			print (string) _value, "^";
+			_result = true;
+			jump _done;
+._isZero;
+			_value = 0;
+._isConstant;
+			_result = _value;
+			jump _done;
+._next;
+		@inc_chk _i _len ?~_get_next_value;
+._done;
 #Ifndef OPTIONAL_MANUAL_SCOPE;
 		if(p_obj.#p_prop > 2 || p_obj.p_prop ~= NULL or 0)
 			scope_modified = true;
 #Endif;
+		self = _self;
+		sw__var = _sw__var;
 	}
-	@pull sw__var;
-	return p_switch;
+	return _result;
 ];
 
 [ PrintOrRun p_obj p_prop p_no_string_newline _val;
-	if (p_obj.#p_prop > WORDSIZE || (_val = p_obj.p_prop) ofclass Routine) return RunRoutines(p_obj, p_prop);
-	if(_val ofclass String) {
+	if (p_obj.#p_prop > WORDSIZE || IsARoutine((_val = p_obj.p_prop)))
+		return RunRoutines(p_obj, p_prop);
+	if(IsAString(_val)) {
 		print (string) _val;
 		if(p_no_string_newline == 0) new_line;
 	}
@@ -1177,7 +1308,14 @@ Constant ONE_SPACE_STRING = " ";
 [ _UpdateDarkness p_silent _ceil _old_darkness _darkness;
 	if(location == thedark) _old_darkness = true;
 	_ceil = ScopeCeiling(player);
-	if(_LookForLightInObj(_ceil, _ceil) == false) _darkness = true;
+	if(_ceil hasnt light) {
+		if((last_light_source == 0 || last_light_source hasnt light ||
+					parent(last_light_source) ~= player or _ceil) &&
+				_LookForLightInObj(_ceil) == false) {
+			_darkness = true;
+			last_light_source = 0;
+		}
+	}
 	if(_darkness ~= _old_darkness) scope_modified = true;
 	if(_darkness) {
 		if(_old_darkness == false && p_silent == false) PrintMsg(MSG_NOW_DARK);
@@ -1191,12 +1329,15 @@ Constant ONE_SPACE_STRING = " ";
 	}
 ];
 
-[ _LookForLightInObj p_obj p_ceiling _o;
-	if(p_obj has light) rtrue;
-	if(p_obj == p_ceiling || p_obj has transparent || p_obj has supporter || (p_obj has container && p_obj has open))
-		objectloop(_o in p_obj)
-			if(_LookForLightInObj(_o))
-				rtrue;
+[ _LookForLightInObj p_obj _o;
+!	if(p_obj has light) rtrue;
+	@test_attr p_obj light ?rtrue;
+	objectloop(_o in p_obj) {
+		if(_o has light) { last_light_source = _o; rtrue; }
+		if(_o has transparent or supporter || 
+				(_o has container && _o has open))
+			if(_LookForLightInObj(_o)) rtrue;
+	}
 	rfalse;
 ];
 #Endif;
@@ -2412,7 +2553,7 @@ Object thedark "Oscuridad"
 #IfTrue RUNTIME_ERRORS < RTE_VERBOSE;
 [RT__Err err_no par1 par2;
 	print "Inform error: ";
-	if(err_no ofclass String)
+	if(IsAString(err_no))
 		print (string) err_no, " - ";
 	else
 		print_ret err_no;
@@ -2509,6 +2650,16 @@ Object thedark "Oscuridad"
 
 	top_object = #largest_object-255;
 	sys_statusline_flag = ( ($1->0) & 2 ) / 2;
+
+! Pick the correct case for custom logic in RunRoutines.
+! 1: #strings_offset > 0 (DEFAULT)
+! 2: #code_offset > 0 && #strings_offset < 0
+! 3: #code_offset < 0 && #strings_offset < 0 (CAN'T HAPPEN)
+	if(#strings_offset < 0) {
+		_puny_zregion_case = _PunyZRegionCase2;
+		IsARoutine = _IsARoutine_Case2;
+		IsAString = _IsAString_Case2;
+	}
 
 #Ifdef CUSTOM_PLAYER_OBJECT;
 	player = CUSTOM_PLAYER_OBJECT;

@@ -1,6 +1,34 @@
 Próxima publicación:
 
 =======
+v2.5:
+Notas importantes para la actualización:
+- Hasta ahora, las rutinas `parse_name` no se invocaban si la primera palabra de entrada no figuraba en el diccionario (es decir, si el valor de la palabra era 0). Ahora, `parse_name` se invoca en estos casos.  Asegúrate de que no tienes rutinas `parse_name` que acepten 0 como sinónimo. Por ejemplo, podría buscar en una matriz de sinónimos, y la matriz podría contener el valor 0 en ocasiones, para dejar espacio a sinónimos que se añadirán allí en un momento determinado del juego. 
+
+Cambios específicos de la versión española:
+- Corrige los mensajes MSG_GIVE_DEFAULT, MSG_SHOW_DEFAULT para que reflejen correctamente el género y número de la persona (gracias, DareInt)
+
+Cambios heredados de PunyInform v6.4.1 y v6.5:
+- Si no se reconocía una palabra introducida, _ParseNounPhrase seguía comprobando si tenía el indicador de sustantivo, es decir, miraba la dirección 6 en el encabezado y la aceptaba como sustantivo si el bit 7 estaba activado. Una consecuencia de esto era que una palabra desconocida en la entrada del jugador se reconocía como la dirección "entra" si las rutinas comenzaban en la dirección $8000 o superior.
+- La rutina parse_name del objeto Directions buscaba una palabra no reconocida en la entrada del usuario en sus matrices de palabras de dirección. Esto coincidía con entradas vacías, p. ej., la forma abreviada de 'entra' (que no existe, por lo que se le asigna 0).
+- Si se reconocía una palabra de la entrada y no tenía el indicador de sustantivo, _ParseNounPhrase concluía que no podía ser el nombre de un objeto. Esto era un error: una rutina `parse_name` aún podría querer reconocer la palabra como sinónimo del objeto. Por ejemplo, si el jugador nombra un cubo "deja", debería poder hacer "coge deja".  (ejemplo de Balances.inf, disponible en if-archive).
+- Si no se reconocía una palabra introducida, se seguía buscando dicha palabra en la matriz `name` del objeto (donde aparecería como 0).
+- Nuevo mensaje MSG_SHOUT_NOSUCHTHING ("No puedes ver tal cosa"), que muestra la acción Gritar si el jugador escribe GRITAR A x, donde x no se reconoce como un actor u objeto cercano.
+- El mensaje MSG_PARSER_NOSUCHTHING ("No puedes ver tal cosa") ha pasado de ser un mensaje simple (una cadena) a ser un mensaje complejo (código). Esto significa que ya no puedes usar una cadena para sustituirlo; solo puede ser sustituido por un mensaje complejo.
+- Se ha optimizado la rutina FastSpaces, utilizada para la línea de estado y otras funciones.
+- Se ha optimizado la rutina UnsignedCompare, la más utilizada (llamada por ofclass).
+- Se utiliza la misma rutina UnsignedCompare optimizada tanto para la biblioteca como para la interfaz.
+- Se ha implementado una forma un 33 % más rápida de llamar a métodos en RunRoutines.
+- Se ha corregido un error en howto/talk_menu.inf (un tema intentaba activar otro tema utilizando un ID de tema, pero ese ID no existía).
+- Se ha eliminado una variable innecesaria en la extensión cheap_scenery.
+- Se ha mejorado el mensaje de error al intentar COGER TODO EXCEPTO A Y B (demasiado complejo).
+- Se ha optimizado la búsqueda de una fuente de luz (la nueva variable global last_light_source contiene la última fuente de luz utilizada, si la hay).
+- Se imprimen correctamente los números al imprimir el patrón analizado (gracias, joelburton).
+- Se ha cambiado el nombre de ResetInputAction a _ResetInputAction.
+- Nueva rutina IsARoutine(value) para determinar (rápidamente) si un valor puede ser una dirección de rutina.
+- Nueva rutina IsAString(value) para determinar (rápidamente) si un valor puede ser una dirección de cadena.
+
+=======
 v2.4.1:
 Correcciones de bugs heredadas de PunyInform v6.4.1:
 - El código de la línea de estado no se podía compilar con ciertas combinaciones de constantes definidas.

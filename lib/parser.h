@@ -595,9 +595,9 @@ Constant _PARSENP_CHOOSEOBJ_WEIGHT = 1000;
 			! Solution: If the object seems to be a room, we will not call
 			! parse_name, unless DebugParseNameObject(object) returns true
 #Ifdef OPTIONAL_REACTIVE_PARSE_NAME;
-			if(_obj has reactive && _obj.parse_name ofclass Routine) {
+			if(_obj has reactive && IsARoutine(_obj.parse_name)) {
 #Ifnot;
-			if(_obj.parse_name ofclass Routine) {
+			if(IsARoutine(_obj.parse_name)) {
 #Endif;
 				if(meta == 0 || parent(_obj) ~= 0
 						|| _RoomLike(_obj) == false
@@ -609,9 +609,9 @@ Constant _PARSENP_CHOOSEOBJ_WEIGHT = 1000;
 				}
 #Ifnot; ! Not DEBUG
 #Ifdef OPTIONAL_REACTIVE_PARSE_NAME;
-			if(_obj has reactive && (_result = _obj.parse_name) ~= 0 && _result ofclass routine) {
+			if(_obj has reactive && (_result = _obj.parse_name) ~= 0 && IsARoutine(_result)) {
 #Ifnot;
-			if((_result = _obj.parse_name) ~= 0 && _result ofclass routine) {
+			if((_result = _obj.parse_name) ~= 0 && IsARoutine(_result)) {
 #Endif;
 				_result = _obj.parse_name();
 #Endif;
@@ -819,7 +819,7 @@ Constant _PARSENP_CHOOSEOBJ_WEIGHT = 1000;
 	! skip 'all' etc
 	while(p_parse_pointer --> 0 == ALL_WORD or EXCEPT_WORD1 or EXCEPT_WORD2) {
 		if(p_parse_pointer --> 0 == ALL_WORD) {
-			parser_all_found = true; !TODO: do we really need the global?
+			parser_all_found = true;
 			_all_found = true;
 		}
 #IfDef DEBUG_GETNEXTNOUN;
@@ -1624,7 +1624,7 @@ Array guess_object-->5;
 			if(_val == _noun) {
 				guess_object-->GUESS_KEY = _noun;
 				_key_count++;
-			} else if(_val ofclass Routine) {
+			} else if(IsARoutine(_val)) {
 				@push second;
 				second = _noun;
 				if(noun.with_key() == second) {
@@ -1736,8 +1736,6 @@ Array guess_object-->5;
 
 		scope_stage = 0;
 		_type = _token & $0f;
-!		if(_type == TT_END) {
-!		}
 
 		! parse_routine doesn't match anything and is always allowed
 		if(wn >= 1 + parse->1 && _type ~= TT_PARSE_ROUTINE) {
@@ -1745,7 +1743,6 @@ Array guess_object-->5;
 			print "Fail, since grammar line has not ended but player input has.^";
 #EndIf;
 			if(parser_phase == PHASE2) {
-				!print "You need to be more specific.^";
 				if(_FixIncompleteSentenceOrComplain(p_pattern)) {
 					! sentence was corrected
 					return 100;
@@ -1780,7 +1777,6 @@ Array guess_object-->5;
         }
 
 		! the parse routine can change wn, so update _parse_pointer
-!		_parse_pointer = parse + 2 + 4 * (wn - 1);
 		_parse_pointer = parse + 4 * wn - 2; ! Shorter than parse + 2 + 4 * (wn - 1)
 
 		switch(_noun) {
@@ -1948,7 +1944,14 @@ Array guess_object-->5;
 			! neither a verb nor a direction, so probably a list
 			! of nouns without a matching multi token
 			if(parser_phase == PHASE2) {
-				PrintMsg(MSG_PARSER_NOT_MULTIPLE_VERB);
+				if(parser_all_found) {
+					! tried to use multiple NPs in an expect clause,
+					! such as GET ALL EXCEPT X and Y
+					! This is too hard to handle, only one NP allowed.
+					PrintMsg(MSG_PARSER_UNKNOWN_SENTENCE);
+				} else {
+					PrintMsg(MSG_PARSER_NOT_MULTIPLE_VERB);
+				}
 			} else {
 				phase2_necessary = PHASE2_ERROR;
 			}
@@ -1958,10 +1961,6 @@ Array guess_object-->5;
 			return 100; ! pattern matched
 		}
 	}
-	!if(_IsSentenceDivider(_parse_pointer)) {
-	!	wn++;
-	!	return 100; ! pattern matched
-	!}
 	if(wn == 1 + parse->1) {
 		return 100; ! pattern matched
 	}
@@ -1986,7 +1985,7 @@ Array guess_object-->5;
 	! print "el ", el_obj, " la ", la_obj, " los ", los_obj, " las ", las_obj, "^";
 ];
 
-[ ResetInputAction p_action;
+[ _ResetInputAction p_action;
 	! p_action values:
 	!   -1: Don't set input_action etc as long as input_action has this value (used when the parser performs implicit actions)
 	!   -2: Set input_action etc the next time an action is performed
@@ -2007,7 +2006,7 @@ Array guess_object-->5;
 	! 1 is returned. If the input is "open box" then
 	! the whole input is matched and 2 returned.
 
-	ResetInputAction(-1); ! -1 means input_action etc won't be set (by implicit actions etc)
+	_ResetInputAction(-1); ! -1 means input_action etc won't be set (by implicit actions etc)
 	multiple_objects-->0 = 0;
 	selected_direction_index = 0;
 	selected_direction = 0;
@@ -2022,7 +2021,6 @@ Array guess_object-->5;
 	consult_words = 0;
 	usual_grammar_after = 0;
 	_verb_offset = 0;
-!	scope_routine = 0;
 	noun_filter = 0;
 	object_token_type = -1;
 	parser_all_found = false;
@@ -2465,7 +2463,7 @@ Array guess_object-->5;
 	if(_i == 0) { ! _i = multiple_objects --> 0
 		! single action
 		if(inp1 > 1) PronounNotice(noun);
-		ResetInputAction(-2); ! Allow input_action to be set by PerformPreparedAction
+		_ResetInputAction(-2); ! Allow input_action to be set by PerformPreparedAction
 		PerformPreparedAction();
 	} else {
 		! multiple action
@@ -2533,7 +2531,7 @@ Array guess_object-->5;
 
 				if(parser_all_found || _i > 1) print (name) noun, ": "; ! _i = multiple_objects --> 0
 				if(inp1 > 1) PronounNotice(noun);
-				ResetInputAction(-2); ! Allow input_action to be set by PerformPreparedAction
+				_ResetInputAction(-2); ! Allow input_action to be set by PerformPreparedAction
 				PerformPreparedAction();
 				++_score;
 			}

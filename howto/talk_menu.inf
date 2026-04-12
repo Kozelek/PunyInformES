@@ -157,6 +157,7 @@ Array array_charla_josh -->
 	30 "PC" "¿Qué sabes de los PC IBM?" "Aburridos, son sólo para el trabajo." 50
 	30 "Ordenadores BBC" "¡Háblame de los ordenadores BBC!" "Británicos, ¿no? Y creo que el nombre de la empresa era en realidad Acorn."
 	30 "Asesinato" "¿Dónde estabas cuando Bob fue asesinado?" "Estaba en casa, viendo la tele. No creerás que tuve algo que ver con su muerte, ¿verdad?"
+	0 400 "Jack Tramiel" "Ah, ¿conocías a Jack Tramiel, el fundador de Commodore?" "No, no personalmente."
 	TM_END;
 
 
