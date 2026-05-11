@@ -758,7 +758,7 @@ Constant SKIP_MSG_PARSER_NOSUCHTHING;
 	MSG_OPEN_YOU_CANT, MSG_CLOSE_YOU_CANT, MSG_ENTER_YOU_CANT,
 	MSG_LOCK_NOT_A_LOCK, MSG_UNLOCK_NOT_A_LOCK, MSG_WEAR_NOT_CLOTHING:
 	! p_arg_1 = the base verb for this action ('open', 'close' etc).
-		"No puedes ", (verbname) p_arg_1, " ", (eso) noun, ".";
+		"No puedes ", (verbname) p_arg_1, (_lo) noun, ".";
 #Endif;
 #IfTrue MSG_EAT_INEDIBLE < 1000;
 	MSG_EAT_INEDIBLE:
