@@ -24,7 +24,7 @@ Constant OPTIONAL_NO_DARKNESS;
 Constant OPTIONAL_ALLOW_WRITTEN_NUMBERS;
 Constant OPTIONAL_GUESS_MISSING_NOUN;
 Constant OPTIONAL_EXTENDED_METAVERBS;
-#Ifv5;
+#Iftrue #version_number > 4;
 Constant OPTIONAL_PROVIDE_UNDO;
 #Endif;
 
@@ -37,7 +37,7 @@ Global escena_crimen;
 Global asesino;
 Global cuenta_habitaciones;
 
-#Ifv5;
+#Iftrue #version_number > 3;
 Property palabras_teleportacion;
 Property posibilidades;
 #Endif;
@@ -70,7 +70,7 @@ Constant GS_MAL = 3;
 
 Include "puny.h";
 
-#Ifv5;
+#Iftrue #version_number > 3;
 [ DrawStatusLine p_linefeeds exits i o;
 	! Si se llama con p_linefeeds == true, imprime el número de saltos de línea necesarios
     ! para asegurarse de que el texto al inicio del juego no quede cubierto por la línea de estado.
@@ -296,7 +296,7 @@ Verb meta 'ayuda' 'acerca' 'instrucciones'
 [ HelpSub;
 	print "Alguien ha cometido un asesinato.
         ^* Ve a otra habitación escribiendo su nombre.";
-#Ifv3;
+#Iftrue #version_number < 4;
 	print "^* Escribe SALIDAS para listar las habitaciones a las que puedes ir.";
 #Endif;
     "^* Puedes INTERROGAR a una persona para preguntarle si lo ha hecho, y te responderá con sinceridad. 

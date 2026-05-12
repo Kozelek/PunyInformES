@@ -21,13 +21,13 @@ Constant INITIAL_LOCATION_VALUE = Biblioteca;
 
 Include "globals.h";
 
-#Ifv5;
+#Iftrue #version_number > 4;
 Replace RestartSub;
 #Endif;
 
 Include "puny.h";
 
-#Ifv5;
+#Iftrue #version_number > 4;
 ! Asegúrate de regresar a los colores por defecto, como arreglo
 ! de un bug de algunos intérpretes, donde el color de fondo no
 ! vuelve automáticamente a sus colores por defecto al reiniciar.
@@ -64,7 +64,7 @@ Object -> Box "caja"
 
 
 [Initialise ozmoo_colours;
-#Ifv5;
+#Iftrue #version_number > 4;
 	if(OzmooColoursAvailable())
 		ozmoo_colours = true;
 	if(HDR_TERPFLAGS->0 & 1) {

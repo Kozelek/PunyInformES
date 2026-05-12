@@ -192,41 +192,51 @@ System_file;
 	}
 ];
 
-#Ifv5;
+#Iftrue #version_number > 3;
 [ _ReadPlayerInput p_no_prompt p_no_statusline _result;
 #Ifnot;
 [ _ReadPlayerInput p_no_prompt _result; ! NOTE: Must have at least 2 vars, so calls with 2 params don't break!
-#EndIf;
-#IfV5;
+#Endif;
+#Iftrue #version_number > 3;
 	style roman;
 	@buffer_mode 0;
-#EndIf;
+#Endif;
 	if(p_no_prompt == false) PrintMsg(MSG_PROMPT);
 	! library entry routine
 #Ifdef AfterPrompt;
 	RunEntryPointRoutine(AfterPrompt);
 #Endif;
-#IfV5;
+#Iftrue #version_number > 3;
+	! z4+
 	if(p_no_statusline == false) DrawStatusLine();
 	buffer->1 = 0;
+#Iftrue #version_number > 4;
+	! z5
 	if (clr_on && clr_fginput > 1) {
 		@set_colour clr_fginput clr_bg;
 	}
 	@aread buffer parse -> _result;
+#Ifnot;
+	! z4
+	@sread buffer parse;
+#Endif;
 	@buffer_mode 1;
+#Iftrue #version_number > 4;
 	if (clr_on && clr_fginput > 1) {
 		@set_colour clr_fg clr_bg;
 	}
-#IfNot;
+#Endif;
+#Ifnot;
+	! z3
 	@sread buffer parse;
-#EndIf;
+#Endif;
 
 #Ifdef BeforeParsing;
 	! call library entry routine
 	RunEntryPointRoutine(BeforeParsing);
 #Endif;
 
-#IfV5;
+#Iftrue #version_number > 4;
     Translation();
 #Endif;
 	num_words = parse -> 1;
@@ -241,8 +251,12 @@ System_file;
 [ NumberWord p_o _i _n;
 	! try to parse  "one" up to "twenty".
 	_n = LanguageNumbers-->0;
-#Ifv5;
+#Iftrue #version_number > 3;
+#Iftrue #version_number > 4;
 	@log_shift _n (-1) -> _n; ! Divide by 2
+#Ifnot;
+	_n = _n / 2;
+#Endif;
 	@add LanguageNumbers 2 -> sp;
 	@scan_table p_o sp _n $84 -> _i ?_found;
 	return 0;
@@ -288,12 +302,12 @@ System_file;
 	return -1000;
 ];
 
-#IfV5;
+#Iftrue #version_number > 4;
 [ _CopyInputArray p_src_input_array p_dst_input_array _i;
 	_i = (p_src_input_array->1) + 2;
 	@copy_table p_src_input_array p_dst_input_array _i;
 ];
-#IfNot;
+#Ifnot;
 [ _CopyInputArray p_src_input_array p_dst_input_array _i _v;
 	_v = p_src_input_array->0;
 	p_dst_input_array->0 = _v;
@@ -305,16 +319,16 @@ System_file;
 		! ! from 1 in v1-4, and from 2 in v5-v8.
 		@jz _v ?~copy_next;
 ];
-#EndIf;
+#Endif;
 
-#IfV5;
+#Iftrue #version_number > 4;
 [ _CopyParseArray p_src_parse_array p_dst_parse_array _n;
 	_n = p_src_parse_array->1;
 	@log_shift _n 2 -> _n; ! Multiply by 4
 	_n = _n + 2;
 	@copy_table p_src_parse_array p_dst_parse_array _n;
 ];
-#IfNot;
+#Ifnot;
 [ _CopyParseArray p_src_parse_array p_dst_parse_array _n _i;
 	_n = 4*p_src_parse_array->1;
 	_n++;
@@ -322,7 +336,7 @@ System_file;
 		p_dst_parse_array->_i = p_src_parse_array->_i;
 		@inc_chk _i _n ?~copy_next;
 ];
-#EndIf;
+#Endif;
 
 [ _PatternRanking p_pattern _rank _k _val _byte0 _count;
 	! Return a biased pattern ranking:
@@ -401,7 +415,7 @@ System_file;
 ! since they will typically be called from parse_name routines, which are called from _ParseNounPhrase
 
 [ WordAddress p_wordnum _pointer; ! Absolute addr of 'wordnum' string in buffer
-#Ifv5;
+#Iftrue #version_number > 4;
     @log_shift p_wordnum 2 -> _pointer; ! Multiply by 4
 #Ifnot;
     _pointer = 4 * p_wordnum;
@@ -411,7 +425,7 @@ System_file;
 ];
 
 [ WordLength p_wordnum _pointer; ! Length of 'wordnum' string in buffer
-#Ifv5;
+#Iftrue #version_number > 4;
     @log_shift p_wordnum 2 -> _pointer; ! Multiply by 4
 #Ifnot;
     _pointer = 4 * p_wordnum;
@@ -580,11 +594,11 @@ Constant _PARSENP_CHOOSEOBJ_WEIGHT = 1000;
 			else if(wn > _k) {
 				_parse_noun_words = wn - _k;
 !				_p = p_parse_pointer + 4 * _parse_noun_words;
-#IfV5;
+#Iftrue #version_number > 4;
 				@log_shift _parse_noun_words 2 -> _p;
-#IfNot;
+#Ifnot;
 				_p = 4 * _parse_noun_words;
-#EndIf;
+#Endif;
 				_p = _p + p_parse_pointer;
 				_current_word = _p-->0;
 			}
@@ -602,9 +616,9 @@ Constant _PARSENP_CHOOSEOBJ_WEIGHT = 1000;
 				if(meta == 0 || parent(_obj) ~= 0
 						|| _RoomLike(_obj) == false
 						|| DebugParseNameObject(_obj)) {
-#IfV3;
+#Iftrue #version_number < 5;
 					if(debug_flag & 1) print "[ ~", (name) _obj, "~.parse_name() ]^";
-#EndIf;
+#Endif;
 					_result = _obj.parse_name();
 				}
 #Ifnot; ! Not DEBUG
@@ -632,24 +646,24 @@ Constant _PARSENP_CHOOSEOBJ_WEIGHT = 1000;
 			if(wn <= num_words && _name_array) {
 				! Assembler equivalent of _name_array_len = _obj.#name / 2
 				@get_prop_len _name_array -> _name_array_len;
-#IfV5;
+#Iftrue #version_number > 4;
 				@log_shift _name_array_len (-1) -> _name_array_len;
-#IfNot;
+#Ifnot;
 				@div _name_array_len 2 -> _name_array_len;
-#EndIf;
+#Endif;
 #IfDef DEBUG_PARSENOUNPHRASE;
 				print "Trying to find ";
 				if(_current_word == 0) print "[Unknown]";
 				else print (address) _current_word;
 				print " in name (length ",_name_array_len,").^";
-#EndIf;
-#IfV3;
+#Endif;
+#Iftrue #version_number < 4;
 				@dec _name_array_len; ! This is needed for the loop.
-#EndIf;
+#Endif;
 				while(_current_word ~= 0 && _IsSentenceDivider(_p) == false) {
-#IfV5;
+#Iftrue #version_number > 3;
 					@scan_table _current_word _name_array _name_array_len -> _j ?~_register_candidate;
-#IfNot;
+#Ifnot;
 					_j = 0;
 ._next_word_in_name_prop;
 					@loadw _name_array _j -> sp;
@@ -683,11 +697,11 @@ Constant _PARSENP_CHOOSEOBJ_WEIGHT = 1000;
 					which_object-->_matches = _obj;
 #IfDef DEBUG_PARSENOUNPHRASE;
 					print "Same best result: word count ", _result, ", score ", _best_score, ". Matches are now ", _matches,"^";
-#EndIf;
+#Endif;
 				} else if(_j > _best_score || _result > _best_word_count) {
 #IfDef DEBUG_PARSENOUNPHRASE;
 					print "New best result: word count ", _result, ", score ", _j , "^";
-#EndIf;
+#Endif;
 					_best_word_count = _result;
 					_best_score = _j;
 					_matches = 1;
@@ -701,11 +715,11 @@ Constant _PARSENP_CHOOSEOBJ_WEIGHT = 1000;
 
 !	for(_i = p_parse_pointer + (_best_word_count - 1) * 4: _i >= p_parse_pointer: _i = _i - 4) {
 	_i = _best_word_count - 1;
-#IfV5;
+#Iftrue #version_number > 4;
 	@log_shift _i 2 -> _i;
-#IfNot;
+#Ifnot;
 	_i = 4 * _i;
-#EndIf;
+#Endif;
 	_i = _i + p_parse_pointer;
 	for(: _i >= p_parse_pointer: _i = _i - 4) {
 		_j = _i-->0;
@@ -1099,7 +1113,7 @@ Constant _PARSENP_CHOOSEOBJ_WEIGHT = 1000;
 ! Otherwise, count is in multiple_objects-->0
 	if(p_special_count == 0)
 		p_count = multiple_objects-->0;
-#Ifv5;
+#Iftrue #version_number > 3;
 !	@loadw multiple_objects 0 -> sp;
 	@add multiple_objects 2 -> sp;
 !	@scan_table p_obj sp sp -> _i ?rtrue;
@@ -1339,7 +1353,7 @@ Constant _PARSENP_CHOOSEOBJ_WEIGHT = 1000;
 							! so we clear scope and copy Xs into scope
 							! before GetNextNoun. Later we need to restore scope
 							scope_objects = multiple_objects --> 0;
-#Ifv5;
+#Iftrue #version_number > 4;
 							@log_shift scope_objects 1 -> sp; ! Multiply by 2
 							@add multiple_objects 2 -> sp;
 							@copy_table sp scope sp;
@@ -1706,7 +1720,7 @@ Array guess_object-->5;
 	selected_direction_index = 0;
 	selected_direction = 0;
 	_i = p_pattern --> 0;
-#Ifv5;
+#Iftrue #version_number > 4;
 	@log_shift _i (-11) -> _token_count; ! Divide by 2048
 #Ifnot;
 	_token_count = _i / 2048;
@@ -1811,19 +1825,24 @@ Array guess_object-->5;
 						@get_prop_addr location name -> _k;
 						if(_k) {
 							@get_prop_len _k -> _j;
-		#IfV5;
+		#Iftrue #version_number > 3;
+		#Iftrue #version_number > 4;
 							@log_shift _j (-1) -> _j; ! Divide by 2
+		#Ifnot;
+							@div _j 2 -> _j;
+		#Endif;
 							@scan_table _word _k _j -> _i ?~_no_loc_name;
 							inp1 = 1;
 ._no_loc_name;
-		#IfNot;
+		#Ifnot;
+							! z3
 							@div _j 2 -> _j;
 							for(_i = 0: _i < _j: _i++) {
 								if(_word == (_k-->_i)) {
 									inp1 = _i;
 								}
 							}
-		#EndIf;
+		#Endif;
 						}
 						if(inp1 ~= -1) {
 							PrintMsg(MSG_PARSER_NO_NEED_REFER_TO);
@@ -2117,24 +2136,30 @@ Array guess_object-->5;
 		if(actor provides grammar) {
 			parser_one = 0;
 			_i = actor.grammar();
+#Ifdef DEBUG;
+#IfTrue RUNTIME_ERRORS > RTE_MINIMUM;
+	if(_i ~= 0 or 1 && parser_one == 0)
+		_RunTimeError(ERR_UNSAFE_GRAMMAR_PROP, actor);
+#EndIf;
+#Endif;
 			! 0 = carry on as usual
 			! 1 = grammar parsed it completely
 			! verb = use this verb's grammar instead
 			! -verb = try using this verb's grammar first, then the original
-			if((_i ~= 0 or 1) &&
-				(parser_one ~= 0 ||
-				(UnsignedCompare(_i, dict_start) < 0 ||
-				UnsignedCompare(_i, dict_end) >= 0 ||
-				(_i - dict_start) % dict_entry_size ~= 0))) {
-				! returned -'verb'
-				usual_grammar_after = verb_word;
-				_i = -_i;
-			}
 			if(_i == 1) {
 				++wn; ! to account for the correctly parsed verb
 				jump _parsing_was_successful;
 			}
 			if(_i ~= 0) {
+				if(parser_one < 0 || ! Force (-verb) interpretation
+						(UnsignedCompare(_i, dict_start) < 0 ||      ! Before dictionary
+						 UnsignedCompare(_i, dict_end) >= 0 ||       ! After dictionary
+						 (_i - dict_start) % dict_entry_size ~= 0 || ! Not start of a word
+						 (_i->DICT_BYTES_FOR_WORD) & 1 == 0)) {      ! Not a verb
+					! returned -'verb'
+					usual_grammar_after = verb_word;
+					_i = -_i;
+				}
 				! _i == 'verb', so use its grammar instead
 				verb_word = _i;
 				! decrease verb_wordnum to try the new grammar rule,
@@ -2306,7 +2331,7 @@ Array guess_object-->5;
 			!
 			! _j is the number of tokens in _best_pattern
 			_i = _best_pattern --> 0;
-#Ifv5;
+#Iftrue #version_number > 4;
 			@log_shift _i (-11) -> _j; ! Divide by 2048
 #Ifnot;
 			_j = _i / 2048;

@@ -69,13 +69,13 @@ Constant TM_MSG_PAGE_OPTION "[N] Más opciones";
 
 #Ifndef USEINFORM;
 
-#Ifv5;
+#Iftrue #version_number > 4;
 Replace RestartSub;
 #Endif;
 
 Include "puny.h";
 
-#Ifv5;
+#Iftrue #version_number > 4;
 ! Asegúrate de regresar a los colores por defecto, como arreglo
 ! de un bug de algunos intérpretes, donde el color de fondo no
 ! vuelve automáticamente a sus colores por defecto al reiniciar.
@@ -220,7 +220,7 @@ Object -> Josh "Josh"
 [Initialise;
 #Endif;
 #Ifdef PUNYINFORM_MAJOR_VERSION;
-#Ifv5;
+#Iftrue #version_number > 4;
 	if(OzmooColoursAvailable())
 		ozmoo_colours = true;
 	if(HDR_TERPFLAGS->0 & 1) {

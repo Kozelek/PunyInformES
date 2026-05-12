@@ -314,7 +314,7 @@ Include "globals.h";
 	}
 ];
 
-#IfV3;
+#Iftrue #version_number < 4;
 ! El diccionario sólo admite seis caracteres en los juegos z3, por lo que necesitamos
 ! para ayudar a imprimir verbos más largos.
 [PrintVerb p_verb;
@@ -349,7 +349,7 @@ Include "ext_cheap_scenery.h";
 ! ====================================
 ! Configura quote box
 ! ====================================
-#Ifv3;
+#Iftrue #version_number < 4;
 Constant QUOTE_V3_SCREEN_WIDTH 40;
 #Endif;
 Include "ext_quote_box.h";
@@ -393,7 +393,7 @@ Include "puny.h";
 	"Eso parece peligroso e inútil.";
 ];
 
-#IfV3;
+#Iftrue #version_number < 4;
 Verb 'quema' 'quemar'
 	* noun					-> Burn
 	* noun 'con' noun		-> Burn;
@@ -415,7 +415,7 @@ Extend 'encender' first
 	"Eso parece inútil.";
 ];
 
-#IfV3;
+#Iftrue #version_number < 4;
 Verb 'cubrir' 'cubre' 'venda' 'vendar'
 	* noun 'con'/'usando' held	-> Cover;
 #IfNot;
@@ -437,7 +437,7 @@ Extend 'poner' first
 Extend 'habla' first
 	* 'a'/'con' creature -> TalkTo
 	* creature -> TalkTo;
-#IfV3;
+#Iftrue #version_number < 4;
 Extend 'hablar' first
 	* 'a'/'con' creature -> TalkTo
 	* creature -> TalkTo;

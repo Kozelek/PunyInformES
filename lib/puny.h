@@ -22,7 +22,7 @@
 !Constant DEBUG_SCOPE;
 
 System_file;
-#IfV5;
+#Iftrue #version_number > 4;
 Include "translation.h";
 #Endif;
 Include "messages.h";
@@ -73,13 +73,13 @@ Constant UnsignedCompare = Unsigned__Compare;
 ];
 #Endif;
 
-#Ifv3;
+#Iftrue #version_number < 5;
 [ ChangeFgColour p_colour;
 	p_colour = 1; ! Avoid warning
 ];
 #Endif;
 
-#IfV5;
+#Iftrue #version_number > 4;
 
 [ OzmooColoursAvailable;
 	if($3a-->0 == $4f5a)
@@ -104,6 +104,10 @@ Constant UnsignedCompare = Unsigned__Compare;
 		@set_colour clr_fg CLR_CURRENT;
 	}
 ];
+#Endif;
+
+#Iftrue #version_number > 3;
+! Statusline routines, for z4+
 
 #Ifdef OPTIONAL_NON_FLASHING_STATUSLINE;
 Array cursor_pos --> 2;
@@ -120,9 +124,11 @@ Array cursor_pos --> 2;
 [ _MoveCursor line column;  ! 1-based postion on text grid
 	if (~~statuswin_current) {
 		@set_window 1;
+#Iftrue #version_number > 4;
 		if (clr_on && clr_fgstatus > 1) {
 			@set_colour clr_fgstatus clr_bg;
 		}
+#Endif;
 		style reverse;
 	}
 	if (line == 0) {
@@ -135,9 +141,11 @@ Array cursor_pos --> 2;
 
 [ _MainWindow;
 	if (statuswin_current) {
+#Iftrue #version_number > 4;
 		if (clr_on && clr_fgstatus > 1) {
 			@set_colour clr_fg clr_bg;
 		}
+#Endif;
 		style roman;
 		@set_window 0;
 	}
@@ -409,7 +417,7 @@ Constant ONE_SPACE_STRING = " ";
 #Endif;
 	_MainWindow(); ! set_window
 ];
-#EndIf;
+#Endif;
 
 [ ObjectCapacity p_obj;
 	if(p_obj provides capacity)
@@ -543,7 +551,7 @@ Constant ONE_SPACE_STRING = " ";
 			else print " y ", (LanguageNumber) n%10;
 		}
 	}
-#Ifnot;
+#Ifnot; ! z4+
 	if(n <= 20)
 		print (string) LanguageNumberStrings-->(n - 1);
 	else {
@@ -1004,7 +1012,7 @@ Array _SpaceTable static -> "                    ";
 Constant _SpaceTableLength 20;
 
 [ FastSpaces p_spaces;
-#Ifv3;
+#Iftrue #version_number < 5;
 	while(p_spaces >= 6) {
 		print "      ";
 		p_spaces = p_spaces - 6;
@@ -1074,7 +1082,7 @@ Constant _SpaceTableLength 20;
 !		p_switch = p_obj.p_prop();
 		if(_address == 0) { _value = p_obj.p_prop; jump _process_value; }
 		_len = p_obj.#p_prop;
-#Ifv5;
+#Iftrue #version_number > 4;
 		@log_shift _len (-1) -> _len; ! Divide by 2
 #Ifnot;
 		_len = _len / 2;
@@ -1155,7 +1163,9 @@ Constant _SpaceTableLength 20;
 	if(IsAString(_val)) {
 		print (string) _val;
 		if(p_no_string_newline == 0) new_line;
+		rtrue;
 	}
+	return _val;
 ];
 
 [ CommonAncestor p_o1 p_o2 _i _j;
@@ -1184,7 +1194,7 @@ Constant _SpaceTableLength 20;
 	rfalse;
 ];
 
-[ MoveFloatingObjects _i _j _o _len _obj;
+[ MoveFloatingObjects _i _j _o _len _obj _self;
 	_i--;
 !	while((_obj = floating_objects-->_i) ~= 0) {
 ._next_floating;
@@ -1197,33 +1207,38 @@ Constant _SpaceTableLength 20;
 		if(_obj has absent)
 			jump _isnt_present;
 		_len = _obj.#found_in;
-		if(_len == 2 && UnsignedCompare(_obj.found_in, top_object) > 0) {
-			if(RunRoutines(_obj, found_in))
+		if(_len == 2) {
+			_j = _obj.found_in;
+			if(_j > top_object || _j < -1) {
+				_self = self; self = _obj;
+				@call _j -> _j;
+				self = _self;
+				@jz _j ?_isnt_present;
 				jump _is_present;
-			jump _isnt_present;
-		} else {
-			_j = _obj.&found_in;
-#Ifv5;
-			@log_shift _len (-1) -> _len; ! Divide by 2
-#Ifnot;
-			_len = _len / 2;
-#Endif;
-			_len = _len - 1;
-._check_next_value;
-				_o = _j-->_len;
-				if(_o in Class) {
-					if(location ofclass _o)
-						jump _is_present;
-				} else if(_o == location || _o in location)
-					jump _is_present;
-			@dec_chk _len 0 ?~_check_next_value;
-._isnt_present;
-			remove _obj;
-			jump _next_floating;
-._is_present;
-			if(_obj notin location)
-				move _obj to location;
+			}
+			@je _j (-1) ?_isnt_present;
 		}
+		_j = _obj.&found_in;
+#Iftrue #version_number > 4;
+		@log_shift _len (-1) -> _len; ! Divide by 2
+#Ifnot;
+		_len = _len / 2;
+#Endif;
+		_len = _len - 1;
+._check_next_value;
+			_o = _j-->_len;
+			if(_o in Class) {
+				if(location ofclass _o)
+					jump _is_present;
+			} else if(_o == location || _o in location)
+				jump _is_present;
+		@dec_chk _len 0 ?~_check_next_value;
+._isnt_present;
+		remove _obj;
+		jump _next_floating;
+._is_present;
+		if(_obj notin location)
+			move _obj to location;
 		jump _next_floating;
 !._continue_loop;
 !		_i++;
@@ -1412,12 +1427,12 @@ Include "parser.h";
 	if (_obj has reactive && _obj.&p_property ~= 0 && ( _obj.#p_property > 2 || _obj.p_property ~= NULL or 0)) {
 #Ifdef OPTIONAL_MANUAL_SCOPE_BOOST;
 		_any = 2;
-#EndIf;
+#Endif;
 #IfDef DEBUG;
-#IfV3;
+#Iftrue #version_number < 5;
 		if(debug_flag & 1) print "[ ~", (name) _obj, "~.",(property) p_property,"() ]^";
-#EndIf;
-#EndIf;
+#Endif;
+#Endif;
 		if(RunRoutines(_obj, p_property) && p_break) {
 			rtrue;
 		}
@@ -1432,11 +1447,11 @@ Include "parser.h";
 	GetScopeCopy(player, EACH_TURN_REASON); ! later used by _RunReact
 
 	if(location has reactive && location.&each_turn ~= 0) {
-#IfDef DEBUG;
-#IfV3;
+#Ifdef DEBUG;
+#Iftrue #version_number < 5;
 		if(debug_flag & 1) print "[ ~", (name) location, "~.each_turn() ]^";
-#EndIf;
-#EndIf;
+#Endif;
+#Endif;
 		RunRoutines(location, each_turn);
 	}
 
@@ -1468,11 +1483,11 @@ Include "parser.h";
 	if(RunEntryPointRoutine(GamePreRoutine)) rtrue;
 #EndIf;
 
-#IfDef DEBUG;
-#IfV3;
+#Ifdef DEBUG;
+#Iftrue #version_number < 5;
 	if(debug_flag & 1) print "[ player.orders() ]^";
-#EndIf;
-#EndIf;
+#Endif;
+#Endif;
 	if(RunRoutines(player, orders)) rtrue;
 
 #Ifdef OPTIONAL_MANUAL_SCOPE_BOOST;
@@ -1492,20 +1507,20 @@ Include "parser.h";
 	if(_RunReact(react_before, true) == true) rtrue;
 #Endif;
 
-#IfDef DEBUG;
-#IfV3;
+#Ifdef DEBUG;
+#Iftrue #version_number < 5;
 	if(debug_flag & 1) print "[ ~", (name) real_location, "~.before() ]^";
-#EndIf;
-#EndIf;
+#Endif;
+#Endif;	
 	if(real_location.&before) {
 		if(RunRoutines(real_location, before)) rtrue;
 	}
 	if(inp1 > 1) {
-#IfDef DEBUG;
-#IfV3;
+#Ifdef DEBUG;
+#Iftrue #version_number < 5;
 		if(debug_flag & 1) print "[ ~", (name) inp1, "~.before() ]^";
-#EndIf;
-#EndIf;
+#Endif;
+#Endif;
 		if(inp1.&before) {
 			if(RunRoutines(inp1, before)) rtrue;
 		}
@@ -1537,20 +1552,20 @@ Include "parser.h";
 	if(_RunReact(react_after, true) == true) rtrue;
 #Endif;
 
-#IfDef DEBUG;
-#IfV3;
+#Ifdef DEBUG;
+#Iftrue #version_number < 5;
 	if(debug_flag & 1) print "[ ~", (name) real_location, "~.after() ]^";
-#EndIf;
-#EndIf;
+#Endif;
+#Endif;
 	if(real_location.&after) {
 		if(RunRoutines(real_location, after)) rtrue;
 	}
 	if(inp1 > 1) {
-#IfDef DEBUG;
-#IfV3;
+#Ifdef DEBUG;
+#Iftrue #version_number < 5;
 		if(debug_flag & 1) print "[ ~", (name) inp1, "~.after() ]^";
-#EndIf;
-#EndIf;
+#Endif;
+#Endif;
 		if(inp1.&after) {
 			if(RunRoutines(inp1, after)) rtrue;
 		}
@@ -1565,11 +1580,11 @@ Include "parser.h";
 ];
 
 [ RunLife p_actor p_reason;
-#IfDef DEBUG;
-#IfV3;
+#Ifdef DEBUG;
+#Iftrue #version_number < 5;
 	if(debug_flag & 1 && p_actor provides life) print "[ ~", (name) p_actor, "~.life() ]^";
-#EndIf;
-#EndIf;
+#Endif;
+#Endif;
 	return RunRoutines(p_actor, life, p_reason);
 ];
 
@@ -1668,7 +1683,7 @@ Include "parser.h";
 #EndIf;
 	if(p_array_val == 0)
 		p_array_val = WORD_HIGHBIT + p_obj;
-#Ifv5;
+#Iftrue #version_number > 3;
 	@scan_table p_array_val the_timers active_timers -> _i ?rfalse;
 #Ifnot;
 	for (_i=0 : _i<active_timers : _i++)
@@ -1731,10 +1746,14 @@ Include "parser.h";
 [ StopDaemon p_obj p_array_val _i;
 	if(p_array_val == 0)
 		p_array_val = WORD_HIGHBIT + p_obj;
-#Ifv5;
+#Iftrue #version_number > 3;
 	@scan_table p_array_val the_timers active_timers -> _i ?~rfalse;
 	_i = _i - the_timers;
+#Iftrue #version_number > 4;
 	@log_shift _i (-1) -> _i; ! Divide by 2
+#Ifnot;
+	@div _i 2 -> _i;
+#Endif;
 #Ifnot;
 	for (_i=0 : _i<active_timers : _i++)
 		if (the_timers-->_i == p_array_val) jump _FoundTSlot4;
@@ -1852,7 +1871,7 @@ Include "parser.h";
  return x-->0;
 ];
 
-#IfV5;
+#Iftrue #version_number > 4;
 
 !   CA__Pr:  call, that is, print-or-run-or-read, a property:
 !			 this exactly implements obj..prop(...).  Note that
@@ -2019,7 +2038,7 @@ Include "parser.h";
  }
 ];
 
-#Endif; ! IfV5
+#Endif; ! #Iftrue #version_number > 4;
 
 !   IB__Pr:  ++(individual property)
 
@@ -2243,7 +2262,7 @@ Include "parser.h";
 #Endif;
 
 
-#IfV3;
+#Iftrue #version_number < 5;
 ! These routines are implemented by Veneer, but the default implementations give compile errors for z3
 
 ! [ Print__PName prop p size cla i;
@@ -2629,9 +2648,9 @@ Object thedark "Oscuridad"
 #Ifnot;
 [ main _i _j _copylength _sentencelength _parsearraylength _score _again_saved _parser_oops _disallow_complex_again;
 #Endif;
-#IfV5;
+#Iftrue #version_number > 3;
 	screen_width = HDR_SCREENWCHARS->0;
-#EndIf;
+#Endif;
 	dict_start = HDR_DICTIONARY-->0;
 	_i = dict_start->0;
 	dict_entry_size = dict_start->(_i + 1);
@@ -2642,11 +2661,11 @@ Object thedark "Oscuridad"
 #Endif;
 
 	parse->0 = MAX_INPUT_WORDS;
-#IfV5;
+#Iftrue #version_number > 4;
 	buffer->0 = MAX_INPUT_CHARS;
-#IfNot;
+#Ifnot;
 	buffer->0 = MAX_INPUT_CHARS - 1;
-#EndIf;
+#Endif;
 
 	top_object = #largest_object-255;
 	sys_statusline_flag = ( ($1->0) & 2 ) / 2;
@@ -2680,7 +2699,7 @@ Object thedark "Oscuridad"
 	! already does that when creating the array.
 #EndIf;
 
-#IfV5;
+#Iftrue #version_number > 3;
 	DrawStatusLine(true); ! So the first line of text isn't covered by the statusline
 #Endif;
 	_InitObjects(); ! Give reactive attribute as needed + list floating objects
@@ -2703,9 +2722,9 @@ Object thedark "Oscuridad"
 #Ifdef DEBUG_TIMER;
 	timer1 = 0-->2;
 #Endif;
-#IfV5;
+#Iftrue #version_number > 3;
 		screen_width = HDR_SCREENWCHARS->0;
-#EndIf;
+#Endif;
 
 		_UpdateScoreOrTime();
 		if(_sentencelength > 0) @new_line;
@@ -2719,11 +2738,11 @@ Object thedark "Oscuridad"
 #Endif;
 		if(parse->1 == 0) {
 			_ReadPlayerInput();
-#ifv5;
+#Iftrue #version_number > 4;
 			if(buffer->1 ~= 0 && buffer->2 == 42) { ! asterisk
-#ifnot;
+#Ifnot;
 			if(buffer->1 == 42) { ! asterisk
-#endif;
+#Endif;
 #IfDef OPTIONAL_EXTENDED_METAVERBS;
 				if(transcript_mode) PrintMsg(MSG_COMMENT_TRANSCRIPT);
 				else PrintMsg(MSG_COMMENT_NO_TRANSCRIPT);
@@ -2830,7 +2849,7 @@ Object thedark "Oscuridad"
 			! the first sentence in the input  has been parsed
 			! and executed. Now remove it from parse so that
 			! the next sentence can be parsed
-#Ifv5;
+#Iftrue #version_number > 4;
 			@log_shift _sentencelength 2 -> _i; ! Multiply by 4
 			_j = parse + 2;
 			_i = _i + _j;
@@ -2861,7 +2880,7 @@ Object thedark "Oscuridad"
 	_UpdateScoreOrTime();
 	@new_line;
 	if(deadflag == GS_QUIT) @quit;
-#ifV5;
+#Iftrue #version_number > 3;
 	style bold;
 #Endif;
 	print "^  *** ";
@@ -2871,7 +2890,7 @@ Object thedark "Oscuridad"
 	else if(deadflag >= GS_DEATHMESSAGE) DeathMessage();
 #Endif;
 	print " ***^^";
-#ifV5;
+#Iftrue #version_number > 3;
 	style roman;
 #Endif;
 #Ifndef NO_SCORE;

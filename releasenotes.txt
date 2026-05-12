@@ -1,6 +1,21 @@
 Próxima publicación:
 
 =======
+v2.6:
+Cambios específicos de la versión española:
+- Modifica el mensaje de SKIP_MSG_OPEN_YOU_CANT, MSG_OPEN_YOU_CANT, MSG_CLOSE_YOU_CANT, MSG_ENTER_YOU_CANT, MSG_LOCK_NOT_A_LOCK, MSG_UNLOCK_NOT_A_LOCK, MSG_WEAR_NOT_CLOTHING para que se imprima de forma gramaticalmente correcta.
+
+Cambios heredados de PunyInform v6.6:
+- Ahora, una propiedad «describe» puede tener el valor 2, o una rutina que devuelva 2, para indicar que el objeto no se describe en absoluto (ni mediante la propiedad «describe», ni debe mostrarse de ninguna otra forma). Esto difiere de devolver 1/true, ya que devolver 2 no hará que la rutina Look piense que ha impreso un objeto, por lo que no imprimirá necesariamente «También puedes ver...» al enumerar los objetos restantes. (Incidencia n.º 164)
+- Almacenar 0 en una propiedad describe haría que el objeto se listara como de costumbre por la rutina Look, si el objeto pertenecía a una clase que tuviera una rutina describe que devolviera 0 (¡correcto!), pero eximiría al objeto de ser listado si no pertenecía a una clase que tuviera una rutina describe (¡incorrecto!). Esto se ha corregido: 0 siempre significa lo mismo que no dar ningún valor para describe. (Incidencia n.º 163)
+- Si una propiedad tenía el valor n, donde n es 0 o un número positivo pequeño, y el código llamaba a PrintOrRun para esta propiedad, PrintOrRun debería haber devuelto n. En cambio, siempre ha devuelto 1 en este caso. Este error se ha corregido. En la biblioteca, la propiedad describe es la única afectada por este cambio.
+- Se ha añadido compatibilidad para compilar juegos PunyInform al formato z4.
+- Se han actualizado algunos mensajes de depuración de ROUTINE al nuevo formato (se habían omitido al cambiar al nuevo formato).
+- Se han reorganizado los mensajes en messages.h, de modo que los mensajes que se utilizan con menos frecuencia se sitúan de forma más coherente al final de la rutina, con el fin de: (a) facilitar el trabajo de los intérpretes que utilizan memoria virtual, reduciendo el espacio que suele ocupar esta rutina de gran tamaño en la memoria virtual, y (b) agilizar la búsqueda de los mensajes que se utilizan con más frecuencia.
+- Las rutinas de propiedades gramaticales ahora pueden (y deben) establecer parser_one = -1 al devolver (- verbo), o parser_one = 1 al devolver (verbo), para garantizar que el valor de retorno no se malinterprete. Si no se establece parser_one, se mostrará una advertencia si el juego se compila en modo DEBUG, con RUNTIME_ERRORS > 0.
+- Se ha optimizado MoveFloatingObjects.
+
+=======
 v2.5:
 Notas importantes para la actualización:
 - Hasta ahora, las rutinas `parse_name` no se invocaban si la primera palabra de entrada no figuraba en el diccionario (es decir, si el valor de la palabra era 0). Ahora, `parse_name` se invoca en estos casos.  Asegúrate de que no tienes rutinas `parse_name` que acepten 0 como sinónimo. Por ejemplo, podría buscar en una matriz de sinónimos, y la matriz podría contener el valor 0 en ocasiones, para dejar espacio a sinónimos que se añadirán allí en un momento determinado del juego. 

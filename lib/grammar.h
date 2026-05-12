@@ -17,7 +17,8 @@ Verb 'pregunta' 'interroga'
     * 'a//' creature 'acerca' 'de' topic 		-> Ask;
 Verb 'pide' 'pidele' 'pedir'
     * 'a//' creature noun        				-> AskFor
-    * noun 'a//' creature        				-> AskFor reverse;
+    * noun 'a//' creature        				-> AskFor reverse
+	* 'a//' creature 'que' topic				-> AskTo;
 
 #ifV3;
 Verb 'rompe' 'golpea' 'romper' 'destruye' 'patea' 'patear'
@@ -1628,7 +1629,7 @@ Verb meta 'quit' 'q//' 'fin'
 	}
 ];
 
-#IfV3;
+#Iftrue #version_number < 4;
 [ RestoreSub;
 	@restore ?_restore_was_successful; ! can't use @restore because of compiler test
 	verb_word = 'cargar';
@@ -1639,10 +1640,10 @@ Verb meta 'quit' 'q//' 'fin'
 	@restore -> _flag;
 	! must have failed here so no need to check the flag
 	return MSG_RESTORE_FAILED;
-#EndIf;
+#Endif;
 ];
 
-#IfV3;
+#Iftrue #version_number < 4;
 [ SaveSub;
 	@save ?_save_was_successful;
 	return MSG_SAVE_FAILED;
@@ -1653,7 +1654,7 @@ Verb meta 'quit' 'q//' 'fin'
 	@save -> _result;
 	if(_result == 0) return MSG_SAVE_FAILED;
 	return MSG_SAVE_DEFAULT; ! _result = 1: save ok, 2: Restore ok
-#EndIf;
+#Endif;
 ];
 
 #Ifdef NO_SCORE;
@@ -1669,20 +1670,20 @@ Verb meta 'quit' 'q//' 'fin'
 
 [ Banner _i;
 	new_line;
-#IfDef Story;
-	#IfV5;
+#Ifdef Story;
+	#Iftrue #version_number > 3;
 		style bold;
-	#EndIf;
+	#Endif;
 		print (string) Story;
-	#IfV5;
+	#Iftrue #version_number > 3;
 		style roman;
-	#EndIf;
-	#IfDef Headline;
+	#Endif;
+	#Ifdef Headline;
 		print (string) Headline;
-	#IfNot;
+	#Ifnot;
 		new_line;
-	#EndIf;
-#EndIf;
+	#Endif;
+#Endif;
 	print "Versión ", (0-->1) & $03ff, " / No.Serie ";
 	for (_i = 18:_i < 24: _i++) print (char) 0->_i;
 	print " / Inform v";
@@ -1695,9 +1696,9 @@ Verb meta 'quit' 'q//' 'fin'
 #EndIf;
 	print (char) ' ';
 #IfDef STRICT_MODE;
-	#IfV5;
+	#Iftrue #version_number > 4;
 	print (char) 'S';
-	#EndIf;
+	#Endif;
 #EndIf;
 #IfDef DEBUG;
 	print (char) 'D';
@@ -1839,10 +1840,10 @@ Verb meta 'verify' 'verificacion'
 #IfDef DEBUG;
 Verb meta 'pronoun'
 	*                                           -> Pronouns;
-#IfV5;
+#Iftrue #version_number > 3;
 Verb meta 'pronouns'
 	*                                           -> Pronouns;
-#EndIf;
+#Endif;
 
 Verb meta 'random'
 	*                                           -> RandomSeed
@@ -1995,11 +1996,11 @@ Constant _REAL_LOCATION_TEXT " *** real_location ***";
 		print " ~", (name) _p, "~ (", _p, ")";
 	}
 	if(noun == p_real_location) {
-#IfV5;
+#Iftrue #version_number > 3;
 		style bold;
 #Endif;
 		print (string) _REAL_LOCATION_TEXT;
-#IfV5;
+#Iftrue #version_number > 3;
 		style roman;
 #Endif;
 	}
@@ -2082,11 +2083,11 @@ Constant _REAL_LOCATION_TEXT " *** real_location ***";
 				return _obj;
 			print (name) _obj, " (", _obj, ")";
 			if(_obj == real_location) {
-#Ifv5;
+#Iftrue #version_number > 3;
 				style bold;
 #Endif;
 				print (string) _REAL_LOCATION_TEXT;
-#Ifv5;
+#Iftrue #version_number > 3;
 				style roman;
 #Endif;
 			}
@@ -2199,12 +2200,12 @@ Constant _REAL_LOCATION_TEXT " *** real_location ***";
 ];
 
 [ Look _obj _top_ceil _ceil _describe_room _you_can_see_1 _you_can_see_2 
-		_desc_prop _last_level _action;
+		_desc_prop _last_level _action _result;
 	if(input_action == ##Look) PrintMsg(MSG_LOOK_BEFORE_ROOMNAME);
 	if((lookmode == 1 && location hasnt visited) || lookmode == 2) _describe_room = true;
-#IfV5;
+#Iftrue #version_number > 3;
 	style bold;
-#EndIf;
+#Endif;
 
 	! Print the room name
 #Ifdef OPTIONAL_NO_DARKNESS;
@@ -2230,9 +2231,9 @@ Constant _REAL_LOCATION_TEXT " *** real_location ***";
 		_PrintObjName(location);
 	} else
 		print (The) _ceil;
-#IfV5;
+#Iftrue #version_number > 3;
 	style roman;
-#EndIf;
+#Endif;
 #Ifndef OPTIONAL_NO_DARKNESS;
 	if(location == thedark) {
 		new_line;
@@ -2266,9 +2267,10 @@ Constant _REAL_LOCATION_TEXT " *** real_location ***";
 			if(_obj hasnt scenery or concealed && _obj ~= player) {
 				give _obj workflag;
 				if(_obj.&describe) {
-					if(PrintOrRun(_obj, describe, 0)) {
+					_result = PrintOrRun(_obj, describe, 0);
+					if(_result) {
 						give _obj ~workflag;
-						also_flag = true;
+						if(_result ~= 2) also_flag = true;
 						continue;
 					}
 				}
@@ -2508,9 +2510,9 @@ Constant _REAL_LOCATION_TEXT " *** real_location ***";
 	if(_new_location == 0) {
 		if(real_location provides cant_go) {
 #IfDef DEBUG;
-#IfV3;
-			if(debug_flag & 1) print "(", (name) real_location, ").cant_go()^";
-#EndIf;
+#Iftrue #version_number < 5;
+			if(debug_flag & 1) print "[ ~", (name) real_location, "~.cant_go() ]^";
+#Endif;
 #EndIf;
 			PrintOrRun(real_location, cant_go);
 			rtrue;
@@ -2519,9 +2521,9 @@ Constant _REAL_LOCATION_TEXT " *** real_location ***";
 	}
 
 #IfDef DEBUG;
-#IfV3;
-	if(debug_flag & 1) print "(", (name) _new_location, ").before()^";
-#EndIf;
+#Iftrue #version_number < 5;
+	if(debug_flag & 1) print "[ ~", (name) _new_location, "~.before() ]^";
+#Endif;
 #EndIf;
 	action = ##Going;
 	if(RunRoutines(_new_location, before)) { action = ##Go; rtrue; }
@@ -2556,7 +2558,7 @@ Constant _REAL_LOCATION_TEXT " *** real_location ***";
 	if(PrintVerb(p_v)) return;
 #Endif;
 
-#IfV3;
+#Iftrue #version_number < 4;
 	switch(p_v) {
 		'g//': print "repetir"; return;
 		'i//', 'inv': print "inventario"; return;
@@ -2592,7 +2594,7 @@ Constant _REAL_LOCATION_TEXT " *** real_location ***";
 		'transcript': print "ript"; return;
 #EndIf;
 	}
-#Ifnot; ! This is z5+
+#Ifnot; ! This is z4+
 	switch(p_v) {
 		'superbrief': print "superbrief"; return;
 		'g//': print "repetir"; return;
@@ -2606,7 +2608,7 @@ Constant _REAL_LOCATION_TEXT " *** real_location ***";
 #EndIf;
 	}
 	print (address) p_v;
-#EndIf;
+#Endif;
 
 ];
 

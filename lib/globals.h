@@ -3,9 +3,9 @@
 System_file;
 
 Constant PUNYINFORM_MAJOR_VERSION = 2;
-Constant PUNYINFORM_MINOR_VERSION = 5;
+Constant PUNYINFORM_MINOR_VERSION = 6;
 Constant PUNYINFORM_PATCH_VERSION = 0; ! Usually 0 (if zero, it is not printed in banner)
-! Constant PUNYINFORM_VERSION_SUFFIX = "dev"; ! Comment out if none
+!Constant PUNYINFORM_VERSION_SUFFIX = "dev"; ! Comment out if none
 
 #Ifndef VN_1644;
 Message fatalerror "*** La librería PunyInformES necesita Inform v6.44 o posterior ***";
@@ -97,9 +97,9 @@ Constant ARE_STR = "están ";
 Default DEFAULT_CAPACITY = 100;
 
 #Ifdef OPTIONAL_PROVIDE_UNDO;
-#IfV3;
-Message warning "*** Ignorando Undo - no disponible en v3 ***";
-#IfNot;
+#Iftrue #version_number < 5;
+Message warning "*** Skipping Undo - not supported in v3,v4 ***";
+#Ifnot;
 Constant OPTIONAL_PROVIDE_UNDO_FINAL;
 #Endif;
 #Endif;
@@ -235,7 +235,7 @@ Constant FAKE_U_OBJ = 10009;
 Constant FAKE_D_OBJ = 10010;
 Constant FAKE_IN_OBJ = 10011;
 Constant FAKE_OUT_OBJ = 10012;
-#IfV5;
+#Iftrue #version_number > 3;
 Array _direction_dict_words static --> 'n//' 's//' 'e//' 'o//' 'ne' 'no' 'se' 'so' 'su//' 'ba//' 0 0
 	'norte' 'sur' 'este' 'oeste' 'noreste' 'noroeste' 'sureste' 'suroeste' 'sube' 'baja' 'entra' 'sal';
 #Ifdef OPTIONAL_SHIP_DIRECTIONS;
@@ -253,7 +253,7 @@ Constant FAKE_U_OBJ = 10005;
 Constant FAKE_D_OBJ = 10006;
 Constant FAKE_IN_OBJ = 10007;
 Constant FAKE_OUT_OBJ = 10008;
-#IfV5;
+#Iftrue #version_number > 3;
 Array _direction_dict_words static --> 'n//' 's//' 'e//' 'o//' 'su//' 'ba//' 0 0
 	'norte' 'sur' 'este' 'oeste' 'sube' 'baja' 'entra' 'sal';
 #Ifdef OPTIONAL_SHIP_DIRECTIONS;
@@ -370,9 +370,9 @@ Constant FORM_CDEF           = 1;
 Constant FORM_DEF            = 2;
 Constant FORM_INDEF          = 3;
 
-#IfV3;
+#Iftrue #version_number < 4;
 	Constant DICT_BYTES_FOR_WORD = 4;
-#IfNot;
+#Ifnot;
 	Constant DICT_BYTES_FOR_WORD = 6;
 	#Ifndef STATUSLINE_TIME;
 		#Ifndef OPTIONAL_SL_NO_MOVES;
@@ -387,7 +387,7 @@ Constant FORM_INDEF          = 3;
 	#Ifndef STATUSLINE_SCORE;
 		Constant TIME__TX = " Tiempo: ";
 	#Endif;
-#EndIf;
+#Endif;
 
 !#Default Story        0;
 !#Default Headline     0;
@@ -542,7 +542,7 @@ Constant CLR_OZMOO_LIGHT_GREEN = 21;
 Constant CLR_OZMOO_LIGHT_BLUE  = 22;
 Constant CLR_OZMOO_LIGHT_GREY  = 23;
 
-#IfV5;
+#Iftrue #version_number > 3;
 Constant WIN_ALL     0;
 Constant WIN_STATUS  1;
 Constant WIN_MAIN    2;
@@ -550,12 +550,14 @@ Global screen_width;
 Global statusline_current_height = 0;
 Global statusline_height     = 1;
 Global statuswin_current     = false;
+#Iftrue #version_number > 4;
 Global clr_on                = false;
 Global clr_bg                = CLR_BLACK;
 Global clr_fg                = CLR_WHITE;
 Global clr_fgstatus          = CLR_CURRENT;
 Global clr_fginput           = CLR_CURRENT;
-#endif;
+#Endif;
+#Endif;
 
 Global normal_directions_enabled = true;
 #Ifdef OPTIONAL_SHIP_DIRECTIONS;
@@ -672,14 +674,18 @@ Object Directions
 			print (string) direction_name_array-->selected_direction_index;
 			rtrue;
 		],
-#IfV5;
+#iftrue #version_number > 3;
 		parse_name [_parse _i _w _arr;
 #IfNot;
 		parse_name [_parse _i _w;
 #EndIf;
-#IfV5;
+#iftrue #version_number > 3;
 !			_parse = parse+4*wn-2;
+	#Iftrue #version_number > 4;
 			@log_shift wn 2 -> _parse; ! Multiply by 4
+	#Ifnot;
+			_parse = wn * 4;
+	#Endif;
 			_parse = parse + _parse - 2;
 
 			_w = _parse-->0;
@@ -739,12 +745,16 @@ Object Directions
 			return 0;
 ._matched_word_in_list;
 			_i = _i - _arr;
+#Iftrue #version_number > 4;
 			@log_shift _i (-1) -> _i; ! Divide by 2
+#Ifnot;
+			_i = _i / 2;
+#Endif;
 			selected_direction_index = (_i % DIRECTION_COUNT) + 1;
 ._matched_and_have_set_dir_index;
 			selected_direction = direction_properties_array -> selected_direction_index;
 			return 1;
-#IfNot;
+#Ifnot;
 			! This is V3
 
 			_parse = parse+4*wn-2;
