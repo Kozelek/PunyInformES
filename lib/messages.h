@@ -1252,7 +1252,7 @@ default:
 ];
 
 [ ItorThem p_obj;
-	if (p_obj == player) { print " a tí mismo"; rtrue; }
+	if (p_obj == player) { print "a tí mismo"; rtrue; }
 	if (p_obj has animate) {
 		if (p_obj has pluralname) { 
 			if (p_obj has female) { print "a ellos"; rtrue; }

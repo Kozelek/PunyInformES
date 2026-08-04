@@ -853,7 +853,7 @@ Constant _PARSENP_CHOOSEOBJ_WEIGHT = 1000;
 		'-los': _noun = los_obj;
 		'-las': _noun = las_obj;
 		'-le': _noun = el_obj;
-		'-les': _noun = la_obj;
+		'-les': _noun = los_obj;
 		'-te': _noun = player;
 		}
 		if(_noun == 0) {
