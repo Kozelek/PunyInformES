@@ -4,7 +4,7 @@ Abbreviate "[Comentario";                   !     2x15, saved    11
 Abbreviate "No puedes ";                    !    11x11, saved    87
 Abbreviate "Por favor,";                    !     2x12, saved     8
 Abbreviate "PunyInform";                    !     3x12, saved    18
-Abbreviate "scripcion";                     !     3x 9, saved    12
+Abbreviate "ripciones";                     !     3x 9, saved    12
 Abbreviate "ste juego";                     !     4x 9, saved    19
 Abbreviate "e refiere";                     !     3x 9, saved    12
 Abbreviate "encuentra";                     !     3x 9, saved    12
@@ -42,7 +42,7 @@ Abbreviate "_to/";                          !    10x 6, saved    34
 Abbreviate "ería";                          !     5x 7, saved    16
 Abbreviate "ent";                           !    20x 3, saved    17
 Abbreviate "ión";                           !     7x 6, saved    22
-Abbreviate "es ";                           !    18x 3, saved    15
+Abbreviate "es ";                           !    17x 3, saved    14
 Abbreviate "as ";                           !    27x 3, saved    24
 Abbreviate "stá";                           !    20x 6, saved    74
 Abbreviate " co";                           !    23x 3, saved    20

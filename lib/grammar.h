@@ -14,7 +14,7 @@ Verb 'pregunta' 'interroga'
     * 'a//' creature 'sobre'/'por' topic 		-> Ask
     * 'sobre'/'por' topic 'a//' creature 		-> Ask reverse
     * topic 'a//' creature        				-> Ask reverse
-    * 'a//' creature 'acerca' 'de' topic 		-> Ask;
+    * 'a//' creature 'acerca' 'de'/'del' topic 	-> Ask;
 Verb 'pide' 'pidele' 'pedir'
     * 'a//' creature noun        				-> AskFor
     * noun 'a//' creature        				-> AskFor reverse
@@ -92,40 +92,40 @@ Verb 'deja' 'suelta' 'dejar' 'soltar'
     * multiheld                          		-> Drop
     * 'a//' noun            					-> Drop
     * multiexcept 'en' noun         			-> Insert
-    * multiexcept 'dentro' 'de' noun     		-> Insert
+    * multiexcept 'dentro' 'de'/'del' noun     	-> Insert
     * multiexcept 'sobre' noun           		-> PutOn
-    * multiexcept 'encima' 'de' noun     		-> PutOn;
+    * multiexcept 'encima' 'de'/'del' noun     	-> PutOn;
 #Ifnot;
 Verb 'deja' 'suelta' 'soltar'
     * multiheld                          		-> Drop
     * 'a//' noun            					-> Drop
     * multiexcept 'en' noun         			-> Insert
-    * multiexcept 'dentro' 'de' noun     		-> Insert
+    * multiexcept 'dentro' 'de'/'del' noun     	-> Insert
     * multiexcept 'sobre' noun           		-> PutOn
-    * multiexcept 'encima' 'de' noun     		-> PutOn;
+    * multiexcept 'encima' 'de'/'del' noun     	-> PutOn;
 #Endif;
 
 #Iftrue #version_number < 5;
 Verb 'tira' 'tirar'
-    * 'de' noun                          		-> Pull
+    * 'de'/'del' noun                          	-> Pull
     * multiheld                          		-> Drop
     * multiexcept 'en' container         		-> Insert
     * multiexcept 'en' noun         			-> PutOn
-    * multiexcept 'dentro' 'de' noun     		-> Insert
+    * multiexcept 'dentro' 'de'/'del' noun     	-> Insert
     * multiexcept 'sobre' noun           		-> PutOn
-    * multiexcept 'encima' 'de' noun     		-> PutOn
+    * multiexcept 'encima' 'de'/'del' noun     	-> PutOn
     * held 'a//' noun                      		-> ThrowAt
     * held 'por' noun                    		-> Insert
     * held 'contra' noun                 		-> ThrowAt;
 #Ifnot;
 Verb 'tira'
-    * 'de' noun                          		-> Pull
+    * 'de'/'del' noun                          	-> Pull
     * multiheld                          		-> Drop
     * multiexcept 'en' container         		-> Insert
     * multiexcept 'en' noun         			-> PutOn
-    * multiexcept 'dentro' 'de' noun     		-> Insert
+    * multiexcept 'dentro' 'de'/'del' noun     	-> Insert
     * multiexcept 'sobre' noun           		-> PutOn
-    * multiexcept 'encima' 'de' noun     		-> PutOn
+    * multiexcept 'encima' 'de'/'del' noun      -> PutOn
     * held 'a//' noun                      		-> ThrowAt
     * held 'por' noun                    		-> Insert
     * held 'contra' noun                 		-> ThrowAt;
@@ -156,14 +156,14 @@ Verb 'examina' 'x//' 'ex'
 Verb 'sal' 'fuera' 'afuera' 'salte' 'bajate' 'levantate' 'bajarse'
     'salirse' 'bajarte' 'salirte' 'salir'
     *                                   -> Exit
-    * 'de' noun                         -> GetOff
+    * 'de'/'del' noun                   -> GetOff
     * 'fuera'                           -> Exit
     * 'afuera'                          -> Exit;
 #Ifnot;
 Verb 'sal' 'fuera' 'afuera' 'salte' 'bajate' 'levantate' 'bajarse'
     'levantarse' 'salirse' 'bajarte' 'levantarte' 'salirte' 'salir'
     *                                   -> Exit
-    * 'de' noun                         -> GetOff
+    * 'de'/'del' noun                   -> GetOff
     * 'fuera'                           -> Exit
     * 'afuera'                          -> Exit;
 #Endif;
@@ -171,11 +171,11 @@ Verb 'sal' 'fuera' 'afuera' 'salte' 'bajate' 'levantate' 'bajarse'
 #Iftrue #version_number < 5;
 Verb 'baja' 'bajar'
     *                                   -> GoDown
-    * 'de' noun                         -> GetOff;
+    * 'de'/'del' noun                   -> GetOff;
 #Ifnot;
 Verb 'baja'
     *                                   -> GoDown
-    * 'de' noun                         -> GetOff;
+    * 'de'/'del' noun                   -> GetOff;
 #Endif;
 
 #Iftrue #version_number < 5;
@@ -190,12 +190,12 @@ Verb 'llena' 'rellena'
 Verb 'coge' 'toma' 'recoge' 'coger' 'tomar'
   * multi                             	-> Take
   * 'a//' creature                    	-> Take
-  * multiinside 'de' noun             	-> Remove;
+  * multiinside 'de'/'del' noun         -> Remove;
 #Ifnot;
 Verb 'coge' 'toma' 'recoge'
   * multi                             	-> Take
   * 'a//' creature                    	-> Take
-  * multiinside 'de' noun             	-> Remove;
+  * multiinside 'de'/'del' noun         -> Remove;
 #Endif;
 
 #Iftrue #version_number < 5;
@@ -240,15 +240,15 @@ Verb 'anda' 'camina' 'corre' 'ir' 've' 'vete'
 Verb 'pon' 'mete' 'echa' 'inserta' 'coloca' 'poner' 'meter' 'echar'
   * multiexcept 'en' container                              	-> Insert
   * multiexcept 'en' noun                                    	-> PutOn
-  * multiexcept 'dentro' 'de' noun                           	-> Insert
+  * multiexcept 'dentro' 'de'/'del' noun                        -> Insert
   * multiexcept 'sobre' noun                                 	-> PutOn
   * noun 'a//' topic                                         	-> SetTo
   * 'a//' creature 'en' container                           	-> Insert
   * 'a//' creature 'en' noun                                 	-> PutOn
-  * 'a//' creature 'dentro' 'de' noun                        	-> Insert
+  * 'a//' creature 'dentro' 'de'/'del' noun                     -> Insert
   * 'a//' creature 'sobre' noun                              	-> PutOn
-  * multiexcept 'encima' 'de' noun                           	-> PutOn
-  * 'a//' creature 'encima' 'de' noun                        	-> PutOn
+  * multiexcept 'encima' 'de'/'del' noun                        -> PutOn
+  * 'a//' creature 'encima' 'de'/'del' noun                     -> PutOn
   * 'cerrojo'/'pestillo'/'cierre' 'a//' noun                 	-> Lock
   * 'el' 'cerrojo'/'pestillo'/'cierre' 'a//' noun            	-> Lock
   * 'cerrojo'/'pestillo'/'cierre' 'a//' noun 'con' held      	-> Lock
@@ -257,15 +257,15 @@ Verb 'pon' 'mete' 'echa' 'inserta' 'coloca' 'poner' 'meter' 'echar'
 Verb 'pon' 'mete' 'echa' 'inserta' 'coloca' 'poner'
   * multiexcept 'en' container                              	-> Insert
   * multiexcept 'en' noun                                    	-> PutOn
-  * multiexcept 'dentro' 'de' noun                           	-> Insert
+  * multiexcept 'dentro' 'de'/'del' noun                        -> Insert
   * multiexcept 'sobre' noun                                 	-> PutOn
   * noun 'a//' topic                                         	-> SetTo
   * 'a//' creature 'en' container                           	-> Insert
   * 'a//' creature 'en' noun                                 	-> PutOn
-  * 'a//' creature 'dentro' 'de' noun                        	-> Insert
+  * 'a//' creature 'dentro' 'de'/'del' noun                     -> Insert
   * 'a//' creature 'sobre' noun                              	-> PutOn
-  * multiexcept 'encima' 'de' noun                           	-> PutOn
-  * 'a//' creature 'encima' 'de' noun                        	-> PutOn
+  * multiexcept 'encima' 'de'/'del' noun                        -> PutOn
+  * 'a//' creature 'encima' 'de'/'del' noun                     -> PutOn
   * 'cerrojo'/'pestillo'/'cierre' 'a//' noun                 	-> Lock
   * 'el' 'cerrojo'/'pestillo'/'cierre' 'a//' noun            	-> Lock
   * 'cerrojo'/'pestillo'/'cierre' 'a//' noun 'con' held      	-> Lock
@@ -276,14 +276,14 @@ Verb 'pon' 'mete' 'echa' 'inserta' 'coloca' 'poner'
 Verb 'pon' 'mete' 'echa' 'inserta' 'coloca' 'poner' 'meter' 'echar'
   * multiexcept 'en' container                              	-> Insert
   * multiexcept 'en' noun                                    	-> PutOn
-  * multiexcept 'dentro' 'de' noun                           	-> Insert
+  * multiexcept 'dentro' 'de'/'del' noun                        -> Insert
   * multiexcept 'sobre' noun                					-> PutOn
   * 'a//' creature 'en' container                           	-> Insert
   * 'a//' creature 'en' noun                                 	-> PutOn
-  * 'a//' creature 'dentro' 'de' noun                        	-> Insert
+  * 'a//' creature 'dentro' 'de'/'del' noun                     -> Insert
   * 'a//' creature 'sobre' noun                              	-> PutOn
-  * multiexcept 'encima' 'de' noun                           	-> PutOn
-  * 'a//' creature 'encima' 'de' noun                        	-> PutOn
+  * multiexcept 'encima' 'de'/'del' noun                        -> PutOn
+  * 'a//' creature 'encima' 'de'/'del' noun                     -> PutOn
   * 'cerrojo'/'pestillo'/'cierre' 'a//' noun                 	-> Lock
   * 'el' 'cerrojo'/'pestillo'/'cierre' 'a//' noun            	-> Lock
   * 'cerrojo'/'pestillo'/'cierre' 'a//' noun 'con' held      	-> Lock
@@ -292,14 +292,14 @@ Verb 'pon' 'mete' 'echa' 'inserta' 'coloca' 'poner' 'meter' 'echar'
 Verb 'pon' 'mete' 'echa' 'inserta' 'coloca' 'poner'
   * multiexcept 'en' container                              	-> Insert
   * multiexcept 'en' noun                                    	-> PutOn
-  * multiexcept 'dentro' 'de' noun                           	-> Insert
+  * multiexcept 'dentro' 'de'/'del' noun                        -> Insert
   * multiexcept 'sobre' noun                					-> PutOn
   * 'a//' creature 'en' container                           	-> Insert
   * 'a//' creature 'en' noun                                 	-> PutOn
-  * 'a//' creature 'dentro' 'de' noun                        	-> Insert
+  * 'a//' creature 'dentro' 'de'/'del' noun                     -> Insert
   * 'a//' creature 'sobre' noun                              	-> PutOn
-  * multiexcept 'encima' 'de' noun                           	-> PutOn
-  * 'a//' creature 'encima' 'de' noun                        	-> PutOn
+  * multiexcept 'encima' 'de'/'del' noun                        -> PutOn
+  * 'a//' creature 'encima' 'de'/'del' noun                     -> PutOn
   * 'cerrojo'/'pestillo'/'cierre' 'a//' noun                 	-> Lock
   * 'el' 'cerrojo'/'pestillo'/'cierre' 'a//' noun            	-> Lock
   * 'cerrojo'/'pestillo'/'cierre' 'a//' noun 'con' held      	-> Lock
@@ -322,14 +322,14 @@ Verb 'salta' 'saltar'
     * noun                               		-> JumpOver
     * 'a//' noun                          		-> Enter
     * 'sobre' noun                       		-> JumpOver
-    * 'por' 'encima' 'de' noun        			-> JumpOver;
+    * 'por' 'encima' 'de'/'del' noun        	-> JumpOver;
 #Ifnot;
 Verb 'salta'
     *                                    		-> Jump
     * noun                               		-> JumpOver
     * 'a//' noun                          		-> Enter
     * 'sobre' noun                       		-> JumpOver
-    * 'por' 'encima' 'de' noun        			-> JumpOver;
+    * 'por' 'encima' 'de'/'del' noun        	-> JumpOver;
 #EndIf;
 
 Verb 'escucha' 'oye' 'oir'
@@ -344,9 +344,9 @@ Verb 'mira' 'm//' 'ver' 'mirar'
     * noun                               		-> Examine
     * 'a//'/'hacia' noun        				-> Examine
     * 'en' noun                          		-> Search
-    * 'dentro' 'de' noun                 		-> Search
+    * 'dentro' 'de'/'del' noun                 	-> Search
     * 'sobre' noun                       		-> Search
-    * 'a//' 'traves' 'de' noun        			-> Search
+    * 'a//' 'traves' 'de'/'del' noun        	-> Search
     * 'por' noun                         		-> Search;
 #Ifnot;
 Verb 'mira' 'm//' 'ver'
@@ -355,9 +355,9 @@ Verb 'mira' 'm//' 'ver'
     * noun                               		-> Examine
     * 'a//'/'hacia' noun        				-> Examine
     * 'en' noun                          		-> Search
-    * 'dentro' 'de' noun                 		-> Search
+    * 'dentro' 'de'/'del' noun                 	-> Search
     * 'sobre' noun                       		-> Search
-    * 'a//' 'traves' 'de' noun        			-> Search
+    * 'a//' 'traves' 'de'/'del' noun        	-> Search
     * 'por' noun                         		-> Search;
 #EndIf;
 
@@ -399,14 +399,14 @@ Verb 'lee'
 
 #Iftrue #version_number < 5;
 Verb 'saca' 'sacar'
-	* multiinside 'de' noun             		-> Remove
-	* 'a//' creature 'de' noun          		-> Remove;
+	* multiinside 'de'/'del' noun             	-> Remove
+	* 'a//' creature 'de'/'del' noun          	-> Remove;
 Verb 'sacate' 'quitate' 'sacarse' 'sacarte' 'sacarme' 'quitar'
 	* noun                              		-> Disrobe;
 #Ifnot;
 Verb 'saca'
-	* multiinside 'de' noun             		-> Remove
-	* 'a//' creature 'de' noun          		-> Remove;
+	* multiinside 'de'/'del' noun             	-> Remove
+	* 'a//' creature 'de'/'del' noun          	-> Remove;
 Verb 'sacate' 'quitate' 'sacarse' 'quitarse' 'quitarte' 'sacarte' 'sacarme' 'quitarme' 'quitar'
 	* noun                              		-> Disrobe;
 #EndIf;
@@ -429,14 +429,14 @@ Verb 'busca' 'buscar'
     * topic 'en' noun                 			-> Consult reverse
     * 'en' noun 'sobre' topic        			-> Consult
     * 'en' noun topic            				-> Consult
-    * 'en' noun 'acerca' 'de' topic    			-> Consult;
+    * 'en' noun 'acerca' 'de'/'del' topic    	-> Consult;
 #Ifnot;
 Verb 'busca'
     * 'en' noun                          		-> Search
     * topic 'en' noun                 			-> Consult reverse
     * 'en' noun 'sobre' topic        			-> Consult
     * 'en' noun topic            				-> Consult
-    * 'en' noun 'acerca' 'de' topic    			-> Consult;
+    * 'en' noun 'acerca' 'de'/'del' topic    	-> Consult;
 #EndIf;
 
 Verb 'registra'
@@ -494,31 +494,31 @@ Verb 'desconecta' 'apaga'
 
 #Iftrue #version_number < 5;
 Verb 'cuenta' 'narra' 'explica' 'habla' 'contar' 'narrar' 'hablar'
-    * creature 'de' topic        				-> Tell
+    * creature 'de'/'del' topic        			-> Tell
     * creature 'sobre' topic        			-> Tell
     * creature topic                       		-> Tell
-    * 'a//' creature 'de'/'sobre' topic 		-> Tell
+    * 'a//' creature 'de'/'del'/'sobre' topic 	-> Tell
     * 'a//' creature  topic        				-> Tell
     * 'con' creature 'sobre' topic    			-> Tell
-    * 'con' creature 'de' topic        			-> Tell
-    * 'con' creature 'acerca' 'de' topic 		-> Tell
+    * 'con' creature 'de'/'del' topic        	-> Tell
+    * 'con' creature 'acerca' 'de'/'del' topic 	-> Tell
     * 'sobre' topic 'con' creature    			-> Tell reverse
-    * 'acerca' 'de' topic 'con' creature 		-> Tell reverse
-    * 'de' topic 'con'/'a//' creature    		-> Tell reverse
+    * 'acerca' 'de'/'del' topic 'con' creature 	-> Tell reverse
+    * 'de'/'del' topic 'con'/'a//' creature    	-> Tell reverse
     * topic 'a//' creature        				-> Tell reverse;
 #Ifnot;
 Verb 'cuenta' 'narra' 'explica' 'habla' 'contar'
-    * creature 'de' topic        				-> Tell
+    * creature 'de'/'del' topic        			-> Tell
     * creature 'sobre' topic        			-> Tell
     * creature topic                       		-> Tell
-    * 'a//' creature 'de'/'sobre' topic 		-> Tell
+    * 'a//' creature 'de'/'del'/'sobre' topic 	-> Tell
     * 'a//' creature  topic        				-> Tell
     * 'con' creature 'sobre' topic    			-> Tell
-    * 'con' creature 'de' topic        			-> Tell
-    * 'con' creature 'acerca' 'de' topic 		-> Tell
+    * 'con' creature 'de'/'del' topic        	-> Tell
+    * 'con' creature 'acerca' 'de'/'del' topic 	-> Tell
     * 'sobre' topic 'con' creature    			-> Tell reverse
-    * 'acerca' 'de' topic 'con' creature 		-> Tell reverse
-    * 'de' topic 'con'/'a//' creature    		-> Tell reverse
+    * 'acerca' 'de'/'del' topic 'con' creature 	-> Tell reverse
+    * 'de'/'del' topic 'con'/'a//' creature    	-> Tell reverse
     * topic 'a//' creature        				-> Tell reverse;
 #EndIf;
 
@@ -1188,23 +1188,23 @@ Verb 'consulta'
     * 'a//' creature 'sobre' topic    			-> Ask
     * 'sobre' topic 'a//' creature    			-> Ask reverse
     * noun 'sobre' topic                		-> Consult
-    * noun 'acerca' 'de' topic            		-> Consult
+    * noun 'acerca' 'de'/'del' topic            -> Consult
     * topic 'en' noun            				-> Consult reverse;
 
 #Iftrue #version_number < 5;
 Verb 'vacia' 'vaciar'
     * noun                               		-> Empty
-    * noun 'dentro' 'de' noun            		-> EmptyT
+    * noun 'dentro' 'de'/'del' noun            	-> EmptyT
     * noun 'en' noun                     		-> EmptyT
     * noun 'sobre' noun                  		-> EmptyT
-    * noun 'encima' 'de' noun            		-> EmptyT;
+    * noun 'encima' 'de'/'del' noun            	-> EmptyT;
 #Ifnot;
 Verb 'vacia'
     * noun                               		-> Empty
-    * noun 'dentro' 'de' noun            		-> EmptyT
+    * noun 'dentro' 'de'/'del' noun            	-> EmptyT
     * noun 'en' noun                     		-> EmptyT
     * noun 'sobre' noun                  		-> EmptyT
-    * noun 'encima' 'de' noun            		-> EmptyT;
+    * noun 'encima' 'de'/'del' noun            	-> EmptyT;
 #EndIf;
 
 #Iftrue #version_number < 5;
