@@ -1745,7 +1745,7 @@ Array guess_object-->5;
 		_next_word = _parse_pointer-->2;
 		_token = pattern_pointer -> 0;
 #IfDef DEBUG_PARSEPATTERN;
-		print "  TOKEN: ", _token;, " wn ", wn, " _parse_pointer ", _parse_pointer, "^";
+		print "  TOKEN: ", _token, " wn ", wn, " _parse_pointer ", _parse_pointer, "^";
 #EndIf;
 
 		scope_stage = 0;
@@ -2036,6 +2036,8 @@ Array guess_object-->5;
 	actor = player;
 	noun = 0; ! needed since _ParsePattern not always called
 	second = 0;
+	inp1 = 0;
+	inp2 = 0;
 	consult_from = 0;
 	consult_words = 0;
 	usual_grammar_after = 0;

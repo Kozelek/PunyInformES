@@ -1,6 +1,22 @@
 Próxima publicación:
 
 =======
+v2.8:
+Cambios específicos de la versión española:
+- Añade 'del' a toda preposición 'de' y 'al' a toda preposición 'a' en la gramática (gracias DareInt).
+- Corrige la función ItorThem y la asignación del pronombre -les al último objeto plural mencionado (los_obj).
+- Cambiado mensaje "Primero, deberías dejar" por "Primero, deberías salir de" al intentar moverte dentro de un contenedor.
+
+Cambios heredados de PunyInform v6.8:
+- Se ha adaptado el soporte de las rutinas de la línea de estado a z6.
+- Corregido: las rutinas IsAString, IsARoutine y RunRoutines carecían de soporte para el empaquetado oddeven (opción del compilador -B, actualmente compatible con todas las versiones de Z-code, pero útil solo para z6 y z7).
+- Se han añadido los colores de z6
+- Se han modificado los cálculos de anchura y altura en las extensiones de comillas y menús para z6
+- Se ha añadido lib/ext_z6graphics.h para el modelo básico de pantalla de z6 y la compatibilidad con gráficos.
+- Se ha añadido la inicialización de inp1/inp2 en _ParseAndPerformAction, para evitar que inp1 e inp2 hagan referencia a objetos del último comando al procesar un comando sin objetos, p. ej., "pedro, hola".
+- Se ha corregido un error en el código de depuración que impedía la compilación si se definía DEBUG_PARSEPATTERN.
+
+=======
 v2.7:
 Cambios específicos de la versión española:
 - Corregir error al escribir 'ir' a secas (gracias DareInt).

@@ -785,7 +785,7 @@ Constant SKIP_MSG_PARSER_NOSUCHTHING;
 #Ifndef SKIP_MSG_TAKE_PLAYER_PARENT;
 	MSG_TAKE_PLAYER_PARENT, MSG_GO_FIRST_LEAVE, MSG_EXIT_FIRST_LEAVE:
 	! p_arg_1 = the object the player has to leave to perform the action.
-		"Primero, deberías dejar ", (the) p_arg_1, ".";
+		"Primero, deberías salir ", (de) p_arg_1, ".";
 #Endif;
 #Iftrue MSG_OPEN_DEFAULT < 1000;
 	MSG_OPEN_DEFAULT:
