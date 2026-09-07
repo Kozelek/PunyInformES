@@ -309,7 +309,7 @@ Constant ONE_SPACE_STRING = " ";
 				_PrintSpacesOrMoveBack(3 + field_2_length, MOVES_SHORT__TX);
 			} else {
 				! Width is 33-52, print "Moves: 0"
-				_PrintSpacesOrMoveBack(7 + field_2_length, MOVES__TX);
+				_PrintSpacesOrMoveBack(8 + field_2_length, MOVES__TX);
 			}
 		}
 		print status_field_2;
@@ -333,7 +333,7 @@ Constant ONE_SPACE_STRING = " ";
 				_PrintSpacesOrMoveBack(3 + field_1_length, SCORE_SHORT__TX);
 			} else if(screen_width < 55) {
 				! Width is 32-54, print "Score: 0"
-				_PrintSpacesOrMoveBack(7 + field_1_length, SCORE__TX);
+				_PrintSpacesOrMoveBack(8 + field_1_length, SCORE__TX);
 			} else {
 				! Width is 55+, print "Score: 0" and leave some space at end
 				_PrintSpacesOrMoveBack(12, SCORE__TX);
