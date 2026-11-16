@@ -1,0 +1,205 @@
+!% -Cu
+!% -~S
+!% $OMIT_UNUSED_ROUTINES=1
+!% $ZCODE_LESS_DICT_DATA=1
+!% $LONG_DICT_FLAG_BUG=0
+!% $ZCODE_COMPACT_GLOBALS=1
+
+! z6_with_pictures.inf -- un pequeño juego de PunyInform con una pantalla z6
+! dividida en tres partes:
+!
+!   fila 1                ventana 1, la línea de estado habitual de PunyInform
+!   filas 2 .. 1+PICROWS  ventana 2, una ventana de imágenes
+!   el resto              ventana 0, el juego, con desplazamiento y almacenado
+!                         en búfer con indicaciones [MORE], exactamente como
+!                         de costumbre
+!
+! Sin blorb no hay imágenes, por lo que la ventana de imágenes dibuja un
+! marcador de posición en su lugar.
+!
+! Existen varias herramientas y scripts que se pueden utilizar para generar
+! archivos blorb. Ozmoo incluye tools/make_blorb.py, y su manual
+! describe cómo utilizarlo. Otra opción es el conjunto de herramientas blorb
+! escritas por L. Ross Raszewski. 
+
+Constant Story      "Demo de ventanas";
+Constant Headline   "^Un juego PunyInformES con una ventana de imagen z6.^";
+
+#Iffalse (#version_number == 6);
+Message fatalerror "z6_with_pictures.inf debe ser compilado con -v6";
+#Endif;
+
+Constant STATUSLINE_SCORE; Statusline score;
+Constant NO_SCORE = 0;
+Constant OPTIONAL_NO_ADD_TO_SCOPE;
+Constant OPTIONAL_NO_DARKNESS;
+
+Constant INITIAL_LOCATION_VALUE = Library;
+
+Include "globals.h";
+
+! ------------------------------------------------------------------
+! Diseño de la pantalla
+! ------------------------------------------------------------------
+
+Constant PICWIN            = 2;  ! el número de ventana z6 de la imagen
+Constant PICTURE_WINDOW_ROWS = 8;! cómo de alta queremos que sea, ein filas
+Constant MIN_TEXT_ROWS     = 6;  ! ...pero nunca dejes al juego menos que esto
+
+Property picture;                ! un número de imagen de localidad, si la hay
+
+Global picwin_top;               ! 1a fila de pantalla de la ventana de imagen
+Global picwin_rows;              ! su altura en filas, tras el apriete
+Global picwin_cols;              ! su anchura en columnas (toda la pantalla)
+Global shown_picture;            ! la imagen actualmente en la ventana
+
+Include "ext_z6graphics.h";
+
+[ SetUpWindows _rows;
+    _rows = HDR_SCREENHLINES->0;
+    if(_rows < 10) _rows = 25;               ! una suposición razonable de si
+                                             ! la cabecera miente
+    picwin_cols = HDR_SCREENWCHARS->0;
+    if(picwin_cols < 10) picwin_cols = 40;
+
+    picwin_rows = PICTURE_WINDOW_ROWS;
+    if(_rows - 1 - picwin_rows < MIN_TEXT_ROWS)
+        picwin_rows = _rows - 1 - MIN_TEXT_ROWS;
+    if(picwin_rows < 1) picwin_rows = 1;
+    picwin_top = 2;                          ! justo bajo la línea de estado
+
+    ! Ventana 1, la línea de estado. PunyInform la crea por sí mismo con
+    ! @split_window la primera vez que dibuja la línea de estado, pero en v6
+    ! split_window también restablece la ventana 0 a "todo lo que está por
+    ! debajo de la ventana 1", lo que desharía el diseño. Así que realiza aquí
+    ! la división, una sola vez, e indica a la biblioteca la altura que ya
+    ! tiene: _StatusLineHeight(), y luego no vuelve a dividirse. (El recuento
+    ! se realiza en unidades en la v6, de ahí la altura de la fuente;
+    ! PunyInform realiza la misma multiplicación.)
+    @split_window Z6RowToY(statusline_height);
+    statusline_current_height = statusline_height;
+
+    ! Ventana 2, la ventana de imagen: sin ajuste de línea, sin desplazamiento,
+    ! sin almacenamiento en búfer. Nada de lo que haya aquí debería desplazarse
+    ! ni mostrar un [MÁS].
+    Z6FormatWindow(PICWIN, 0, Z6_WSTYLE_SET);
+    Z6ShowWindow_Chars(PICWIN, 1, picwin_top, picwin_cols, picwin_rows);
+
+    ! Ventana 0, el juego. Colócala debajo de la ventana de imagen y redúcela
+    ! hasta  ocupar el resto de la pantalla; conserva sus atributos
+    ! predeterminados (ajuste de línea,  desplazamiento, transcripción y
+    ! almacenamiento en búfer, z-spec 8.8.3.3), por lo que el ajuste de línea
+    ! y el indicador [MORE] funcionan en ella exactamente igual que en
+    ! cualquier otro juego.
+    Z6ShowWindow_Chars(0, 1, picwin_top + picwin_rows,
+        picwin_cols, HDR_SCREENHLINES->0 - picwin_top - picwin_rows + 1);
+    Z6SetWindow(0);
+];
+
+[ RoomPicture p_room;
+    if(p_room && p_room provides picture) return p_room.picture;
+    rfalse;
+];
+
+! Coloca una imagen en la ventana de visualización, centrada, o un placeholder
+! si este intérprete no dispone de dicha imagen (no hay blorb o se trata de
+! una versión solo de texto).
+[ ShowPicture p_picture _w _h _x _y;
+    shown_picture = p_picture;
+    Z6SetWindow(PICWIN);
+    Z6EraseWindow(PICWIN);
+    if(p_picture && Z6PictureExists(p_picture)) {
+        _w = Z6PictureCols_Chars(p_picture);
+        _h = Z6PictureRows_Chars(p_picture);
+        _x = 1 + (picwin_cols - _w) / 2;
+        _y = 1 + (picwin_rows - _h) / 2;
+        if(_x < 1) _x = 1;
+        if(_y < 1) _y = 1;
+        Z6MoveCursor_Chars(_x, _y);
+        Z6DrawPictureHere(p_picture);
+    } else {
+        _y = 1 + picwin_rows / 2;
+        Z6MoveCursor_Chars(3, _y);
+        if(p_picture) print "[ sin imagen ", p_picture,
+                            " en esta compilación ]";
+        else print "[ esta localidad no tiene imagen ]";
+    }
+    ! De vuelta a la ventana del juego. Esto también vacía todo lo que queda en
+    ! el buffer.
+    Z6SetWindow(0);
+];
+
+! ------------------------------------------------------------------
+! Puntos de entrada (deben definirse antes de incluir puny.h)
+! ------------------------------------------------------------------
+
+[ Initialise;
+    SetUpWindows();
+    print "^Estás probando una pantalla z6 de tres ventanas.^^";
+    print "Intenta: MIRAR, NORTE, SUR, IMAGEN 3, BALBUCEA.^";
+];
+
+[ NewRoom;
+    ShowPicture(RoomPicture(location));
+];
+
+Include "puny.h";
+
+! ------------------------------------------------------------------
+! The game
+! ------------------------------------------------------------------
+
+Object Library "La biblioteca"
+    with description
+            "Estanterías con manuales sin leer llenan las paredes. Una puerta \
+             al norte conduce al jardín.",
+        picture 1,
+        n_to Garden;
+
+Object -> Box "caja de madera"
+    with name 'caja' 'de' 'madera',
+        inside_description "Se siente tan bien, de pie en la caja.",
+    has container open openable enterable female;
+
+Object -> Manual "grueso manual"
+    with name 'grueso' 'manual' 'libro',
+        description "Es el Z-Machine Standards Document, versión 1.1.";
+
+Object Garden "El jardín"
+    with description
+            "Un pequeño jardín vallado, agradablemente lujurioso. Al sur se \
+             regresa a la biblioteca.",
+        picture 2,
+        s_to Library;
+
+Object -> Rose "rosa roja"
+    with name 'rosa' 'roja' 'flor',
+        description "Una rosa, intensamente roja.",
+    has female;
+
+! ------------------------------------------------------------------
+! Dos verbos de testeo
+! ------------------------------------------------------------------
+
+! IMAGEN <n> -- introduce cualquier número de imagen en la ventana para probar
+! un blorb.
+[ PictureSub;
+    ShowPicture(noun);
+    print "Imagen ", noun, " solicitada.^";
+];
+
+! BALBUCEA: imprime suficientes líneas para desplazar la ventana del juego y
+! que aparezca el mensaje [MORE], que es el motivo por el que se mantiene la
+! ventana 0 en el búfer.
+[ BabbleSub _i;
+    for(_i = 1: _i <= 60: _i++) {
+        print "Línea ", _i, " de sesenta, suficientemente larga para mostrar
+               que esta ventana salta bien de línea en el margen derecho.^";
+    }
+];
+
+Verb 'imagen' 'img'
+    * number                        -> Picture;
+
+Verb 'balbucea' 'babble'
+    *                               -> Babble;

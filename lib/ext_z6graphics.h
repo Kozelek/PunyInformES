@@ -160,6 +160,10 @@ Array z6_current_cursor --> 2; ! actualizado por @get_cursor
     return Z6XToCol(Z6CursorCol_Units() - 1) + 1;
 ];
 
+[ Z6MoveCursor_Units p_x p_y;
+    @set_cursor p_y p_x;
+];
+
 [ Z6MoveCursor_Chars p_col p_row _x _y;
     _x = Z6ColToX(p_col - 1) + 1;
     _y = Z6RowToY(p_row - 1) + 1;
@@ -226,6 +230,14 @@ Array z6_picture_info --> 2; ! actualizado por @picture_data
     _w = (_unitwidth + _fontwidth - 1) / _fontwidth;
     if(_w < 1) _w = 1;
     return _w;
+];
+
+! Dibuja una imagen con la esquina superior izquierda en (p_x, p_y), en
+! unidades relativas a la ventana actual, basadas en 1. Usa esto en lugar de
+! Z6MoveCursor_Units y Z6DrawPictureHere para insertar una imagen entre
+! líneas de texto
+[ Z6DrawPicture_Units p_picture p_x p_y;
+    @draw_picture p_picture p_y p_x;
 ];
 
 [ Z6DrawPictureHere p_picture _x _y;

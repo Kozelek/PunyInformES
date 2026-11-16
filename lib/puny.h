@@ -119,7 +119,7 @@ Array cursor_pos --> 2;
     @get_wind_prop 1 13 -> charw;
     charw = charw & $FF;
     if (charw == 0) return width;
-    return (width+charw-1) / charw;
+    return width / charw;
 ];
 #Ifnot;
 [ ScreenWidth;
@@ -1270,11 +1270,15 @@ Constant _SpaceTableLength 20;
 [ MoveFloatingObjects _i _j _o _len _obj _self;
 	_i--;
 !	while((_obj = floating_objects-->_i) ~= 0) {
+	jump _next_floating;
+._isnt_present;
+		remove _obj;
 ._next_floating;
 		_i++;
 		_obj = floating_objects-->_i;
-		if(_obj == 0)
-			jump _done_floating;
+!		if(_obj == 0)
+!			jump _done_floating;
+		@jz _obj ?_done_floating;
 		if(parent(_obj) ~= 0 && IndirectlyContains(player, _obj))
 			jump _next_floating;
 		if(_obj has absent)
@@ -1297,22 +1301,20 @@ Constant _SpaceTableLength 20;
 #Ifnot;
 		_len = _len / 2;
 #Endif;
-		_len = _len - 1;
+		_len--;
 ._check_next_value;
 			_o = _j-->_len;
 			if(_o in Class) {
 				if(location ofclass _o)
 					jump _is_present;
-			} else if(_o == location || _o in location)
-				jump _is_present;
-		@dec_chk _len 0 ?~_check_next_value;
-._isnt_present;
-		remove _obj;
-		jump _next_floating;
+			} else if(_o == location || _o in location) {
 ._is_present;
-		if(_obj notin location)
-			move _obj to location;
-		jump _next_floating;
+				if(_obj notin location)
+					move _obj to location;
+				jump _next_floating;
+			}
+			@dec_chk _len 0 ?~_check_next_value;
+		jump _isnt_present;
 !._continue_loop;
 !		_i++;
 !	}
@@ -2814,10 +2816,6 @@ Object thedark "Oscuridad"
 
 #Ifndef NO_SCORE;
 		_score = score;
-#Endif;
-#Ifdef DEBUG_TIMER;
-	timer1 = 0-->2 - timer1;
-	print "[Before ReadPlayerInput: ",timer1," jf]^";
 #Endif;
 		if(parse->1 == 0) {
 			_ReadPlayerInput();

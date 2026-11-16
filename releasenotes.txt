@@ -1,6 +1,26 @@
 Próxima publicación:
 
 =======
+v2.9:
+Cambios específicos de la versión española:
+- Corrige el posicionamiento de los literales "Turnos" y "Puntos" en pantallas como la del Commodore 64.
+
+Cambios heredados de PunyInform v6.9:
+- Corregido un error de desambiguación que se producía al introducir un nuevo comando en lugar de un sintagma nominal.
+- Corregido un error en el código de depuración que impedía la compilación si se definía DEBUG_PARSEPATTERN.
+- Añadido el archivo howto/z6_with_pictures.inf, que muestra cómo configurar una partida con una línea de estado, una ventana de imágenes
+  y una ventana de texto normal.
+- Añadida la función Z6MoveCursor_Units, que faltaba en ext_z6graphics.h
+- Corregido un error de desplazamiento en ScreenWidth de la línea de estado de z6.
+- Modificado ext_menu para que también acepte la tecla de espacio como forma de seleccionar una entrada del menú.
+- Añadido Z6DrawPicture_Units en ext_z6graphics.h
+- Añadido el punto de entrada HandleFunctionKey para permitir la detección de F2, etc., durante la entrada de datos.
+- Corregido un error que provocaba que la compilación fallara en modo de depuración si se definía OPTIONAL_NO_ADD_TO_SCOPE.
+- Optimizada la rutina _ObjInMultipleObjects para z3, en parser.h.
+- Optimización menor en la rutina _AddMultipleNouns de parser.h.
+- Optimizaciones menores en la rutina MoveFloatingObjects de puny.h.
+
+=======
 v2.8:
 Cambios específicos de la versión española:
 - Añade 'del' a toda preposición 'de' y 'al' a toda preposición 'a' en la gramática (gracias DareInt).

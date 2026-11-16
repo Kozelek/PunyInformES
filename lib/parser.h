@@ -216,6 +216,15 @@ System_file;
 		@set_colour clr_fginput clr_bg;
 	}
 	@aread buffer parse -> _result;
+#Ifdef HandleFunctionKey;
+	! library entry routine: a key from the game's terminating characters
+	! table (see "Zcharacter terminating" in the DM4) ended the input instead
+	! of Enter. If the routine returns true it has dealt with the key, and the
+	! player goes on editing the same line: the text typed so far is still in
+	! the buffer, with its length in buffer->1, so @aread picks it up again.
+	while(_result ~= 10 or 13 && HandleFunctionKey(_result))
+		@aread buffer parse -> _result;
+#Endif;
 #Ifnot;
 	! z4
 	@sread buffer parse;
@@ -1108,7 +1117,11 @@ Constant _PARSENP_CHOOSEOBJ_WEIGHT = 1000;
 	return _ParseToken(p_token_type, p_token_data, -1);
 ];
 
+#Iftrue #version_number > 3;
 [_ObjInMultipleObjects p_obj p_special_count p_count _i;
+#Ifnot;
+[_ObjInMultipleObjects p_obj p_special_count p_count _i _j;
+#Endif;
 ! Call with p_special_count = true if p_count holds the count
 ! Otherwise, count is in multiple_objects-->0
 	if(p_special_count == 0)
@@ -1119,11 +1132,17 @@ Constant _PARSENP_CHOOSEOBJ_WEIGHT = 1000;
 !	@scan_table p_obj sp sp -> _i ?rtrue;
 	@scan_table p_obj sp p_count -> _i ?rtrue;
 #Ifnot;
-	for(_i = 1: _i <= p_count: _i++) {
-		if(multiple_objects --> _i == p_obj) {
-			rtrue;
-		}
-	}
+!	for(_i = 1: _i <= p_count: _i++) {
+!		if(multiple_objects --> _i == p_obj) {
+!			rtrue;
+!		}
+!	}
+	@jz p_count ?rfalse;
+	_i = 1;
+._next_obj;
+	_j = multiple_objects --> _i;
+	@je _j p_obj ?rtrue;
+	@inc_chk _i p_count ?~_next_obj;
 #Endif;
 	rfalse;
 ];
@@ -1503,9 +1522,13 @@ Constant _PARSENP_CHOOSEOBJ_WEIGHT = 1000;
 	}
 ];
 
-[ _AddMultipleNouns p_multiple_objects_type   _i _j _addobj _obj _p _ceil;
+[ _AddMultipleNouns p_multiple_objects_type   _i _j _k _addobj _obj _p _ceil;
 	multiple_objects --> 0 = 0;
-	for(_i = 0: _i < scope_objects: _i++) {
+!	for(_i = 0: _i < scope_objects: _i++) {
+	@jz scope_objects ?rtrue;
+	_i = 0;
+	_k = scope_objects - 1;
+._next_obj;
 		_obj = scope-->_i;
 		_addobj = false;
 		switch(p_multiple_objects_type) {
@@ -1552,7 +1575,8 @@ Constant _PARSENP_CHOOSEOBJ_WEIGHT = 1000;
 			multiple_objects --> _j = _obj;
 			!print "Adding ", (name) _obj, "^";
 		}
-	}
+		@inc_chk _i _k ?~_next_obj;
+!	}
 ];
 
 [ _PrintPartialMatch p_start p_stop _start _stop _i;
@@ -2322,6 +2346,11 @@ Array guess_object-->5;
 			! call again to generate suitable error message
 			second = _best_second;
 			_score = _ParsePattern(_best_pattern);
+			if(_score == -1) {
+				! we should reparse when getting a new command
+				! instead of NP when prompted for a disambiguation
+				jump _perform_reparse;
+			}
 		} else {
 			! parser_unknown_noun_found is set when we tried to parse
 			! a noun but we found a word that didn't match
